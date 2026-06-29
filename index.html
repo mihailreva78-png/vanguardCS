@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VANGUARD</title>
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--tg-theme-bg-color, #1e1e1e);
+      color: var(--tg-theme-text-color, #fff);
+      padding: 16px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--tg-theme-button-color, #ff6b35);
+    }
+    .balance {
+      background: var(--tg-theme-secondary-bg-color, #2c2c2c);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 8px 16px;
+      background: var(--tg-theme-secondary-bg-color, #2c2c2c);
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-weight: 500;
+      transition: background 0.2s;
+      border: none;
+      color: var(--tg-theme-text-color, #fff);
+      font-size: 14px;
+    }
+    .tab.active {
+      background: var(--tg-theme-button-color, #ff6b35);
+      color: var(--tg-theme-button-text-color, #fff);
+    }
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+
+    /* Cases */
+    .cases-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .case-card {
+      background: var(--tg-theme-secondary-bg-color, #2c2c2c);
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .case-card:active { transform: scale(0.95); }
+    .case-icon { font-size: 48px; margin-bottom: 8px; }
+    .case-name { font-weight: 600; margin-bottom: 4px; }
+    .case-price { color: var(--tg-theme-hint-color, #aaa); font-size: 14px; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+    }
+    .modal {
+      background: var(--tg-theme-bg-color, #1e1e1e);
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+    }
+    .spinner {
+      font-size: 64px;
+      animation: spin 1s linear infinite;
+      margin: 20px 0;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    /* Skin prices */
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .price-table th, .price-table td {
+      padding: 10px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--tg-theme-hint-color, #444);
+    }
+    .price-up { color: #4caf50; }
+    .price-down { color: #f44336; }
+
+    /* Teams */
+    .team-list, .match-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .team-card, .match-card {
+      background: var(--tg-theme-secondary-bg-color, #2c2c2c);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn {
+      background: var(--tg-theme-button-color, #ff6b35);
+      color: var(--tg-theme-button-text-color, #fff);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .input {
+      background: var(--tg-theme-secondary-bg-color, #2c2c2c);
+      border: none;
+      border-radius: 12px;
+      padding: 10px;
+      color: var(--tg-theme-text-color, #fff);
+      width: 100%;
+      margin: 8px 0;
+    }
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    input[type="range"] {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">VANGUARD</div>
+    <div class="balance" id="balanceDisplay">💰 1000</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-section="cases">Кейсы</button>
+    <button class="tab" data-section="prices">Скины</button>
+    <button class="tab" data-section="teams">Команды</button>
+    <button class="tab" data-section="matches">Матчи</button>
+  </div>
+
+  <!-- Раздел: Кейсы -->
+  <div id="section-cases" class="section active">
+    <div class="cases-grid" id="casesContainer"></div>
+    <div id="caseModal" class="modal-overlay" style="display: none;">
+      <div class="modal">
+        <div class="spinner" id="caseSpinner">🎁</div>
+        <div id="caseResult"></div>
+        <button class="btn" id="closeCaseBtn" style="margin-top: 12px;">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Раздел: Цены на скины -->
+  <div id="section-prices" class="section">
+    <h3>Цены в реальном времени</h3>
+    <table class="price-table">
+      <thead><tr><th>Скин</th><th>Качество</th><th>Цена</th></tr></thead>
+      <tbody id="pricesBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Раздел: Команды -->
+  <div id="section-teams" class="section">
+    <h3>Мои команды</h3>
+    <div class="team-list" id="teamList"></div>
+    <button class="btn" id="createTeamBtn" style="margin-top: 12px;">+ Создать команду</button>
+    <div id="createTeamForm" style="display:none; margin-top: 12px;">
+      <input class="input" id="teamNameInput" placeholder="Название команды">
+      <button class="btn" id="saveTeamBtn">Сохранить</button>
+    </div>
+  </div>
+
+  <!-- Раздел: Матчи -->
+  <div id="section-matches" class="section">
+    <h3>Создать матч</h3>
+    <div class="slider-container">
+      <span>Игроков: <strong id="playersCountLabel">3</strong></span>
+      <input type="range" id="playersSlider" min="1" max="5" value="3">
+    </div>
+    <input class="input" id="betAmountInput" type="number" placeholder="Ставка с игрока (₽)">
+    <button class="btn" id="createMatchBtn">Создать матч</button>
+    <h3 style="margin-top: 20px;">Активные матчи</h3>
+    <div class="match-list" id="matchList"></div>
+
+    <!-- Детали матча (модальное окно) -->
+    <div id="matchDetailsModal" class="modal-overlay" style="display: none;">
+      <div class="modal">
+        <h3 id="matchDetailsTitle"></h3>
+        <p id="matchDetailsInfo"></p>
+        <button class="btn" id="sendVideoBtn">📹 Отправить видео @VGNprod</button>
+        <button class="btn" id="closeMatchDetailsBtn" style="margin-top:8px; background:#555;">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Инициализация Telegram Web App
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.ready();
+
+    // Симулируемый баланс пользователя
+    let balance = 1000;
+    const balanceEl = document.getElementById('balanceDisplay');
+
+    // Данные (имитация хранилища)
+    const cases = [
+      { name: 'Revolution Case', icon: '🔫', price: 150 },
+      { name: 'Dreams & Nightmares', icon: '🌙', price: 200 },
+      { name: 'Recoil Case', icon: '💥', price: 120 },
+      { name: 'Fracture Case', icon: '🧩', price: 180 }
+    ];
+
+    let teams = [
+      { name: 'Vortex', members: 3 },
+      { name: 'Shadow', members: 5 }
+    ];
+
+    let matches = [];
+    let selectedMatch = null;
+
+    // Обновление баланса
+    function updateBalance(amount) {
+      balance += amount;
+      balanceEl.textContent = `💰 ${balance}`;
+    }
+
+    // Навигация по разделам
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const sectionId = 'section-' + tab.dataset.section;
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+      });
+    });
+
+    // ========== КЕЙСЫ ==========
+    const casesContainer = document.getElementById('casesContainer');
+    cases.forEach((c, index) => {
+      const card = document.createElement('div');
+      card.className = 'case-card';
+      card.innerHTML = `<div class="case-icon">${c.icon}</div><div class="case-name">${c.name}</div><div class="case-price">${c.price} монет</div>`;
+      card.addEventListener('click', () => openCase(index));
+      casesContainer.appendChild(card);
+    });
+
+    function openCase(index) {
+      if (balance < cases[index].price) {
+        tg.showAlert('Недостаточно средств!');
+        return;
+      }
+      updateBalance(-cases[index].price);
+      const modal = document.getElementById('caseModal');
+      const spinner = document.getElementById('caseSpinner');
+      const resultDiv = document.getElementById('caseResult');
+      modal.style.display = 'flex';
+      resultDiv.textContent = '';
+      spinner.style.display = 'block';
+
+      // Имитация открытия через 2 секунды
+      setTimeout(() => {
+        const skins = ['AK-47 | Redline', 'M4A1-S | Printstream', 'AWP | Dragon Lore', 'Desert Eagle | Blaze', 'Glock-18 | Fade'];
+        const won = skins[Math.floor(Math.random() * skins.length)];
+        spinner.style.display = 'none';
+        resultDiv.innerHTML = `<div style="font-size:24px;margin:12px 0;">🎉 ${won}</div><p>Вы выиграли этот скин!</p>`;
+      }, 2000);
+    }
+
+    document.getElementById('closeCaseBtn').addEventListener('click', () => {
+      document.getElementById('caseModal').style.display = 'none';
+    });
+
+    // ========== ЦЕНЫ НА СКИНЫ ==========
+    const pricesBody = document.getElementById('pricesBody');
+    let skins = [
+      { name: 'AK-47 | Redline', condition: 'Field-Tested', price: 3500 },
+      { name: 'M4A1-S | Printstream', condition: 'Minimal Wear', price: 12000 },
+      { name: 'AWP | Asiimov', condition: 'Field-Tested', price: 8900 },
+      { name: 'USP-S | Cortex', condition: 'Factory New', price: 2200 }
+    ];
+
+    function renderPrices() {
+      pricesBody.innerHTML = skins.map(s => {
+        const change = (Math.random() * 200 - 100).toFixed(0);
+        const sign = change >= 0 ? '+' : '';
+        const colorClass = change >= 0 ? 'price-up' : 'price-down';
+        const newPrice = (s.price + parseInt(change)).toFixed(0);
+        return `<tr>
+          <td>${s.name}</td>
+          <td>${s.condition}</td>
+          <td class="${colorClass}">₽ ${newPrice} <small>(${sign}${change})</small></td>
+        </tr>`;
+      }).join('');
+    }
+    renderPrices();
+    setInterval(renderPrices, 5000); // обновление каждые 5 сек
+
+    // ========== КОМАНДЫ ==========
+    const teamList = document.getElementById('teamList');
+    const createTeamForm = document.getElementById('createTeamForm');
+    const teamNameInput = document.getElementById('teamNameInput');
+
+    function renderTeams() {
+      teamList.innerHTML = teams.map(t => `
+        <div class="team-card">
+          <div><strong>${t.name}</strong> (${t.members} игроков)</div>
+          <button class="btn" onclick="alert('Приглашение отправлено (симуляция)')">Войти</button>
+        </div>
+      `).join('');
+    }
+    renderTeams();
+
+    document.getElementById('createTeamBtn').addEventListener('click', () => {
+      createTeamForm.style.display = 'block';
+    });
+
+    document.getElementById('saveTeamBtn').addEventListener('click', () => {
+      const name = teamNameInput.value.trim();
+      if (!name) return;
+      teams.push({ name, members: 1 });
+      teamNameInput.value = '';
+      createTeamForm.style.display = 'none';
+      renderTeams();
+      tg.showAlert('Команда создана!');
+    });
+
+    // ========== МАТЧИ ==========
+    const playersSlider = document.getElementById('playersSlider');
+    const playersCountLabel = document.getElementById('playersCountLabel');
+    const betAmountInput = document.getElementById('betAmountInput');
+    const matchList = document.getElementById('matchList');
+    const matchDetailsModal = document.getElementById('matchDetailsModal');
+
+    playersSlider.addEventListener('input', () => {
+      playersCountLabel.textContent = playersSlider.value;
+    });
+
+    function renderMatches() {
+      matchList.innerHTML = matches.map((m, i) => `
+        <div class="match-card">
+          <div>ID: ${m.id} | ${m.players}/${m.maxPlayers} игроков | Ставка: ₽${m.bet}</div>
+          <button class="btn match-detail-btn" data-index="${i}">Детали</button>
+        </div>
+      `).join('');
+      // Навешиваем обработчики
+      document.querySelectorAll('.match-detail-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = e.target.dataset.index;
+          showMatchDetails(idx);
+        });
+      });
+    }
+
+    document.getElementById('createMatchBtn').addEventListener('click', () => {
+      const maxPlayers = parseInt(playersSlider.value);
+      const bet = parseInt(betAmountInput.value);
+      if (!bet || bet <= 0) {
+        tg.showAlert('Укажите корректную ставку');
+        return;
+      }
+      if (balance < bet) {
+        tg.showAlert('Недостаточно средств для ставки');
+        return;
+      }
+      // Каждый платит за себя – списываем ставку с текущего игрока
+      updateBalance(-bet);
+      const match = {
+        id: Math.floor(Math.random() * 10000),
+        maxPlayers,
+        players: 1, // текущий игрок
+        bet,
+        participants: [tg.initDataUnsafe?.user?.first_name || 'Вы']
+      };
+      matches.push(match);
+      renderMatches();
+      tg.showAlert(`Матч #${match.id} создан! Ожидайте соперников.`);
+    });
+
+    function showMatchDetails(index) {
+      const match = matches[index];
+      if (!match) return;
+      selectedMatch = index;
+      document.getElementById('matchDetailsTitle').textContent = `Матч #${match.id}`;
+      document.getElementById('matchDetailsInfo').innerHTML = `
+        Участников: ${match.players}/${match.maxPlayers}<br>
+        Ставка: ₽${match.bet} с каждого<br>
+        Призовой фонд: ₽${match.bet * match.maxPlayers} (при полной лобби)
+      `;
+      matchDetailsModal.style.display = 'flex';
+    }
+
+    document.getElementById('closeMatchDetailsBtn').addEventListener('click', () => {
+      matchDetailsModal.style.display = 'none';
+    });
+
+    document.getElementById('sendVideoBtn').addEventListener('click', () => {
+      // Открыть чат с @VGNprod, куда пользователь пришлёт видео
+      window.open('https://t.me/VGNprod', '_blank');
+    });
+
+    // Закрытие модального окна матча при клике вне
+    matchDetailsModal.addEventListener('click', (e) => {
+      if (e.target === matchDetailsModal) matchDetailsModal.style.display = 'none';
+    });
+
+    // Установка темы из Telegram
+    document.documentElement.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color || '#1e1e1e');
+    document.documentElement.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color || '#fff');
+    document.documentElement.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color || '#ff6b35');
+    document.documentElement.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color || '#fff');
+    document.documentElement.style.setProperty('--tg-theme-secondary-bg-color', tg.themeParams.secondary_bg_color || '#2c2c2c');
+    document.documentElement.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color || '#aaa');
+  </script>
+</body>
+</html>
