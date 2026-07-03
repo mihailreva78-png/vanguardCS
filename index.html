@@ -271,7 +271,6 @@
 
   <!-- Кейсы -->
   <div id="section-cases" class="section active">
-    <!-- Убрали слайдер количества, оставили заголовок -->
     <div class="glass-panel" style="margin-bottom: 12px;">
       <h3>Открыть кейс</h3>
       <p style="font-size:12px; color: rgba(255,255,255,0.5);">Нажмите на кейс, чтобы открыть один экземпляр</p>
@@ -286,7 +285,7 @@
     </div>
   </div>
 
-  <!-- Остальные разделы точно как в предыдущей версии, без изменений -->
+  <!-- Цены на скины -->
   <div id="section-prices" class="section">
     <div class="glass-panel">
       <table class="price-table" style="width:100%; border-collapse:collapse;">
@@ -296,6 +295,7 @@
     </div>
   </div>
 
+  <!-- Команды -->
   <div id="section-teams" class="section">
     <div class="glass-panel">
       <h3>Мои команды</h3>
@@ -308,6 +308,7 @@
     </div>
   </div>
 
+  <!-- Матчи -->
   <div id="section-matches" class="section">
     <div class="glass-panel">
       <h3>Создать матч</h3>
@@ -324,6 +325,7 @@
     </div>
   </div>
 
+  <!-- Промокоды -->
   <div id="section-promo" class="section">
     <div class="glass-panel">
       <h3>Активация промокода</h3>
@@ -336,6 +338,7 @@
     </div>
   </div>
 
+  <!-- Профиль -->
   <div id="section-profile" class="section">
     <div class="glass-panel">
       <h3>Профиль</h3>
@@ -361,7 +364,7 @@
     </div>
   </div>
 
-  <!-- Пополнение -->
+  <!-- Пополнение (модальное) -->
   <div id="topupModal" class="modal-overlay" style="display: none;">
     <div class="modal">
       <h3>Пополнение</h3>
@@ -427,11 +430,11 @@
     }
     let inventory = load('inventory', []);
 
-    // ---------- КЕЙСЫ С ИЗОБРАЖЕНИЯМИ ----------
+    // ---------- КЕЙСЫ (с вашими изображениями) ----------
     const cases = [
       {
         name: 'Dust II',
-        image: 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/dust2.png',
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/dust2.png?raw=true',
         price: 29,
         items: [
           { name: 'AK-47 | Redline', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxczJemkV092lnYmGmOHLPr7Vn35c18lwmO7Eu92s2wCwrhVrYW_7ItKccARqaAvX-1O2yOvr1MW0vMjPnXM3pyQj5S7byBCygU0YbuA', price: 350 },
@@ -440,7 +443,7 @@
       },
       {
         name: 'Mirage',
-        image: 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/mirage.png',
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/mirage.png?raw=true',
         price: 59,
         items: [
           { name: 'AWP | Duality', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FBRw7PLfYQJS9dCokZOFnPSkarnAwG9U6MBOhuDG_Zi7jQO3-UI4am30cY_DelNsZAvW-FS5yei4jZO9uZ_JzWwj5Hc', price: 1200 },
@@ -449,7 +452,7 @@
       },
       {
         name: 'Overpass',
-        image: 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/overpass.png',
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/overpass.png?raw=true',
         price: 129,
         items: [
           { name: 'USP-S | Dream', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m0FFNhws_GazsS59C5m5GP2vH3NqnJhm5D-cBOhuDG_Zi7jAO3r0dqa3b0d4WRJ1U3aQvTrFm8wOrphJW_vc6aznBruHch', price: 450 },
@@ -481,7 +484,7 @@
       });
     });
 
-    // ========== Кейсы (рендер с картинками) ==========
+    // ========== Кейсы ==========
     const casesContainer = document.getElementById('casesContainer');
     function renderCases() {
       casesContainer.innerHTML = cases.map((c, idx) => `
@@ -538,7 +541,7 @@
       document.getElementById('caseModal').style.display = 'none';
     });
 
-    // Цены (без изменений)
+    // ========== Цены на скины ==========
     const pricesBody = document.getElementById('pricesBody');
     const skinsMarket = [
       { name: 'AK-47 | Redline', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxczJemkV092lnYmGmOHLPr7Vn35c18lwmO7Eu92s2wCwrhVrYW_7ItKccARqaAvX-1O2yOvr1MW0vMjPnXM3pyQj5S7byBCygU0YbuA', price: 3500 },
@@ -560,11 +563,238 @@
     renderPrices();
     setInterval(renderPrices, 5000);
 
-    // Команды, матчи, промокоды, профиль, пополнение – всё идентично предыдущей версии, но без дублирования
-    // (копируем функции из предыдущего кода, вставляем сюда)
-    // ... (для краткости я опущу повторяющийся код, он полностью из последнего рабочего варианта)
-    // Однако, чтобы ответ был полным, я включу весь скрипт. В реальном ответе нужно будет вставить.
-    // Ниже продолжение скрипта.
+    // ========== Команды ==========
+    const teamList = document.getElementById('teamList');
+    function renderTeams() {
+      teamList.innerHTML = teams.map(t => `
+        <div class="team-card">
+          <div><strong>${t.name}</strong> (${t.members} игроков)</div>
+          <button class="btn" onclick="tg.showAlert('Приглашение отправлено (симуляция)')">Войти</button>
+        </div>
+      `).join('');
+    }
+    renderTeams();
+    document.getElementById('createTeamBtn').addEventListener('click', () => {
+      document.getElementById('createTeamForm').style.display = 'block';
+    });
+    document.getElementById('saveTeamBtn').addEventListener('click', () => {
+      const name = document.getElementById('teamNameInput').value.trim();
+      if (!name) return;
+      teams.push({ name, members: 1 });
+      save('teams', teams);
+      document.getElementById('teamNameInput').value = '';
+      document.getElementById('createTeamForm').style.display = 'none';
+      renderTeams();
+      tg.showAlert('Команда создана!');
+    });
+
+    // ========== Матчи ==========
+    const playersSlider = document.getElementById('playersSlider');
+    const playersCountLabel = document.getElementById('playersCountLabel');
+    const matchList = document.getElementById('matchList');
+    playersSlider.addEventListener('input', () => playersCountLabel.textContent = playersSlider.value);
+
+    function renderMatches() {
+      const allMatches = [...myMatches, ...globalMatches];
+      matchList.innerHTML = allMatches.map((m, i) => `
+        <div class="match-card">
+          <div>ID: ${m.id} | ${m.players}/${m.maxPlayers} | ₽${m.bet} ${m.status==='finished'?'✅':''}</div>
+          <button class="btn match-detail-btn" data-index="${i}" data-source="${i < myMatches.length ? 'my' : 'global'}">Детали</button>
+        </div>
+      `).join('');
+      document.querySelectorAll('.match-detail-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const source = e.target.dataset.source;
+          const index = parseInt(e.target.dataset.index);
+          if (source === 'my') showMatchDetails(index);
+          else tg.showAlert('Это демо-матч. Для реальной игры нужен сервер.');
+        });
+      });
+    }
+
+    document.getElementById('createMatchBtn').addEventListener('click', () => {
+      const max = parseInt(playersSlider.value);
+      const bet = parseInt(document.getElementById('betAmountInput').value);
+      if (!bet || bet <= 0) { tg.showAlert('Введите корректную ставку'); return; }
+      if (balance < bet) { tg.showAlert('Недостаточно средств'); return; }
+      changeBalance(-bet);
+      const match = { id: Date.now() % 100000, maxPlayers: max, players: 1, bet, status: 'active' };
+      myMatches.push(match);
+      save('matches', myMatches);
+      renderMatches();
+      tg.showAlert('Матч создан!');
+    });
+
+    let selectedMatchIndex = null;
+    function showMatchDetails(index) {
+      const match = myMatches[index];
+      if (!match) return;
+      selectedMatchIndex = index;
+      document.getElementById('matchDetailsTitle').textContent = `Матч #${match.id}`;
+      document.getElementById('matchDetailsInfo').innerHTML = `
+        Статус: ${match.status}<br>
+        Участников: ${match.players}/${match.maxPlayers}<br>
+        Ставка: ₽${match.bet}
+      `;
+      document.getElementById('matchActions').style.display = match.status === 'active' ? 'block' : 'none';
+      document.getElementById('sendVideoBtn').style.display = match.status === 'finished' ? 'block' : 'none';
+      document.getElementById('matchDetailsModal').style.display = 'flex';
+    }
+
+    document.getElementById('finishMatchBtn').addEventListener('click', () => {
+      if (selectedMatchIndex === null) return;
+      myMatches[selectedMatchIndex].status = 'finished';
+      save('matches', myMatches);
+      renderMatches();
+      showMatchDetails(selectedMatchIndex);
+    });
+    document.getElementById('cancelMatchBtn').addEventListener('click', () => {
+      if (selectedMatchIndex === null) return;
+      const match = myMatches[selectedMatchIndex];
+      if (match.status === 'finished') return;
+      changeBalance(match.bet);
+      myMatches.splice(selectedMatchIndex, 1);
+      save('matches', myMatches);
+      renderMatches();
+      document.getElementById('matchDetailsModal').style.display = 'none';
+    });
+    document.getElementById('sendVideoBtn').addEventListener('click', () => {
+      tg.openTelegramLink('https://t.me/VGNprod');
+    });
+    document.getElementById('closeMatchDetailsBtn').addEventListener('click', () => {
+      document.getElementById('matchDetailsModal').style.display = 'none';
+    });
+    renderMatches();
+
+    // ========== Промокоды ==========
+    const promoCodes = { 'VANGUARD2026': 300, 'SKINUP': 150, 'START': 100 };
+    let usedPromos = load('usedPromos', []);
+    document.getElementById('activatePromoBtn').addEventListener('click', () => {
+      const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+      const msg = document.getElementById('promoMessage');
+      if (!code) { msg.textContent = 'Введите код'; msg.style.color = '#ff453a'; return; }
+      if (usedPromos.includes(code)) { msg.textContent = 'Уже использован'; msg.style.color = '#ff453a'; return; }
+      if (promoCodes[code]) {
+        changeBalance(promoCodes[code]);
+        usedPromos.push(code);
+        save('usedPromos', usedPromos);
+        msg.textContent = `Получено ${promoCodes[code]} ₽`;
+        msg.style.color = '#34c759';
+      } else {
+        msg.textContent = 'Неверный код';
+        msg.style.color = '#ff453a';
+      }
+    });
+
+    // ========== Пополнение ==========
+    document.getElementById('addBalanceBtn').addEventListener('click', () => {
+      document.getElementById('topupModal').style.display = 'flex';
+    });
+    document.getElementById('closeTopupBtn').addEventListener('click', () => {
+      document.getElementById('topupModal').style.display = 'none';
+    });
+    document.querySelectorAll('.topup-amount').forEach(btn => {
+      btn.addEventListener('click', () => {
+        changeBalance(parseInt(btn.dataset.amount));
+        document.getElementById('topupModal').style.display = 'none';
+      });
+    });
+
+    // ========== Профиль ==========
+    const nicknameInput = document.getElementById('nicknameInput');
+    const nicknameStatus = document.getElementById('nicknameStatus');
+    const tradeLinkInput = document.getElementById('tradeLinkInput');
+    const steamTradeBtn = document.getElementById('steamTradeBtn');
+
+    function loadProfile() {
+      profile = load('profile', { nickname: '', tradeLink: '' });
+      nicknameInput.value = profile.nickname || '';
+      tradeLinkInput.value = profile.tradeLink || '';
+      if (profile.tradeLink) {
+        steamTradeBtn.href = profile.tradeLink;
+        steamTradeBtn.style.display = 'inline-block';
+      } else {
+        steamTradeBtn.style.display = 'none';
+      }
+    }
+    loadProfile();
+
+    document.getElementById('saveNicknameBtn').addEventListener('click', () => {
+      const nick = nicknameInput.value.trim();
+      if (!nick) { nicknameStatus.textContent = 'Введите ник'; return; }
+      if (profile.nickname && profile.nickname !== nick) {
+        // освобождаем старый
+        takenNicknames = takenNicknames.filter(n => n !== profile.nickname.toLowerCase());
+      }
+      if (isNicknameTaken(nick) && nick !== profile.nickname) {
+        nicknameStatus.textContent = 'Этот ник занят!';
+        nicknameStatus.style.color = '#ff453a';
+      } else {
+        if (profile.nickname !== nick) registerNickname(nick);
+        profile.nickname = nick;
+        save('profile', profile);
+        nicknameStatus.textContent = 'Ник сохранён!';
+        nicknameStatus.style.color = '#34c759';
+        loadProfile();
+      }
+    });
+
+    document.getElementById('saveTradeLinkBtn').addEventListener('click', () => {
+      const link = tradeLinkInput.value.trim();
+      const valid = link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=');
+      if (!valid) {
+        tg.showAlert('Некорректная трейд-ссылка. Пример: https://steamcommunity.com/tradeoffer/new/?partner=123456&token=abc');
+        return;
+      }
+      profile.tradeLink = link;
+      save('profile', profile);
+      tg.showAlert('Трейд-ссылка сохранена!');
+      loadProfile();
+    });
+
+    // Инвентарь
+    const inventoryList = document.getElementById('inventoryList');
+    function updateInventoryUI() {
+      inventoryList.innerHTML = inventory.map((item, idx) => `
+        <div class="item-card">
+          <img src="${item.image}" alt="${item.name}" style="width:48px; height:48px; object-fit:contain;">
+          <div style="flex:1; margin-left:8px;">
+            <div style="font-weight:600;">${item.name}</div>
+            <div style="color:#4A90E2;">₽ ${item.price}</div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button class="btn sell-item-btn" data-index="${idx}">Продать</button>
+            <button class="btn withdraw-item-btn" data-index="${idx}" style="background: rgba(255,255,255,0.05);">Вывести</button>
+          </div>
+        </div>
+      `).join('');
+      document.querySelectorAll('.sell-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const idx = parseInt(e.target.dataset.index);
+          const item = inventory[idx];
+          changeBalance(item.price);
+          inventory.splice(idx, 1);
+          save('inventory', inventory);
+          updateInventoryUI();
+          tg.showAlert(`${item.name} продан за ₽${item.price}`);
+        });
+      });
+      document.querySelectorAll('.withdraw-item-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          if (!profile.tradeLink) {
+            tg.showAlert('Сначала сохраните трейд-ссылку в профиле!');
+            return;
+          }
+          tg.openLink(profile.tradeLink);
+        });
+      });
+    }
+    updateInventoryUI();
+
+    // Закрытие модалок по оверлею
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none';
+    });
   </script>
 </body>
 </html>
