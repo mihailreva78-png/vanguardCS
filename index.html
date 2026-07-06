@@ -168,22 +168,42 @@
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: 28px;
       padding: 24px;
-      max-width: 360px;
+      max-width: 400px;
       width: 90%;
       text-align: center;
     }
+
+    /* Рулетка кейса */
     .case-roulette {
-      display: flex;
-      overflow: hidden;
+      position: relative;
       width: 100%;
       height: 80px;
+      overflow: hidden;
+      margin: 16px 0;
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+    }
+    .roulette-track {
+      display: flex;
+      gap: 0;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      transition: transform 0.1s linear;
+    }
+    .roulette-item {
+      flex: 0 0 80px;
+      height: 80px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      margin: 16px 0;
+      padding: 5px;
     }
     .roulette-item img {
-      width: 64px;
-      height: 64px;
+      max-height: 70px;
+      max-width: 70px;
       object-fit: contain;
     }
 
@@ -215,25 +235,7 @@
     }
     .input:focus { border-color: #4A90E2; }
 
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      height: 8px;
-      background: rgba(255,255,255,0.08);
-      border-radius: 4px;
-      outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #4A90E2;
-      border: 2px solid rgba(255,255,255,0.3);
-    }
-
-    .team-list, .match-list, .inventory-list {
+    .team-list, .match-list, .inventory-list, .upgrade-source-list, .upgrade-target-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -253,6 +255,25 @@
       height: 48px;
       object-fit: contain;
     }
+
+    .upgrade-card {
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .upgrade-card.selected {
+      border-color: #4A90E2;
+      background: rgba(74,144,226,0.15);
+    }
+    .upgrade-card.unavailable {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .chance-badge {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+    }
   </style>
 </head>
 <body>
@@ -266,7 +287,7 @@
 
   <div class="tabs">
     <button class="tab active" data-section="cases">Кейсы</button>
-    <button class="tab" data-section="prices">Скины</button>
+    <button class="tab" data-section="upgrade">Апгрейд</button>
     <button class="tab" data-section="teams">Команды</button>
     <button class="tab" data-section="matches">Матчи</button>
     <button class="tab" data-section="promo">Промокоды</button>
@@ -282,20 +303,39 @@
     <div class="cases-grid" id="casesContainer"></div>
     <div id="caseModal" class="modal-overlay" style="display: none;">
       <div class="modal">
-        <div class="case-roulette" id="rouletteContainer"></div>
+        <div class="case-roulette" id="rouletteContainer">
+          <div class="roulette-track" id="rouletteTrack"></div>
+        </div>
         <div id="caseResultText"></div>
         <button class="btn" id="closeCaseBtn" style="margin-top: 16px;">Закрыть</button>
       </div>
     </div>
   </div>
 
-  <!-- Цены на скины -->
-  <div id="section-prices" class="section">
+  <!-- Апгрейд -->
+  <div id="section-upgrade" class="section">
     <div class="glass-panel">
-      <table class="price-table" style="width:100%; border-collapse:collapse;">
-        <thead><tr><th>Скин</th><th>Качество</th><th>Цена</th></tr></thead>
-        <tbody id="pricesBody"></tbody>
-      </table>
+      <h3>Апгрейд скинов</h3>
+      <p style="font-size:12px; color: rgba(255,255,255,0.5);">Выберите скин из инвентаря и цель с шансом успеха не выше 80%</p>
+    </div>
+    <div class="glass-panel" id="upgradeSourcePanel">
+      <h4>1. Ваш скин</h4>
+      <div class="upgrade-source-list" id="upgradeSourceList"></div>
+    </div>
+    <div class="glass-panel" id="upgradeTargetPanel" style="display:none;">
+      <h4>2. Целевой скин</h4>
+      <div class="upgrade-target-list" id="upgradeTargetList"></div>
+      <div id="upgradeChanceDisplay" style="margin: 8px 0; font-weight: 600;"></div>
+      <button class="btn" id="startUpgradeBtn" disabled>🔧 Апгрейд</button>
+    </div>
+    <div id="upgradeModal" class="modal-overlay" style="display: none;">
+      <div class="modal">
+        <div class="case-roulette" id="upgradeRoulette">
+          <div class="roulette-track" id="upgradeRouletteTrack"></div>
+        </div>
+        <div id="upgradeResultText"></div>
+        <button class="btn" id="closeUpgradeBtn" style="margin-top: 16px;">Закрыть</button>
+      </div>
     </div>
   </div>
 
@@ -316,7 +356,7 @@
   <div id="section-matches" class="section">
     <div class="glass-panel">
       <h3>Создать матч</h3>
-      <div class="slider-container" style="display:flex; align-items:center; gap:12px; margin:12px 0;">
+      <div style="display:flex; align-items:center; gap:12px; margin:12px 0;">
         <span>Игроков: <strong id="playersCountLabel">3</strong></span>
         <input type="range" id="playersSlider" min="1" max="5" value="3" style="flex:1;">
       </div>
@@ -364,11 +404,11 @@
     <div class="glass-panel">
       <h3>Инвентарь</h3>
       <div class="inventory-list" id="inventoryList"></div>
-      <p style="color: rgba(255,255,255,0.4); margin-top: 8px;">Вы можете продать предмет или вывести (нужна trade-ссылка).</p>
+      <p style="color: rgba(255,255,255,0.4); margin-top: 8px;">Продажа или вывод в трейд</p>
     </div>
   </div>
 
-  <!-- Пополнение (модальное) -->
+  <!-- Пополнение -->
   <div id="topupModal" class="modal-overlay" style="display: none;">
     <div class="modal">
       <h3>Пополнение</h3>
@@ -378,7 +418,7 @@
         <button class="btn topup-amount" data-amount="1000">1000 ₽</button>
         <button class="btn topup-amount" data-amount="5000">5000 ₽</button>
       </div>
-      <button class="btn" id="closeTopupBtn" style="background: rgba(255,255,255,0.05);">Отмена</button>
+      <button class="btn" id="closeTopupBtn">Отмена</button>
     </div>
   </div>
 
@@ -397,7 +437,6 @@
   </div>
 
   <script>
-    // Telegram WebApp
     const tg = window.Telegram.WebApp;
     tg.expand();
     tg.ready();
@@ -408,7 +447,6 @@
     }
     function save(key, val) { localStorage.setItem('vng_' + key, JSON.stringify(val)); }
 
-    // Баланс
     let balance = load('balance', 1000);
     const balanceEl = document.getElementById('balanceDisplay');
     function updateBalanceDisplay() { balanceEl.textContent = `₽ ${balance}`; }
@@ -420,7 +458,6 @@
     }
     updateBalanceDisplay();
 
-    // Профиль и инвентарь
     let profile = load('profile', { nickname: '', tradeLink: '' });
     let takenNicknames = load('takenNicknames', []);
     function isNicknameTaken(nick) { return takenNicknames.includes(nick.toLowerCase()); }
@@ -433,20 +470,19 @@
       return false;
     }
     let inventory = load('inventory', []);
-
-    // Флаг для блокировки во время открытия кейса
     let isCaseOpening = false;
     let caseTimer = null;
+    let upgradeInProgress = false;
 
-    // ---------- КЕЙСЫ ----------
+    // ---------- Кейсы (изображения на GitHub) ----------
     const cases = [
       {
         name: 'Dust II',
         image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/dust2.png?raw=true',
         price: 29,
         items: [
-          { name: 'AK-47 | Redline', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxczJemkV092lnYmGmOHLPr7Vn35c18lwmO7Eu92s2wCwrhVrYW_7ItKccARqaAvX-1O2yOvr1MW0vMjPnXM3pyQj5S7byBCygU0YbuA', price: 350 },
-          { name: 'M4A1-S | Emphorosaur-S', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-GwqKfq-nsNqjZq-NUw-3Fo92i2AHiqEQ-ZG-hJ4-Qd1RsZAzTqFjokfLv1Me-uZ6cmWp9w7worw', price: 280 }
+          { name: 'AK-47 | Redline', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/dust2.png?raw=true', price: 350 },
+          { name: 'M4A1-S | Emphorosaur-S', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/dust2.png?raw=true', price: 280 }
         ]
       },
       {
@@ -454,8 +490,8 @@
         image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/mirage.png?raw=true',
         price: 59,
         items: [
-          { name: 'AWP | Duality', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FBRw7PLfYQJS9dCokZOFnPSkarnAwG9U6MBOhuDG_Zi7jQO3-UI4am30cY_DelNsZAvW-FS5yei4jZO9uZ_JzWwj5Hc', price: 1200 },
-          { name: 'Desert Eagle | Midnight', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposr-kLAtl7PLFTjdN09-7lYyCmfOkqPrnNqjDqWgNusmG34-JaVSkqkVtfmj5IYeTI1JsYQ2EryzqkO3thJDotZvPmCE2pGB8sl3UrG6r1Q', price: 310 }
+          { name: 'AWP | Duality', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/mirage.png?raw=true', price: 1200 },
+          { name: 'Desert Eagle | Midnight', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/mirage.png?raw=true', price: 310 }
         ]
       },
       {
@@ -463,27 +499,43 @@
         image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/overpass.png?raw=true',
         price: 129,
         items: [
-          { name: 'USP-S | Dream', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m0FFNhws_GazsS59C5m5GP2vH3NqnJhm5D-cBOhuDG_Zi7jAO3r0dqa3b0d4WRJ1U3aQvTrFm8wOrphJW_vc6aznBruHch', price: 450 },
-          { name: 'Glock-18 | Bullet Rain', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgposbaqKAxf0v73dShS89S4lZeHmPTxDL3dxnNN4cBOhuDG_Zi7jAO3_kA_Z2ymcYCUdgRqYFrRq1XowLrqgpfpvcjLzHU1vSE9pSLcjAuwn1gSOKKICoU', price: 220 }
+          { name: 'USP-S | Dream', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/overpass.png?raw=true', price: 450 },
+          { name: 'Glock-18 | Bullet Rain', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/overpass.png?raw=true', price: 220 }
         ]
       }
     ];
 
-    // Команды и матчи
-    let teams = load('teams', [{ name: 'Vortex', members: 3 }, { name: 'Shadow', members: 5 }]);
-    let myMatches = load('matches', []);
-    let globalMatches = [
-      { id: 101, maxPlayers: 2, players: 2, bet: 500, status: 'active' },
-      { id: 202, maxPlayers: 3, players: 1, bet: 300, status: 'active' },
-      { id: 303, maxPlayers: 5, players: 4, bet: 1000, status: 'active' }
+    // Все уникальные скины для апгрейда (из кейсов + дополнительные)
+    const allSkins = [
+      { name: 'AK-47 | Redline', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/dust2.png?raw=true', basePrice: 350 },
+      { name: 'M4A1-S | Emphorosaur-S', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/dust2.png?raw=true', basePrice: 280 },
+      { name: 'AWP | Duality', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/mirage.png?raw=true', basePrice: 1200 },
+      { name: 'Desert Eagle | Midnight', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/mirage.png?raw=true', basePrice: 310 },
+      { name: 'USP-S | Dream', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/overpass.png?raw=true', basePrice: 450 },
+      { name: 'Glock-18 | Bullet Rain', image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/overpass.png?raw=true', basePrice: 220 }
     ];
 
-    // ---------- UI-функции ----------
+    // Получение реальной цены (запасная – basePrice)
+    async function fetchRealPrice(skinName) {
+      try {
+        const url = `https://steamcommunity.com/market/priceoverview/?appid=730&currency=5&market_hash_name=${encodeURIComponent(skinName)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data && data.lowest_price) {
+          const priceStr = data.lowest_price.replace(/[^0-9.,]/g, '').replace(',', '.');
+          return parseFloat(priceStr) * 100; // переводим в рубли (условно)
+        }
+      } catch (e) {}
+      const staticSkin = allSkins.find(s => s.name === skinName);
+      return staticSkin ? staticSkin.basePrice : 100;
+    }
+
+    // ---------- UI-переключение вкладок ----------
     function showSection(sectionId) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById('section-' + sectionId).classList.add('active');
-      // Автообновление инвентаря при открытии профиля
       if (sectionId === 'profile') updateInventoryUI();
+      if (sectionId === 'upgrade') renderUpgradeSource();
     }
 
     document.querySelectorAll('.tab').forEach(tab => {
@@ -494,7 +546,7 @@
       });
     });
 
-    // ========== Кейсы ==========
+    // ========== Кейсы (улучшенная анимация) ==========
     const casesContainer = document.getElementById('casesContainer');
     function renderCases() {
       casesContainer.innerHTML = cases.map((c, idx) => `
@@ -506,10 +558,7 @@
       `).join('');
       document.querySelectorAll('.case-card').forEach(card => {
         card.addEventListener('click', () => {
-          if (isCaseOpening) {
-            tg.showAlert('Дождитесь окончания текущего открытия!');
-            return;
-          }
+          if (isCaseOpening) { tg.showAlert('Подождите окончания анимации'); return; }
           const caseIdx = parseInt(card.dataset.index);
           openSingleCase(caseIdx);
         });
@@ -517,88 +566,216 @@
     }
     renderCases();
 
+    function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
+      const track = document.getElementById(trackId);
+      const container = document.getElementById(containerId);
+      const itemWidth = 80;
+      const totalItems = items.length;
+      // создаём полосу: повторяем элементы много раз
+      const repeated = [...items, ...items, ...items, ...items, ...items]; // 5 повторов для плавности
+      track.innerHTML = repeated.map(item => `
+        <div class="roulette-item"><img src="${item.image}" alt="${item.name}"></div>
+      `).join('');
+      
+      const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name && it.image === selectedItem.image);
+      const targetPosition = -selectedIndex * itemWidth + container.offsetWidth/2 - itemWidth/2;
+      
+      const startTime = performance.now();
+      const startPos = parseFloat(track.style.transform.match(/-?\d+/) || 0);
+      const totalDistance = targetPosition - startPos;
+      
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // easing: быстрое начало, замедление в конце
+        const eased = 1 - Math.pow(1 - progress, 4);
+        const currentPos = startPos + totalDistance * eased;
+        track.style.transform = `translateX(${currentPos}px)`;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          track.style.transform = `translateX(${targetPosition}px)`;
+          if (callback) callback();
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
     function openSingleCase(caseIdx) {
       const caseData = cases[caseIdx];
-      if (balance < caseData.price) {
-        tg.showAlert('Недостаточно средств!');
-        return;
-      }
-      if (isCaseOpening) return; // дополнительная страховка
-
+      if (balance < caseData.price) { tg.showAlert('Недостаточно средств!'); return; }
+      if (isCaseOpening) return;
       changeBalance(-caseData.price);
       isCaseOpening = true;
 
       const modal = document.getElementById('caseModal');
       modal.style.display = 'flex';
       const closeBtn = document.getElementById('closeCaseBtn');
-      closeBtn.disabled = true; // блокируем кнопку
-      const roulette = document.getElementById('rouletteContainer');
+      closeBtn.disabled = true;
       const resultText = document.getElementById('caseResultText');
       resultText.innerHTML = '';
 
       const items = caseData.items;
       const selected = items[Math.floor(Math.random() * items.length)];
 
-      const steps = 20;
-      const interval = 2000 / steps;
-      let step = 0;
-
-      if (caseTimer) clearInterval(caseTimer);
-      caseTimer = setInterval(() => {
-        const randomItem = items[Math.floor(Math.random() * items.length)];
-        roulette.innerHTML = `<div class="roulette-item"><img src="${randomItem.image}" alt="${randomItem.name}"></div>`;
-        step++;
-        if (step >= steps) {
-          clearInterval(caseTimer);
-          caseTimer = null;
-          roulette.innerHTML = `<div class="roulette-item"><img src="${selected.image}" alt="${selected.name}"><br>${selected.name}</div>`;
-          inventory.push({...selected});
-          save('inventory', inventory);
-          resultText.innerHTML = `Выпало: ${selected.name}`;
-          updateInventoryUI();
-          // Разблокируем кнопку и флаг
-          closeBtn.disabled = false;
-          isCaseOpening = false;
-        }
-      }, interval);
+      animateRoulette('rouletteContainer', 'rouletteTrack', items, selected, 2500, () => {
+        inventory.push({...selected});
+        save('inventory', inventory);
+        resultText.innerHTML = `Выпало: ${selected.name}`;
+        updateInventoryUI();
+        closeBtn.disabled = false;
+        isCaseOpening = false;
+      });
     }
 
     document.getElementById('closeCaseBtn').addEventListener('click', () => {
-      if (isCaseOpening) return; // игнорируем во время анимации
+      if (isCaseOpening) return;
       document.getElementById('caseModal').style.display = 'none';
     });
 
-    // Предотвращаем закрытие оверлеем, когда идёт анимация
     window.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal-overlay')) {
-        if (e.target.id === 'caseModal' && isCaseOpening) return;
+        if ((e.target.id === 'caseModal' && isCaseOpening) || 
+            (e.target.id === 'upgradeModal' && upgradeInProgress)) return;
         e.target.style.display = 'none';
       }
     });
 
-    // ========== Цены на скины ==========
-    const pricesBody = document.getElementById('pricesBody');
-    const skinsMarket = [
-      { name: 'AK-47 | Redline', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot7HxfDhjxczJemkV092lnYmGmOHLPr7Vn35c18lwmO7Eu92s2wCwrhVrYW_7ItKccARqaAvX-1O2yOvr1MW0vMjPnXM3pyQj5S7byBCygU0YbuA', price: 3500 },
-      { name: 'M4A1-S | Printstream', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpou-6kejhz2v_Nfz5H_uO1gb-GwqKfq-nsNqjZq-NUw-3Fo92i2AHiqEQ-ZG-hJ4-Qd1RsZAzTqFjokfLv1Me-uZ6cmWp9w7worw', price: 12000 },
-      { name: 'AWP | Asiimov', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpot621FBRw7PLfYQJS9dCokZOFnPSkarnAwG9U6MBOhuDG_Zi7jQO3-UI4am30cY_DelNsZAvW-FS5yei4jZO9uZ_JzWwj5Hc', price: 8900 },
-      { name: 'USP-S | Cortex', image: 'https://community.steamstatic.com/economy/image/-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXH5ApeO4YmlhxYQknCRvCo04DEVlxkKgpoo6m0FFNhws_GazsS59C5m5GP2vH3NqnJhm5D-cBOhuDG_Zi7jAO3r0dqa3b0d4WRJ1U3aQvTrFm8wOrphJW_vc6aznBruHch', price: 2200 }
-    ];
-    function renderPrices() {
-      pricesBody.innerHTML = skinsMarket.map(s => {
-        const change = (Math.random() * 200 - 100).toFixed(0);
-        const color = change >= 0 ? 'price-up' : 'price-down';
-        return `<tr>
-          <td><img src="${s.image}" style="width:32px; height:32px; vertical-align:middle;"> ${s.name}</td>
-          <td>Field-Tested</td>
-          <td class="${color}">₽ ${(s.price + parseInt(change)).toFixed(0)}</td>
-        </tr>`;
-      }).join('');
+    // ========== Апгрейд ==========
+    let selectedSourceSkin = null;
+    let selectedTargetSkin = null;
+
+    function renderUpgradeSource() {
+      const container = document.getElementById('upgradeSourceList');
+      if (inventory.length === 0) {
+        container.innerHTML = '<p style="opacity:0.5;">Инвентарь пуст</p>';
+        document.getElementById('upgradeTargetPanel').style.display = 'none';
+        return;
+      }
+      container.innerHTML = inventory.map((item, idx) => `
+        <div class="item-card upgrade-card" data-index="${idx}">
+          <img src="${item.image}" alt="${item.name}">
+          <div style="flex:1; margin-left:8px;">
+            <div style="font-weight:600;">${item.name}</div>
+            <div style="color:#4A90E2;">₽ ${item.price}</div>
+          </div>
+        </div>
+      `).join('');
+      document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          const idx = parseInt(card.dataset.index);
+          selectedSourceSkin = inventory[idx];
+          renderUpgradeTargets();
+        });
+      });
+      if (selectedSourceSkin) {
+        const stillExists = inventory.find(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
+        if (!stillExists) {
+          selectedSourceSkin = null;
+          selectedTargetSkin = null;
+          document.getElementById('upgradeTargetPanel').style.display = 'none';
+        }
+      }
     }
-    renderPrices();
-    setInterval(renderPrices, 5000);
+
+    async function renderUpgradeTargets() {
+      if (!selectedSourceSkin) return;
+      const targetPanel = document.getElementById('upgradeTargetPanel');
+      targetPanel.style.display = 'block';
+      const container = document.getElementById('upgradeTargetList');
+      const chanceDisplay = document.getElementById('upgradeChanceDisplay');
+      const startBtn = document.getElementById('startUpgradeBtn');
+      
+      // Загружаем реальные цены для целевых скинов
+      const targetsWithPrices = await Promise.all(allSkins.map(async (skin) => {
+        if (skin.name === selectedSourceSkin.name) return null;
+        const price = await fetchRealPrice(skin.name);
+        return { ...skin, price };
+      }));
+      const validTargets = targetsWithPrices.filter(s => s && s.price > selectedSourceSkin.price);
+      
+      if (validTargets.length === 0) {
+        container.innerHTML = '<p style="opacity:0.5;">Нет подходящих скинов для апгрейда</p>';
+        startBtn.disabled = true;
+        chanceDisplay.innerHTML = '';
+        return;
+      }
+
+      container.innerHTML = validTargets.map(skin => {
+        const chance = Math.round((selectedSourceSkin.price / skin.price) * 100);
+        const unavailable = chance > 80;
+        return `
+          <div class="item-card upgrade-card ${unavailable ? 'unavailable' : ''}" data-name="${skin.name}">
+            <img src="${skin.image}" alt="${skin.name}">
+            <div style="flex:1; margin-left:8px;">
+              <div style="font-weight:600;">${skin.name}</div>
+              <div style="color:#4A90E2;">₽ ${skin.price}</div>
+            </div>
+            <span class="chance-badge">${chance}%</span>
+          </div>
+        `;
+      }).join('');
+
+      document.querySelectorAll('#upgradeTargetList .upgrade-card:not(.unavailable)').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('#upgradeTargetList .upgrade-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedTargetSkin = validTargets.find(s => s.name === card.dataset.name);
+          const chance = Math.round((selectedSourceSkin.price / selectedTargetSkin.price) * 100);
+          chanceDisplay.innerHTML = `Шанс успеха: <span style="color:#4A90E2;">${chance}%</span>`;
+          startBtn.disabled = false;
+        });
+      });
+    }
+
+    document.getElementById('startUpgradeBtn').addEventListener('click', () => {
+      if (!selectedSourceSkin || !selectedTargetSkin || upgradeInProgress) return;
+      const chance = Math.round((selectedSourceSkin.price / selectedTargetSkin.price) * 100);
+      const roll = Math.random() * 100;
+      const success = roll < chance;
+      
+      upgradeInProgress = true;
+      const modal = document.getElementById('upgradeModal');
+      modal.style.display = 'flex';
+      document.getElementById('closeUpgradeBtn').disabled = true;
+      document.getElementById('upgradeResultText').innerHTML = '';
+
+      const items = [
+        { name: 'Успех', image: selectedTargetSkin.image },
+        { name: 'Провал', image: selectedSourceSkin.image }
+      ];
+      const resultItem = success ? items[0] : items[1];
+
+      animateRoulette('upgradeRoulette', 'upgradeRouletteTrack', items, resultItem, 2000, () => {
+        // Удаляем исходный скин из инвентаря
+        const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
+        if (sourceIdx !== -1) inventory.splice(sourceIdx, 1);
+        if (success) {
+          inventory.push({...selectedTargetSkin});
+          document.getElementById('upgradeResultText').innerHTML = `✅ Успех! Получен: ${selectedTargetSkin.name}`;
+        } else {
+          document.getElementById('upgradeResultText').innerHTML = `❌ Неудача. Скин ${selectedSourceSkin.name} уничтожен.`;
+        }
+        save('inventory', inventory);
+        updateInventoryUI();
+        selectedSourceSkin = null;
+        selectedTargetSkin = null;
+        document.getElementById('upgradeTargetPanel').style.display = 'none';
+        document.getElementById('closeUpgradeBtn').disabled = false;
+        upgradeInProgress = false;
+        renderUpgradeSource();
+      });
+    });
+
+    document.getElementById('closeUpgradeBtn').addEventListener('click', () => {
+      if (upgradeInProgress) return;
+      document.getElementById('upgradeModal').style.display = 'none';
+    });
 
     // ========== Команды ==========
+    let teams = load('teams', [{ name: 'Vortex', members: 3 }, { name: 'Shadow', members: 5 }]);
     const teamList = document.getElementById('teamList');
     function renderTeams() {
       teamList.innerHTML = teams.map(t => `
@@ -620,18 +797,22 @@
       document.getElementById('teamNameInput').value = '';
       document.getElementById('createTeamForm').style.display = 'none';
       renderTeams();
-      tg.showAlert('Команда создана!');
     });
 
     // ========== Матчи ==========
+    let myMatches = load('matches', []);
+    let globalMatches = [
+      { id: 101, maxPlayers: 2, players: 2, bet: 500, status: 'active' },
+      { id: 202, maxPlayers: 3, players: 1, bet: 300, status: 'active' },
+      { id: 303, maxPlayers: 5, players: 4, bet: 1000, status: 'active' }
+    ];
     const playersSlider = document.getElementById('playersSlider');
     const playersCountLabel = document.getElementById('playersCountLabel');
     const matchList = document.getElementById('matchList');
     playersSlider.addEventListener('input', () => playersCountLabel.textContent = playersSlider.value);
-
     function renderMatches() {
-      const allMatches = [...myMatches, ...globalMatches];
-      matchList.innerHTML = allMatches.map((m, i) => `
+      const all = [...myMatches, ...globalMatches];
+      matchList.innerHTML = all.map((m, i) => `
         <div class="match-card">
           <div>ID: ${m.id} | ${m.players}/${m.maxPlayers} | ₽${m.bet} ${m.status==='finished'?'✅':''}</div>
           <button class="btn match-detail-btn" data-index="${i}" data-source="${i < myMatches.length ? 'my' : 'global'}">Детали</button>
@@ -639,43 +820,32 @@
       `).join('');
       document.querySelectorAll('.match-detail-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-          const source = e.target.dataset.source;
-          const index = parseInt(e.target.dataset.index);
-          if (source === 'my') showMatchDetails(index);
-          else tg.showAlert('Это демо-матч. Для реальной игры нужен сервер.');
+          if (e.target.dataset.source === 'my') showMatchDetails(parseInt(e.target.dataset.index));
+          else tg.showAlert('Демо-матч');
         });
       });
     }
-
     document.getElementById('createMatchBtn').addEventListener('click', () => {
       const max = parseInt(playersSlider.value);
       const bet = parseInt(document.getElementById('betAmountInput').value);
-      if (!bet || bet <= 0) { tg.showAlert('Введите корректную ставку'); return; }
+      if (!bet || bet <= 0) { tg.showAlert('Введите ставку'); return; }
       if (balance < bet) { tg.showAlert('Недостаточно средств'); return; }
       changeBalance(-bet);
-      const match = { id: Date.now() % 100000, maxPlayers: max, players: 1, bet, status: 'active' };
-      myMatches.push(match);
+      myMatches.push({ id: Date.now() % 100000, maxPlayers: max, players: 1, bet, status: 'active' });
       save('matches', myMatches);
       renderMatches();
-      tg.showAlert('Матч создан!');
     });
-
     let selectedMatchIndex = null;
     function showMatchDetails(index) {
-      const match = myMatches[index];
-      if (!match) return;
+      const m = myMatches[index];
+      if (!m) return;
       selectedMatchIndex = index;
-      document.getElementById('matchDetailsTitle').textContent = `Матч #${match.id}`;
-      document.getElementById('matchDetailsInfo').innerHTML = `
-        Статус: ${match.status}<br>
-        Участников: ${match.players}/${match.maxPlayers}<br>
-        Ставка: ₽${match.bet}
-      `;
-      document.getElementById('matchActions').style.display = match.status === 'active' ? 'block' : 'none';
-      document.getElementById('sendVideoBtn').style.display = match.status === 'finished' ? 'block' : 'none';
+      document.getElementById('matchDetailsTitle').textContent = `Матч #${m.id}`;
+      document.getElementById('matchDetailsInfo').innerHTML = `Статус: ${m.status}<br>Участников: ${m.players}/${m.maxPlayers}<br>Ставка: ₽${m.bet}`;
+      document.getElementById('matchActions').style.display = m.status === 'active' ? 'block' : 'none';
+      document.getElementById('sendVideoBtn').style.display = m.status === 'finished' ? 'block' : 'none';
       document.getElementById('matchDetailsModal').style.display = 'flex';
     }
-
     document.getElementById('finishMatchBtn').addEventListener('click', () => {
       if (selectedMatchIndex === null) return;
       myMatches[selectedMatchIndex].status = 'finished';
@@ -685,17 +855,15 @@
     });
     document.getElementById('cancelMatchBtn').addEventListener('click', () => {
       if (selectedMatchIndex === null) return;
-      const match = myMatches[selectedMatchIndex];
-      if (match.status === 'finished') return;
-      changeBalance(match.bet);
+      const m = myMatches[selectedMatchIndex];
+      if (m.status === 'finished') return;
+      changeBalance(m.bet);
       myMatches.splice(selectedMatchIndex, 1);
       save('matches', myMatches);
       renderMatches();
       document.getElementById('matchDetailsModal').style.display = 'none';
     });
-    document.getElementById('sendVideoBtn').addEventListener('click', () => {
-      tg.openTelegramLink('https://t.me/VGNprod');
-    });
+    document.getElementById('sendVideoBtn').addEventListener('click', () => tg.openTelegramLink('https://t.me/VGNprod'));
     document.getElementById('closeMatchDetailsBtn').addEventListener('click', () => {
       document.getElementById('matchDetailsModal').style.display = 'none';
     });
@@ -735,25 +903,19 @@
       });
     });
 
-    // ========== Профиль ==========
+    // ========== Профиль и инвентарь ==========
     const nicknameInput = document.getElementById('nicknameInput');
     const nicknameStatus = document.getElementById('nicknameStatus');
     const tradeLinkInput = document.getElementById('tradeLinkInput');
     const steamTradeBtn = document.getElementById('steamTradeBtn');
-
     function loadProfile() {
       profile = load('profile', { nickname: '', tradeLink: '' });
       nicknameInput.value = profile.nickname || '';
       tradeLinkInput.value = profile.tradeLink || '';
-      if (profile.tradeLink) {
-        steamTradeBtn.href = profile.tradeLink;
-        steamTradeBtn.style.display = 'inline-block';
-      } else {
-        steamTradeBtn.style.display = 'none';
-      }
+      steamTradeBtn.style.display = profile.tradeLink ? 'inline-block' : 'none';
+      if (profile.tradeLink) steamTradeBtn.href = profile.tradeLink;
     }
     loadProfile();
-
     document.getElementById('saveNicknameBtn').addEventListener('click', () => {
       const nick = nicknameInput.value.trim();
       if (!nick) { nicknameStatus.textContent = 'Введите ник'; return; }
@@ -761,44 +923,37 @@
         takenNicknames = takenNicknames.filter(n => n !== profile.nickname.toLowerCase());
       }
       if (isNicknameTaken(nick) && nick !== profile.nickname) {
-        nicknameStatus.textContent = 'Этот ник занят!';
-        nicknameStatus.style.color = '#ff453a';
+        nicknameStatus.textContent = 'Ник занят!'; nicknameStatus.style.color = '#ff453a';
       } else {
         if (profile.nickname !== nick) registerNickname(nick);
         profile.nickname = nick;
         save('profile', profile);
-        nicknameStatus.textContent = 'Ник сохранён!';
-        nicknameStatus.style.color = '#34c759';
-        loadProfile();
+        nicknameStatus.textContent = 'Сохранено'; nicknameStatus.style.color = '#34c759';
       }
     });
-
     document.getElementById('saveTradeLinkBtn').addEventListener('click', () => {
       const link = tradeLinkInput.value.trim();
-      const valid = link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=');
-      if (!valid) {
-        tg.showAlert('Некорректная трейд-ссылка. Пример: https://steamcommunity.com/tradeoffer/new/?partner=123456&token=abc');
-        return;
+      if (!link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=')) {
+        tg.showAlert('Неверная ссылка'); return;
       }
       profile.tradeLink = link;
       save('profile', profile);
-      tg.showAlert('Трейд-ссылка сохранена!');
+      tg.showAlert('Ссылка сохранена');
       loadProfile();
     });
 
-    // Инвентарь
     const inventoryList = document.getElementById('inventoryList');
     function updateInventoryUI() {
       inventoryList.innerHTML = inventory.map((item, idx) => `
         <div class="item-card">
-          <img src="${item.image}" alt="${item.name}" style="width:48px; height:48px; object-fit:contain;">
+          <img src="${item.image}" alt="${item.name}">
           <div style="flex:1; margin-left:8px;">
             <div style="font-weight:600;">${item.name}</div>
             <div style="color:#4A90E2;">₽ ${item.price}</div>
           </div>
           <div style="display:flex; gap:4px;">
             <button class="btn sell-item-btn" data-index="${idx}">Продать</button>
-            <button class="btn withdraw-item-btn" data-index="${idx}" style="background: rgba(255,255,255,0.05);">Вывести</button>
+            <button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button>
           </div>
         </div>
       `).join('');
@@ -810,20 +965,19 @@
           inventory.splice(idx, 1);
           save('inventory', inventory);
           updateInventoryUI();
-          tg.showAlert(`${item.name} продан за ₽${item.price}`);
         });
       });
       document.querySelectorAll('.withdraw-item-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          if (!profile.tradeLink) {
-            tg.showAlert('Сначала сохраните трейд-ссылку в профиле!');
-            return;
-          }
-          tg.openLink(profile.tradeLink);
+        btn.addEventListener('click', () => {
+          if (!profile.tradeLink) tg.showAlert('Сначала сохраните трейд-ссылку');
+          else tg.openLink(profile.tradeLink);
         });
       });
     }
     updateInventoryUI();
+
+    // Первоначальный рендер апгрейда, если открыт
+    if (document.getElementById('section-upgrade').classList.contains('active')) renderUpgradeSource();
   </script>
 </body>
 </html>
