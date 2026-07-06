@@ -199,6 +199,10 @@
       font-size: 14px;
     }
     .btn:active { background: rgba(74,144,226,0.3); transform: scale(0.97); }
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
     .input {
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
@@ -430,7 +434,11 @@
     }
     let inventory = load('inventory', []);
 
-    // ---------- КЕЙСЫ (с вашими изображениями) ----------
+    // Флаг для блокировки во время открытия кейса
+    let isCaseOpening = false;
+    let caseTimer = null;
+
+    // ---------- КЕЙСЫ ----------
     const cases = [
       {
         name: 'Dust II',
@@ -474,6 +482,8 @@
     function showSection(sectionId) {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById('section-' + sectionId).classList.add('active');
+      // Автообновление инвентаря при открытии профиля
+      if (sectionId === 'profile') updateInventoryUI();
     }
 
     document.querySelectorAll('.tab').forEach(tab => {
@@ -496,6 +506,10 @@
       `).join('');
       document.querySelectorAll('.case-card').forEach(card => {
         card.addEventListener('click', () => {
+          if (isCaseOpening) {
+            tg.showAlert('Дождитесь окончания текущего открытия!');
+            return;
+          }
           const caseIdx = parseInt(card.dataset.index);
           openSingleCase(caseIdx);
         });
@@ -509,8 +523,15 @@
         tg.showAlert('Недостаточно средств!');
         return;
       }
+      if (isCaseOpening) return; // дополнительная страховка
+
       changeBalance(-caseData.price);
-      document.getElementById('caseModal').style.display = 'flex';
+      isCaseOpening = true;
+
+      const modal = document.getElementById('caseModal');
+      modal.style.display = 'flex';
+      const closeBtn = document.getElementById('closeCaseBtn');
+      closeBtn.disabled = true; // блокируем кнопку
       const roulette = document.getElementById('rouletteContainer');
       const resultText = document.getElementById('caseResultText');
       resultText.innerHTML = '';
@@ -518,27 +539,41 @@
       const items = caseData.items;
       const selected = items[Math.floor(Math.random() * items.length)];
 
-      // Анимация прокрутки
       const steps = 20;
       const interval = 2000 / steps;
       let step = 0;
-      const timer = setInterval(() => {
+
+      if (caseTimer) clearInterval(caseTimer);
+      caseTimer = setInterval(() => {
         const randomItem = items[Math.floor(Math.random() * items.length)];
         roulette.innerHTML = `<div class="roulette-item"><img src="${randomItem.image}" alt="${randomItem.name}"></div>`;
         step++;
         if (step >= steps) {
-          clearInterval(timer);
+          clearInterval(caseTimer);
+          caseTimer = null;
           roulette.innerHTML = `<div class="roulette-item"><img src="${selected.image}" alt="${selected.name}"><br>${selected.name}</div>`;
           inventory.push({...selected});
           save('inventory', inventory);
           resultText.innerHTML = `Выпало: ${selected.name}`;
           updateInventoryUI();
+          // Разблокируем кнопку и флаг
+          closeBtn.disabled = false;
+          isCaseOpening = false;
         }
       }, interval);
     }
 
     document.getElementById('closeCaseBtn').addEventListener('click', () => {
+      if (isCaseOpening) return; // игнорируем во время анимации
       document.getElementById('caseModal').style.display = 'none';
+    });
+
+    // Предотвращаем закрытие оверлеем, когда идёт анимация
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal-overlay')) {
+        if (e.target.id === 'caseModal' && isCaseOpening) return;
+        e.target.style.display = 'none';
+      }
     });
 
     // ========== Цены на скины ==========
@@ -723,7 +758,6 @@
       const nick = nicknameInput.value.trim();
       if (!nick) { nicknameStatus.textContent = 'Введите ник'; return; }
       if (profile.nickname && profile.nickname !== nick) {
-        // освобождаем старый
         takenNicknames = takenNicknames.filter(n => n !== profile.nickname.toLowerCase());
       }
       if (isNicknameTaken(nick) && nick !== profile.nickname) {
@@ -790,11 +824,6 @@
       });
     }
     updateInventoryUI();
-
-    // Закрытие модалок по оверлею
-    window.addEventListener('click', (e) => {
-      if (e.target.classList.contains('modal-overlay')) e.target.style.display = 'none';
-    });
   </script>
 </body>
 </html>
