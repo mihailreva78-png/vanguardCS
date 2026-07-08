@@ -383,7 +383,6 @@
             border: 1px solid rgba(255, 69, 58, 0.3);
             color: #ff453a;
         }
-        /* ... (остальные стили из оригинала) ... */
         .upgrade-container { display: flex; flex-direction: column; align-items: center; }
         .wheel-wrapper { position: relative; width: 220px; height: 220px; margin: 20px auto; }
         .wheel-canvas { display: block; position: absolute; top: 0; left: 0; width: 220px; height: 220px; border-radius: 50%; box-shadow: 0 0 30px rgba(74,144,226,0.15), 0 0 60px rgba(0,0,0,0.6); }
@@ -464,12 +463,10 @@
     <div id="caseModal" class="modal-overlay" style="display:none;">
         <div class="modal-fullscreen">
             <h3 id="caseModalTitle" style="margin-bottom:4px;">Кейс</h3>
-            <!-- основная рулетка (для одного кейса) -->
             <div class="case-roulette" id="rouletteContainer" style="display:none;">
                 <div class="roulette-track" id="rouletteTrack"></div>
                 <div class="roulette-center-marker"></div>
             </div>
-            <!-- мини-рулетки (для нескольких) -->
             <div class="mini-roulettes-grid" id="miniRoulettesGrid" style="display:none;"></div>
             <div class="drop-progress-wrap"><div class="drop-progress-bar" id="dropProgressBar"></div></div>
             <div id="dropProgressLabel" class="drop-progress-label">🎯 Готов к открытию</div>
@@ -481,10 +478,8 @@
             </div>
             <button class="btn btn-block" id="openCaseBtn">Открыть за X ₽</button>
 
-            <!-- содержимое кейса -->
             <div id="caseContentsContainer" class="case-contents"></div>
 
-            <!-- кнопки действий после открытия -->
             <div class="flex-row mt-8" id="postOpenActions" style="display:none;">
                 <button class="btn" id="againCaseBtn" style="flex:1;">🔄 Ещё раз</button>
                 <button class="btn btn-success" id="sellAllBtn" style="flex:1;">💰 Продать всё</button>
@@ -513,7 +508,6 @@
             tg.expand();
             tg.ready();
 
-            // ---------- Хранилище ----------
             function load(key, def) { try { return JSON.parse(localStorage.getItem('vng_' + key)) || def; } catch (e) { return def; } }
             function save(key, val) { localStorage.setItem('vng_' + key, JSON.stringify(val)); }
 
@@ -532,7 +526,6 @@
             let currentCaseIdx = null;
             let upgradeInProgress = false;
 
-            // ---------- Скины и кейсы ----------
             const skinImages = { 'AK-47 | Redline': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AK-47%20-%20Redline.png?raw=true', 'AWP | Duality': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AWP%20-%20Duality.png?raw=true', 'M4A1-S | Emphorosaur-S': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/M4A1-S%20-%20Emphorosaur-S.png?raw=true', 'USP-S | Cortex': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/USP-S%20-%20Cortex.webp?raw=true', 'Desert Eagle | Midnight': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'M4A1-S | Printstream': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'M4A1 | Bright Water': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'AWP | Dragon Lore': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true' };
             const fallbackSkinImg = 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true';
             const allSkins = [
@@ -565,7 +558,6 @@
             function createImg(src, alt, className) { const img = document.createElement('img'); img.src = src; img.alt = alt || ''; if (className) img.className = className; img.onerror = () => img.src = fallbackSkinImg; return img; }
             function getRarityClass(rarity) { return 'rarity-' + rarity; }
 
-            // ---------- UI табы ----------
             function showSection(sectionId) {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 const el = document.getElementById('section-' + sectionId);
@@ -579,7 +571,6 @@
                 showSection(tab.dataset.section);
             }));
 
-            // ---------- Кейсы: рендер карточек ----------
             const casesContainer = document.getElementById('casesContainer');
             function renderCases() {
                 let html = '', lastCategory = '';
@@ -592,7 +583,6 @@
             }
             renderCases();
 
-            // ---------- Модалка кейса ----------
             const caseModal = document.getElementById('caseModal');
             const rouletteTrack = document.getElementById('rouletteTrack');
             const caseResultText = document.getElementById('caseResultText');
@@ -667,20 +657,22 @@
                 isCaseOpening = false;
             }
 
-            // Анимация рулетки (влево, долгая)
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
+                // Создаем очень длинный трек (80 повторов, чтобы не кончался)
+                const repeatCount = 80;
                 const repeated = [];
-                for (let i = 0; i < 20; i++) repeated.push(...items);
+                for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
-                const totalTrackWidth = repeated.length * itemWidth;
+                const totalItems = repeated.length;
                 const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
                 if (selectedIndex === -1) { if (callback) callback(); return; }
-                // едем влево – targetOffset положительный
-                const targetOffset = (selectedIndex * itemWidth + itemWidth / 2) - totalTrackWidth / 2;
-                const jitter = (Math.random() - 0.5) * 10;
+                // Смещение такое, чтобы выбранный элемент оказался точно по центру
+                const targetOffset = (selectedIndex * itemWidth + itemWidth/2) - totalItems * itemWidth / 2;
+                // Небольшой джиттер для реализма
+                const jitter = (Math.random() - 0.5) * 8;
                 const finalOffset = targetOffset + jitter;
                 const startTime = performance.now();
                 function step(now) {
@@ -689,8 +681,9 @@
                     const eased = 1 - Math.pow(1 - progress, 4);
                     const currentOffset = finalOffset * eased;
                     track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
-                    if (progress < 1) requestAnimationFrame(step);
-                    else {
+                    if (progress < 1) {
+                        requestAnimationFrame(step);
+                    } else {
                         track.style.transform = `translateX(calc(-50% + ${finalOffset}px))`;
                         if (callback) callback();
                     }
@@ -698,17 +691,12 @@
                 requestAnimationFrame(step);
             }
 
-            // Удаление предмета из инвентаря
             function removeInventoryItem(name, price) {
                 const idx = inventory.findIndex(s => s.name === name && s.price === price);
-                if (idx !== -1) {
-                    inventory.splice(idx, 1);
-                    return true;
-                }
+                if (idx !== -1) { inventory.splice(idx, 1); return true; }
                 return false;
             }
 
-            // Открытие кейсов
             function performCaseOpening() {
                 if (isCaseOpening || currentCaseIdx === null) return;
                 const caseData = cases[currentCaseIdx];
@@ -722,7 +710,6 @@
                 dropProgressBar.style.width = '0%';
                 dropProgressLabel.textContent = '🎰 Открываем...';
 
-                // Генерация результатов и сразу в инвентарь
                 const items = caseData.items;
                 caseResults = [];
                 for (let i = 0; i < caseOpenCount; i++) {
@@ -733,7 +720,6 @@
                 save('inventory', inventory);
                 updateInventoryUI();
 
-                // Настройка UI для множественного открытия
                 if (caseOpenCount === 1) {
                     mainRoulette.style.display = 'flex';
                     miniRoulettesGrid.style.display = 'none';
@@ -761,7 +747,7 @@
                         sellBtn.addEventListener('click', () => sellSingleResult(0));
                         resDiv.appendChild(sellBtn);
                         postOpenActions.style.display = 'flex';
-                        document.getElementById('sellAllBtn').style.display = 'inline-block';
+                        sellAllBtn.style.display = 'inline-block';
                     } else {
                         const resEl = document.getElementById('miniResult' + index);
                         if (resEl) {
@@ -780,12 +766,12 @@
                         dropProgressLabel.textContent = '✅ Все открыты!';
                         if (caseOpenCount > 1) {
                             postOpenActions.style.display = 'flex';
-                            document.getElementById('sellAllBtn').style.display = 'inline-block';
+                            sellAllBtn.style.display = 'inline-block';
                         }
                     }
                 }
 
-                // Запуск анимаций
+                // Запуск всех анимаций одновременно
                 if (caseOpenCount === 1) {
                     animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 11000 + Math.random() * 3000, () => {
                         onAnimComplete(0, caseResults[0]);
@@ -794,12 +780,10 @@
                     caseResults.forEach((res, i) => {
                         const containerId = 'miniRoulette' + i;
                         const trackId = 'miniTrack' + i;
-                        // небольшая задержка для каждой рулетки, чтобы они не начинали одновременно
-                        setTimeout(() => {
-                            animateRoulette(containerId, trackId, items, res, 10000 + Math.random() * 4000, () => {
-                                onAnimComplete(i, res);
-                            });
-                        }, i * 200);
+                        // Нет задержки – все стартуют в одном кадре
+                        animateRoulette(containerId, trackId, items, res, 10000 + Math.random() * 4000, () => {
+                            onAnimComplete(i, res);
+                        });
                     });
                 }
             }
@@ -812,7 +796,6 @@
                     save('inventory', inventory);
                     updateInventoryUI();
                     res.sold = true;
-                    // обновить UI
                     if (caseOpenCount === 1) {
                         caseResultText.innerHTML += '<br>💰 Продано за ' + res.price + ' ₽';
                         const sellBtns = document.querySelectorAll('.sell-single-btn');
@@ -829,11 +812,9 @@
             function sellAllResults() {
                 let totalGain = 0;
                 caseResults.forEach(res => {
-                    if (!res.sold) {
-                        if (removeInventoryItem(res.name, res.price)) {
-                            totalGain += res.price;
-                            res.sold = true;
-                        }
+                    if (!res.sold && removeInventoryItem(res.name, res.price)) {
+                        totalGain += res.price;
+                        res.sold = true;
                     }
                 });
                 if (totalGain > 0) {
@@ -864,9 +845,7 @@
                 caseResultText.innerHTML = '';
                 postOpenActions.style.display = 'none';
                 openCaseBtn.disabled = false;
-                if (currentCaseIdx !== null) {
-                    renderCaseLayout();
-                }
+                if (currentCaseIdx !== null) renderCaseLayout();
             });
             sellAllBtn.addEventListener('click', sellAllResults);
             closeCaseBtn.addEventListener('click', () => {
@@ -875,7 +854,7 @@
                 currentCaseIdx = null;
             });
 
-            // ---------- Апгрейд ----------
+            // ---------- Апгрейд (исправлен) ----------
             let selectedSourceSkin = null, selectedTargetSkin = null, wheelAnimId = null;
             const wheelCanvas = document.getElementById('wheelCanvas');
             const ctx = wheelCanvas.getContext('2d');
@@ -931,8 +910,9 @@
                 grad.addColorStop(0,'rgba(40,40,50,1)'); grad.addColorStop(1,'rgba(15,15,20,1)');
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
                 ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth=2; ctx.stroke();
+                // Зеленая зона: начинается с направления стрелки (вниз, угол PI/2 в стандартной системе координат canvas)
+                const startRad = Math.PI/2; // 6 часов
                 const waterDeg = (successChance/100)*360, waterRad = waterDeg*Math.PI/180;
-                const startRad = 0; // зеленый сектор начинается с направления стрелки (6 часов)
                 ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,radius,startRad,startRad+waterRad); ctx.closePath();
                 const waterGrad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
                 waterGrad.addColorStop(0,'rgba(52,199,89,0.95)'); waterGrad.addColorStop(0.6,'rgba(40,180,70,0.85)'); waterGrad.addColorStop(1,'rgba(30,160,60,0.6)');
@@ -941,17 +921,15 @@
                 const redGrad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
                 redGrad.addColorStop(0,'rgba(255,69,58,0.8)'); redGrad.addColorStop(0.7,'rgba(220,50,40,0.7)'); redGrad.addColorStop(1,'rgba(180,40,30,0.5)');
                 ctx.fillStyle = redGrad; ctx.fill();
-                // деления и центр
                 for (let i=0; i<12; i++) { const angle = (i/12)*Math.PI*2; const r1=radius-12, r2=radius-4; ctx.beginPath(); ctx.moveTo(cx+Math.cos(angle)*r1, cy+Math.sin(angle)*r1); ctx.lineTo(cx+Math.cos(angle)*r2, cy+Math.sin(angle)*r2); ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1.5; ctx.stroke(); }
                 ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.stroke();
                 ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='bold 22px -apple-system, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(successChance+'%', cx, cy+2);
             }
 
-            function spinWheel(successChance, callback) {
+            function spinWheel(successChance, isSuccess, callback) {
                 if (wheelAnimId) { cancelAnimationFrame(wheelAnimId); wheelAnimId = null; }
                 wheelArrow.style.transform = 'translate(-50%, -50%) rotate(0deg) translateY(100px)';
                 drawWheel(successChance);
-                const isSuccess = Math.random()*100 < successChance;
                 const waterDeg = (successChance/100)*360;
                 const targetDeg = isSuccess ? Math.random()*waterDeg : waterDeg + Math.random()*(360-waterDeg);
                 const totalRotation = targetDeg + 360*8 + Math.random()*360;
@@ -964,7 +942,7 @@
                     const currentDeg = totalRotation * eased;
                     wheelArrow.style.transform = `translate(-50%, -50%) rotate(${currentDeg}deg) translateY(100px)`;
                     if (progress < 1) wheelAnimId = requestAnimationFrame(step);
-                    else { wheelArrow.style.transform = `translate(-50%, -50%) rotate(${targetDeg+360*8}deg) translateY(100px)`; wheelAnimId = null; if (callback) callback(isSuccess); }
+                    else { wheelArrow.style.transform = `translate(-50%, -50%) rotate(${targetDeg+360*8}deg) translateY(100px)`; wheelAnimId = null; if (callback) callback(); }
                 }
                 wheelAnimId = requestAnimationFrame(step);
             }
@@ -976,10 +954,12 @@
                 document.getElementById('startUpgradeBtn').disabled = true;
                 document.getElementById('upgradeResultText').innerHTML = '';
 
+                // Определяем результат один раз
+                const isSuccess = Math.random()*100 < chance;
+
                 // Мгновенное изменение инвентаря
                 const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
                 if (sourceIdx !== -1) inventory.splice(sourceIdx, 1);
-                const isSuccess = Math.random()*100 < chance;
                 if (isSuccess) {
                     const newSkin = { ...selectedTargetSkin, price: selectedTargetSkin.basePrice, rarity: selectedTargetSkin.rarity };
                     inventory.push(newSkin);
@@ -987,10 +967,10 @@
                 save('inventory', inventory);
                 updateInventoryUI();
 
-                // Анимация
-                spinWheel(chance, (animSuccess) => {
+                // Запускаем анимацию с тем же isSuccess
+                spinWheel(chance, isSuccess, () => {
                     const resultDiv = document.getElementById('upgradeResultText');
-                    if (animSuccess) {
+                    if (isSuccess) {
                         resultDiv.innerHTML = `<div class="upgrade-result-banner success">✅ Успех!<br><span style="font-size:16px;">${selectedTargetSkin.name}</span></div>`;
                         const sellBtn = document.createElement('button'); sellBtn.className = 'btn btn-success'; sellBtn.textContent = '💰 Продать за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.style.marginTop='8px';
                         sellBtn.addEventListener('click', () => {
@@ -1031,7 +1011,20 @@
             const inventoryList = document.getElementById('inventoryList');
             function updateInventoryUI() {
                 if (inventory.length === 0) { inventoryList.innerHTML = '<p style="opacity:0.4; font-size:13px; text-align:center; padding:12px;">Инвентарь пуст</p>'; return; }
-                inventoryList.innerHTML = inventory.map((item, idx) => `<div class="item-card ${getRarityClass(item.rarity||'blue')}">${createImg(item.image, item.name).outerHTML}<div class="item-info"><div class="item-name">${item.name}</div><div class="item-price">₽ ${item.price}</div></div><div class="item-actions"><button class="btn sell-item-btn" data-index="${idx}">Продать</button><button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button></div></div>`).join('');
+                inventoryList.innerHTML = inventory.map((item, idx) => {
+                    const imgHtml = createImg(item.image, item.name).outerHTML;
+                    return `<div class="item-card ${getRarityClass(item.rarity||'blue')}">
+                        <div class="item-img-wrap">${imgHtml}</div>
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">₽ ${item.price}</div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="btn sell-item-btn" data-index="${idx}">Продать</button>
+                            <button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button>
+                        </div>
+                    </div>`;
+                }).join('');
                 document.querySelectorAll('.sell-item-btn').forEach(btn => btn.addEventListener('click', (e) => {
                     const idx = parseInt(e.target.dataset.index);
                     const item = inventory[idx];
@@ -1042,9 +1035,12 @@
                     else tg.openLink(profile.tradeLink);
                 }));
             }
+            // Стиль для обертки картинки в инвентаре (чтобы точно не растягивалась)
+            const style = document.createElement('style');
+            style.textContent = `.item-img-wrap img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; }`;
+            document.head.appendChild(style);
             updateInventoryUI();
 
-            // Пополнение
             document.getElementById('addBalanceBtn').addEventListener('click', () => document.getElementById('topupModal').style.display = 'flex');
             document.getElementById('closeTopupBtn').addEventListener('click', () => document.getElementById('topupModal').style.display = 'none');
             document.querySelectorAll('.topup-amount').forEach(b => b.addEventListener('click', () => { changeBalance(parseInt(b.dataset.amount)); document.getElementById('topupModal').style.display = 'none'; }));
