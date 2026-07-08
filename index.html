@@ -186,6 +186,7 @@
             border-radius: 0;
             padding: 20px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -394,6 +395,19 @@
         .upgrade-card img { width: 32px; height: 32px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
         .upgrade-card.selected { border-color: #4A90E2; background: rgba(74,144,226,0.2); }
         .chance-badge { margin-left: auto; font-size: 10px; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+        .case-contents { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0; max-width: 400px; width: 100%; }
+        .case-item-card { width: 80px; background: rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 6px; text-align: center; font-size: 10px; backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.04); }
+        .case-item-card img { width: 52px; height: 52px; object-fit: contain; margin-bottom: 2px; border-radius: 4px; }
+        .item-label { font-size: 9px; opacity: 0.9; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-price-tag { font-size: 9px; color: #4A90E2; font-weight: 600; }
+        .inventory-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .item-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.06); gap: 10px; }
+        .item-card img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+        .item-card .item-info { flex: 1; min-width: 0; }
+        .item-card .item-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-card .item-price { font-size: 12px; opacity: 0.7; }
+        .item-card .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .item-card .item-actions .btn { padding: 4px 12px; font-size: 11px; margin: 0; }
         .drop-progress-wrap { width: 100%; background: rgba(255,255,255,0.06); border-radius: 10px; height: 6px; margin: 8px 0 4px; overflow: hidden; }
         .drop-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #4A90E2, #34c759); border-radius: 10px; transition: width 0.15s linear; }
         .drop-progress-label { font-size: 11px; opacity: 0.6; text-align: center; margin-top: 2px; }
@@ -661,17 +675,16 @@
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                // Создаем очень длинный трек (80 повторов, чтобы не кончался)
-                const repeatCount = 80;
+                const repeatCount = 200; // очень много повторов, чтобы трек не кончался
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
                 const totalItems = repeated.length;
                 const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
                 if (selectedIndex === -1) { if (callback) callback(); return; }
-                // Смещение такое, чтобы выбранный элемент оказался точно по центру
-                const targetOffset = (selectedIndex * itemWidth + itemWidth/2) - totalItems * itemWidth / 2;
-                // Небольшой джиттер для реализма
+                // вычисляем смещение так, чтобы центр выбранного элемента оказался строго по центру контейнера
+                const targetOffset = (selectedIndex * itemWidth + itemWidth/2) - (totalItems * itemWidth) / 2;
+                // небольшой джиттер для естественности
                 const jitter = (Math.random() - 0.5) * 8;
                 const finalOffset = targetOffset + jitter;
                 const startTime = performance.now();
@@ -780,7 +793,6 @@
                     caseResults.forEach((res, i) => {
                         const containerId = 'miniRoulette' + i;
                         const trackId = 'miniTrack' + i;
-                        // Нет задержки – все стартуют в одном кадре
                         animateRoulette(containerId, trackId, items, res, 10000 + Math.random() * 4000, () => {
                             onAnimComplete(i, res);
                         });
@@ -910,8 +922,7 @@
                 grad.addColorStop(0,'rgba(40,40,50,1)'); grad.addColorStop(1,'rgba(15,15,20,1)');
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
                 ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth=2; ctx.stroke();
-                // Зеленая зона: начинается с направления стрелки (вниз, угол PI/2 в стандартной системе координат canvas)
-                const startRad = Math.PI/2; // 6 часов
+                const startRad = Math.PI/2; // направление стрелки (вниз)
                 const waterDeg = (successChance/100)*360, waterRad = waterDeg*Math.PI/180;
                 ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,radius,startRad,startRad+waterRad); ctx.closePath();
                 const waterGrad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
@@ -932,7 +943,9 @@
                 drawWheel(successChance);
                 const waterDeg = (successChance/100)*360;
                 const targetDeg = isSuccess ? Math.random()*waterDeg : waterDeg + Math.random()*(360-waterDeg);
-                const totalRotation = targetDeg + 360*8 + Math.random()*360;
+                // убираем лишний случайный доворот, просто добавляем целое число оборотов
+                const fullRotations = 8; // количество полных оборотов
+                const totalRotation = targetDeg + 360 * fullRotations;
                 const startTime = performance.now();
                 const duration = 8000;
                 function step(now) {
@@ -942,7 +955,11 @@
                     const currentDeg = totalRotation * eased;
                     wheelArrow.style.transform = `translate(-50%, -50%) rotate(${currentDeg}deg) translateY(100px)`;
                     if (progress < 1) wheelAnimId = requestAnimationFrame(step);
-                    else { wheelArrow.style.transform = `translate(-50%, -50%) rotate(${targetDeg+360*8}deg) translateY(100px)`; wheelAnimId = null; if (callback) callback(); }
+                    else { 
+                        wheelArrow.style.transform = `translate(-50%, -50%) rotate(${totalRotation}deg) translateY(100px)`;
+                        wheelAnimId = null; 
+                        if (callback) callback(); 
+                    }
                 }
                 wheelAnimId = requestAnimationFrame(step);
             }
@@ -954,10 +971,8 @@
                 document.getElementById('startUpgradeBtn').disabled = true;
                 document.getElementById('upgradeResultText').innerHTML = '';
 
-                // Определяем результат один раз
                 const isSuccess = Math.random()*100 < chance;
 
-                // Мгновенное изменение инвентаря
                 const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
                 if (sourceIdx !== -1) inventory.splice(sourceIdx, 1);
                 if (isSuccess) {
@@ -967,7 +982,6 @@
                 save('inventory', inventory);
                 updateInventoryUI();
 
-                // Запускаем анимацию с тем же isSuccess
                 spinWheel(chance, isSuccess, () => {
                     const resultDiv = document.getElementById('upgradeResultText');
                     if (isSuccess) {
@@ -1011,20 +1025,7 @@
             const inventoryList = document.getElementById('inventoryList');
             function updateInventoryUI() {
                 if (inventory.length === 0) { inventoryList.innerHTML = '<p style="opacity:0.4; font-size:13px; text-align:center; padding:12px;">Инвентарь пуст</p>'; return; }
-                inventoryList.innerHTML = inventory.map((item, idx) => {
-                    const imgHtml = createImg(item.image, item.name).outerHTML;
-                    return `<div class="item-card ${getRarityClass(item.rarity||'blue')}">
-                        <div class="item-img-wrap">${imgHtml}</div>
-                        <div class="item-info">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-price">₽ ${item.price}</div>
-                        </div>
-                        <div class="item-actions">
-                            <button class="btn sell-item-btn" data-index="${idx}">Продать</button>
-                            <button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button>
-                        </div>
-                    </div>`;
-                }).join('');
+                inventoryList.innerHTML = inventory.map((item, idx) => `<div class="item-card ${getRarityClass(item.rarity||'blue')}">${createImg(item.image, item.name).outerHTML}<div class="item-info"><div class="item-name">${item.name}</div><div class="item-price">₽ ${item.price}</div></div><div class="item-actions"><button class="btn sell-item-btn" data-index="${idx}">Продать</button><button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button></div></div>`).join('');
                 document.querySelectorAll('.sell-item-btn').forEach(btn => btn.addEventListener('click', (e) => {
                     const idx = parseInt(e.target.dataset.index);
                     const item = inventory[idx];
@@ -1035,10 +1036,6 @@
                     else tg.openLink(profile.tradeLink);
                 }));
             }
-            // Стиль для обертки картинки в инвентаре (чтобы точно не растягивалась)
-            const style = document.createElement('style');
-            style.textContent = `.item-img-wrap img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; }`;
-            document.head.appendChild(style);
             updateInventoryUI();
 
             document.getElementById('addBalanceBtn').addEventListener('click', () => document.getElementById('topupModal').style.display = 'flex');
