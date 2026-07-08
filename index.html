@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>VANGUARD</title>
+  <title>VANGUARD | Кейсы и Апгрейд</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
@@ -40,20 +40,16 @@
     .logo { font-size: 28px; font-weight: 700; color: #4A90E2; }
     .balance-block { display: flex; align-items: center; gap: 8px; }
     .balance {
-      font-weight: 600;
-      font-size: 16px;
+      font-weight: 600; font-size: 16px;
       background: rgba(255, 255, 255, 0.05);
-      padding: 8px 16px;
-      border-radius: 16px;
+      padding: 8px 16px; border-radius: 16px;
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
     .add-balance-btn {
       background: rgba(74, 144, 226, 0.2);
       border: 1px solid rgba(74, 144, 226, 0.4);
-      color: #4A90E2;
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
+      color: #4A90E2; width: 36px; height: 36px;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
       font-size: 24px; cursor: pointer; transition: all 0.2s;
     }
     .add-balance-btn:active { transform: scale(0.9); background: rgba(74,144,226,0.4); }
@@ -88,6 +84,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Сетка кейсов */
     .cases-grid {
       display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
     }
@@ -105,8 +102,8 @@
       width: 100%; aspect-ratio: 1/1; object-fit: cover;
       border-radius: 12px; margin-bottom: 8px;
     }
-    .case-name { font-weight: 600; margin-bottom: 4px; }
-    .case-price { color: #4A90E2; font-weight: 500; font-size: 14px; }
+    .case-name { font-weight: 600; margin-bottom: 4px; font-size: 13px; }
+    .case-price { color: #4A90E2; font-weight: 500; font-size: 13px; }
 
     /* Полноэкранное модальное окно кейса */
     .modal-overlay {
@@ -140,7 +137,7 @@
       display: flex; gap: 0;
       position: absolute; left: 50%;
       transform: translateX(-50%);
-      transition: none; /* управляем через js */
+      transition: none;
     }
     .roulette-item {
       flex: 0 0 80px; height: 80px;
@@ -174,6 +171,7 @@
     }
     .input:focus { border-color: #4A90E2; }
 
+    /* Команды, матчи, инвентарь */
     .team-list, .match-list, .inventory-list {
       display: flex; flex-direction: column; gap: 8px;
     }
@@ -193,59 +191,112 @@
     .rarity-red { background: linear-gradient(135deg, #EB4B4B, #DC2626); }
     .rarity-gold { background: linear-gradient(135deg, #FFD700, #B8860B); }
 
-    .upgrade-layout {
-      display: flex; flex-direction: column;
+    /* Апгрейд */
+    .upgrade-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .wheel-container {
-      display: flex; justify-content: center; margin: 16px 0;
+    .wheel-wrapper {
       position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
     }
-    .arrow {
-      position: absolute; top: -12px; left: 50%;
-      transform: translateX(-50%);
-      font-size: 24px; color: #fff; z-index: 10;
+    .wheel-canvas {
+      display: block;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    .wheel-arrow {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-bottom: 24px solid #fff;
+      transform: translate(-50%, -100%) rotate(0deg);
+      transform-origin: 50% 100%;
+      transition: none;
+      filter: drop-shadow(0 0 4px black);
+      z-index: 5;
     }
     .upgrade-columns {
-      display: flex; gap: 12px; margin: 16px 0;
+      display: flex;
+      gap: 16px;
+      width: 100%;
+      margin: 16px 0;
     }
     .upgrade-col {
-      flex: 1; display: flex; flex-direction: column; gap: 8px;
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 150px;
     }
     .upgrade-col h4 {
-      margin-bottom: 8px; text-align: center;
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: 14px;
+      opacity: 0.8;
     }
     .upgrade-card {
-      cursor: pointer; transition: 0.2s;
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 14px; padding: 12px;
-      text-align: center;
-      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      border: 1px solid transparent;
+      font-size: 12px;
+    }
+    .upgrade-card img {
+      width: 36px; height: 36px;
+      object-fit: contain;
+      border-radius: 6px;
     }
     .upgrade-card.selected {
       border-color: #4A90E2;
-      background: rgba(74,144,226,0.25);
+      background: rgba(74,144,226,0.2);
     }
     .upgrade-card.unavailable {
-      opacity: 0.5; pointer-events: none;
+      opacity: 0.4;
+      pointer-events: none;
     }
     .chance-badge {
-      font-size: 12px; padding: 2px 8px;
-      border-radius: 12px; background: rgba(255,255,255,0.2);
+      margin-left: auto;
+      font-size: 11px;
+      background: rgba(0,0,0,0.4);
+      padding: 2px 8px;
+      border-radius: 10px;
     }
 
     .case-contents {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-      gap: 6px; margin-top: 12px;
-      width: 100%; max-width: 400px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin: 16px 0;
+      max-width: 400px;
     }
     .case-item-card {
+      width: 80px;
       background: rgba(255,255,255,0.07);
-      border-radius: 10px; padding: 6px;
-      text-align: center; font-size: 11px;
+      border-radius: 10px;
+      padding: 6px;
+      text-align: center;
+      font-size: 10px;
+      backdrop-filter: blur(5px);
     }
     .case-item-card img {
-      width: 50px; height: 50px; object-fit: contain;
+      width: 48px; height: 48px;
+      object-fit: contain;
       margin-bottom: 4px;
     }
   </style>
@@ -271,8 +322,7 @@
   <!-- Кейсы -->
   <div id="section-cases" class="section active">
     <div class="glass-panel" style="margin-bottom: 12px;">
-      <h3>Открыть кейс</h3>
-      <p style="font-size:12px; color: rgba(255,255,255,0.5);">Нажмите на кейс</p>
+      <h3>Выберите кейс</h3>
     </div>
     <div class="cases-grid" id="casesContainer"></div>
   </div>
@@ -290,25 +340,25 @@
     </div>
   </div>
 
-  <!-- Апгрейд (без модалки) -->
+  <!-- Апгрейд -->
   <div id="section-upgrade" class="section">
     <div class="glass-panel">
       <h3>Апгрейд скинов</h3>
-      <p style="font-size:12px; color: rgba(255,255,255,0.5);">Выберите скин и цель (шанс до 80%)</p>
+      <p style="font-size:12px; color: rgba(255,255,255,0.5);">Выберите скин и цель (шанс ≤80%)</p>
     </div>
-    <div class="upgrade-layout">
-      <div class="wheel-container">
-        <canvas id="wheelCanvas" width="180" height="180"></canvas>
-        <div class="arrow">▼</div>
+    <div class="upgrade-container">
+      <div class="wheel-wrapper" id="wheelWrapper">
+        <canvas id="wheelCanvas" class="wheel-canvas" width="200" height="200"></canvas>
+        <div class="wheel-arrow" id="wheelArrow"></div>
       </div>
       <div class="upgrade-columns">
         <div class="upgrade-col">
-          <h4>Ваш скин</h4>
-          <div id="upgradeSourceList" class="inventory-list"></div>
+          <h4>🎒 Ваш скин</h4>
+          <div id="upgradeSourceList"></div>
         </div>
         <div class="upgrade-col">
-          <h4>Цель</h4>
-          <div id="upgradeTargetList" class="inventory-list"></div>
+          <h4>🎯 Цель</h4>
+          <div id="upgradeTargetList"></div>
         </div>
       </div>
       <div id="upgradeChanceDisplay" style="text-align:center; margin: 8px 0; font-weight:600;"></div>
@@ -452,53 +502,162 @@
     let currentCaseIdx = null;
     let upgradeInProgress = false;
 
-    // ---------- Изображения скинов (только существующие) ----------
+    // ---------- Изображения скинов ----------
     const skinImages = {
       'AK-47 | Redline': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AK-47%20-%20Redline.png?raw=true',
       'AWP | Duality': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AWP%20-%20Duality.png?raw=true',
       'M4A1-S | Emphorosaur-S': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/M4A1-S%20-%20Emphorosaur-S.png?raw=true',
-      'USP-S | Cortex': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/USP-S%20-%20Cortex.webp?raw=true'
+      'USP-S | Cortex': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/USP-S%20-%20Cortex.webp?raw=true',
+      'Desert Eagle | Midnight': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', // fallback
+      'M4A1-S | Printstream': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
+      'M4A1 | Bright Water': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
+      'AWP | Dragon Lore': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true'
     };
+
     const fallbackSkinImg = 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true';
 
-    // Данные скинов с редкостью
+    // Все скины (для апгрейда и кейсов)
     const allSkins = [
       { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], basePrice: 350, rarity: 'red' },
-      { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], basePrice: 280, rarity: 'pink' },
       { name: 'AWP | Duality', image: skinImages['AWP | Duality'], basePrice: 1200, rarity: 'red' },
-      { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], basePrice: 450, rarity: 'purple' }
+      { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], basePrice: 280, rarity: 'pink' },
+      { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], basePrice: 450, rarity: 'purple' },
+      { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], basePrice: 310, rarity: 'purple' },
+      { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], basePrice: 270, rarity: 'pink' },
+      { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], basePrice: 200, rarity: 'blue' },
+      { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], basePrice: 5000, rarity: 'gold' }
     ];
 
-    // Кейсы
+    // Новые кейсы
     const cases = [
+      // По картам
       {
-        name: 'Dust II',
+        name: 'Dust II', price: 129,
         image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_dust2.png?raw=true',
-        price: 29,
         items: [
           { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' },
           { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], price: 280, rarity: 'pink' }
         ]
       },
       {
-        name: 'Mirage',
+        name: 'Mirage', price: 59,
         image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
-        price: 59,
         items: [
           { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
           { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' }
         ]
       },
       {
-        name: 'Overpass',
-        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
-        price: 129,
+        name: 'Overpass', price: 129,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_overpass.png?raw=true',
+        items: [
+          { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
+          { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' }
+        ]
+      },
+      // По оружиям
+      {
+        name: 'only AWP', price: 100,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyAWP.png?raw=true',
+        items: [
+          { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
+          { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' }
+        ]
+      },
+      {
+        name: 'only AK', price: 69,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyAK.png?raw=true',
+        items: [
+          { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }
+        ]
+      },
+      {
+        name: 'only Deagle', price: 79,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyDeagle.png?raw=true',
+        items: [
+          { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' }
+        ]
+      },
+      {
+        name: 'only M4A1', price: 34,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyM4A1.png?raw=true',
+        items: [
+          { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], price: 200, rarity: 'blue' }
+        ]
+      },
+      {
+        name: 'only M4A1-S', price: 29,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyM4A1-S.png?raw=true',
+        items: [
+          { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], price: 280, rarity: 'pink' },
+          { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], price: 270, rarity: 'pink' }
+        ]
+      },
+      // Лимитированные
+      {
+        name: 'vanguard', price: 4999,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_vanguard.png?raw=true',
+        items: [
+          { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' },
+          { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' }
+        ]
+      },
+      {
+        name: 'Көрімдік', price: 67,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_Көрімдік.png?raw=true',
+        items: [
+          { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' },
+          { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }
+        ]
+      },
+      // Фирменные
+      {
+        name: 'ORDINARY', price: 19,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_ORDINARY.png?raw=true',
+        items: [
+          { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], price: 200, rarity: 'blue' },
+          { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], price: 270, rarity: 'pink' }
+        ]
+      },
+      {
+        name: 'UNUSUAL', price: 99,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_UNUSUAL.png?raw=true',
+        items: [
+          { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' },
+          { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' }
+        ]
+      },
+      {
+        name: 'LEGENDARY', price: 999,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_LEGENDARY.png?raw=true',
         items: [
           { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
           { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }
         ]
+      },
+      {
+        name: 'MYTHICAL', price: 2700,
+        image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_MYTHICAL.png?raw=true',
+        items: [
+          { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' }
+        ]
       }
     ];
+
+    // ---------- UI-переключение вкладок ----------
+    function showSection(sectionId) {
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('section-' + sectionId).classList.add('active');
+      if (sectionId === 'profile') updateInventoryUI();
+      if (sectionId === 'upgrade') refreshUpgradeTab();
+    }
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        showSection(tab.dataset.section);
+      });
+    });
 
     // Вспомогательные функции
     function createImg(src, alt, className) {
@@ -509,28 +668,9 @@
       img.onerror = function() { this.src = fallbackSkinImg; };
       return img;
     }
+    function getRarityClass(rarity) { return `rarity-${rarity}`; }
 
-    function getRarityClass(rarity) {
-      return `rarity-${rarity}`;
-    }
-
-    // ---------- UI вкладки ----------
-    function showSection(sectionId) {
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById('section-' + sectionId).classList.add('active');
-      if (sectionId === 'profile') updateInventoryUI();
-      if (sectionId === 'upgrade') refreshUpgradeTab();
-    }
-
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        showSection(tab.dataset.section);
-      });
-    });
-
-    // ========== Кейсы (полный экран, исправленная анимация) ==========
+    // ========== Кейсы (полный экран) ==========
     const casesContainer = document.getElementById('casesContainer');
     function renderCases() {
       casesContainer.innerHTML = cases.map((c, idx) => `
@@ -560,14 +700,12 @@
     function showCaseModal(caseIdx) {
       currentCaseIdx = caseIdx;
       const caseData = cases[caseIdx];
-      // Содержимое кейса (компактное)
       caseContentsContainer.innerHTML = caseData.items.map(item => `
         <div class="case-item-card ${getRarityClass(item.rarity)}">
           ${createImg(item.image, item.name, '').outerHTML}
           <div>${item.name}</div>
         </div>
       `).join('');
-      // Сброс рулетки
       rouletteTrack.innerHTML = caseData.items.map(item => `
         <div class="roulette-item">${createImg(item.image, item.name, '').outerHTML}</div>
       `).join('');
@@ -583,22 +721,18 @@
       const track = document.getElementById(trackId);
       const container = document.getElementById(containerId);
       const itemWidth = 80;
-      // Строим ленту из повторяющихся предметов (5 циклов)
       const repeated = [];
       for (let i = 0; i < 5; i++) repeated.push(...items);
       track.innerHTML = repeated.map(item => `
         <div class="roulette-item">${createImg(item.image, item.name, '').outerHTML}</div>
       `).join('');
-      // Начальная позиция 0
       track.style.transform = 'translateX(0px)';
-      // Индекс выбранного элемента в repeated
       const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
       const containerWidth = container.offsetWidth;
       const targetPosition = -selectedIndex * itemWidth + containerWidth/2 - itemWidth/2;
       const startTime = performance.now();
       const startPos = 0;
       const totalDistance = targetPosition - startPos;
-
       function step(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / durationMs, 1);
@@ -628,7 +762,6 @@
       caseResultText.innerHTML = '';
       const items = caseData.items;
       const selected = items[Math.floor(Math.random() * items.length)];
-
       animateRoulette('rouletteContainer', 'rouletteTrack', items, selected, 2500, () => {
         inventory.push({...selected});
         save('inventory', inventory);
@@ -651,7 +784,7 @@
       }
     });
 
-    // ========== Апгрейд (колесо во вкладке) ==========
+    // ========== Апгрейд (стрелка вращается) ==========
     let selectedSourceSkin = null;
     let selectedTargetSkin = null;
     let wheelAnimId = null;
@@ -669,14 +802,14 @@
     function renderUpgradeSource() {
       const container = document.getElementById('upgradeSourceList');
       if (inventory.length === 0) {
-        container.innerHTML = '<p style="opacity:0.5;">Инвентарь пуст</p>';
+        container.innerHTML = '<p style="opacity:0.5; font-size:12px;">Инвентарь пуст</p>';
         return;
       }
       container.innerHTML = inventory.map((item, idx) => `
         <div class="upgrade-card ${getRarityClass(item.rarity || 'blue')}" data-index="${idx}">
           ${createImg(item.image, item.name, '').outerHTML}
-          <div style="font-weight:600;">${item.name}</div>
-          <div style="color:#fff;">₽ ${item.price}</div>
+          <div style="flex:1; font-weight:600;">${item.name}</div>
+          <div>₽${item.price}</div>
         </div>
       `).join('');
       document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(card => {
@@ -690,15 +823,14 @@
       });
     }
 
-    async function renderUpgradeTargets() {
+    function renderUpgradeTargets() {
       if (!selectedSourceSkin) return;
       const container = document.getElementById('upgradeTargetList');
       const chanceDisplay = document.getElementById('upgradeChanceDisplay');
       const startBtn = document.getElementById('startUpgradeBtn');
       const validTargets = allSkins.filter(s => s.name !== selectedSourceSkin.name && s.basePrice > selectedSourceSkin.price);
-      
       if (validTargets.length === 0) {
-        container.innerHTML = '<p style="opacity:0.5;">Нет целей</p>';
+        container.innerHTML = '<p style="opacity:0.5; font-size:12px;">Нет подходящих целей</p>';
         startBtn.disabled = true;
         chanceDisplay.innerHTML = '';
         return;
@@ -709,8 +841,7 @@
         return `
           <div class="upgrade-card ${getRarityClass(skin.rarity)} ${unavailable ? 'unavailable' : ''}" data-name="${skin.name}">
             ${createImg(skin.image, skin.name, '').outerHTML}
-            <div style="font-weight:600;">${skin.name}</div>
-            <div style="color:#fff;">₽ ${skin.basePrice}</div>
+            <div style="flex:1; font-weight:600;">${skin.name}</div>
             <span class="chance-badge">${chance}%</span>
           </div>
         `;
@@ -729,27 +860,35 @@
       chanceDisplay.innerHTML = '';
     }
 
+    // Рисуем колесо: зеленый сектор снизу (от 180° до 180+successDeg)
     function drawWheel(successChance) {
       const canvas = document.getElementById('wheelCanvas');
       const ctx = canvas.getContext('2d');
       const w = canvas.width, h = canvas.height;
-      const centerX = w/2, centerY = h/2, radius = 80;
+      const centerX = w/2, centerY = h/2, radius = 85;
       ctx.clearRect(0, 0, w, h);
-      const successAngle = (successChance / 100) * Math.PI * 2;
-      // Сектор успеха (зелёный)
+
+      const successDeg = (successChance / 100) * 360;
+      const startAngleDeg = 180; // низ
+      const endAngleDeg = 180 + successDeg;
+      const startAngleRad = (startAngleDeg - 90) * Math.PI / 180; // пересчет для canvas (0 = 3ч)
+      const endAngleRad = (endAngleDeg - 90) * Math.PI / 180;
+
+      // Зеленый сектор
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, -Math.PI/2, -Math.PI/2 + successAngle);
+      ctx.arc(centerX, centerY, radius, startAngleRad, endAngleRad);
       ctx.closePath();
       ctx.fillStyle = '#34c759';
       ctx.fill();
       ctx.strokeStyle = '#fff';
       ctx.lineWidth = 2;
       ctx.stroke();
-      // Сектор провала (красный)
+
+      // Красный сектор
       ctx.beginPath();
       ctx.moveTo(centerX, centerY);
-      ctx.arc(centerX, centerY, radius, -Math.PI/2 + successAngle, -Math.PI/2 + 2*Math.PI);
+      ctx.arc(centerX, centerY, radius, endAngleRad, startAngleRad + Math.PI*2);
       ctx.closePath();
       ctx.fillStyle = '#ff3b30';
       ctx.fill();
@@ -757,38 +896,42 @@
     }
 
     function resetWheel() {
-      const canvas = document.getElementById('wheelCanvas');
-      canvas.style.transform = 'rotate(0rad)';
+      document.getElementById('wheelArrow').style.transform = 'translate(-50%, -100%) rotate(0deg)';
       if (wheelAnimId) cancelAnimationFrame(wheelAnimId);
-      drawWheel(50); // значение по умолчанию
+      drawWheel(50);
     }
 
     function spinWheel(successChance, callback) {
-      const canvas = document.getElementById('wheelCanvas');
       drawWheel(successChance);
+      const arrow = document.getElementById('wheelArrow');
       const isSuccess = Math.random() * 100 < successChance;
-      const successAngleRad = (successChance / 100) * Math.PI * 2;
-      let targetAngle;
+      const successDeg = (successChance / 100) * 360;
+      // Целевой угол: если успех, то от 180 до 180+successDeg, иначе в остальной диапазон
+      let targetDeg;
       if (isSuccess) {
-        targetAngle = Math.random() * successAngleRad - Math.PI/2;
+        targetDeg = 180 + Math.random() * successDeg;
       } else {
-        const failStart = successAngleRad - Math.PI/2;
-        targetAngle = failStart + Math.random() * (2*Math.PI - successAngleRad);
+        // диапазон от (180+successDeg) до (180+360) = 540
+        targetDeg = 180 + successDeg + Math.random() * (360 - successDeg);
       }
+      // Нормализуем targetDeg в 0-360
+      targetDeg = targetDeg % 360;
+
       const startTime = performance.now();
       const duration = 3000;
-      const startAngle = 0;
-      const totalRotation = targetAngle + Math.PI * 6;
+      const startDeg = 0;
+      const totalRotation = targetDeg + 360 * 5; // много оборотов
+
       function step(now) {
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 4);
-        const currentAngle = startAngle + totalRotation * eased;
-        canvas.style.transform = `rotate(${currentAngle}rad)`;
+        const currentDeg = startDeg + totalRotation * eased;
+        arrow.style.transform = `translate(-50%, -100%) rotate(${currentDeg}deg)`;
         if (progress < 1) {
           wheelAnimId = requestAnimationFrame(step);
         } else {
-          canvas.style.transform = `rotate(${targetAngle}rad)`;
+          arrow.style.transform = `translate(-50%, -100%) rotate(${targetDeg}deg)`;
           if (callback) callback(isSuccess);
         }
       }
@@ -819,16 +962,13 @@
       });
     });
 
-    // ========== Команды ==========
+    // ========== Команды, Матчи, Промокоды, Пополнение, Профиль (без изменений) ==========
+    // ... (оставлены без изменений для краткости, полный код приведен в ответе)
+    // Ниже вставлены все обработчики из предыдущего ответа, сокращенно:
     let teams = load('teams', [{ name: 'Vortex', members: 3 }, { name: 'Shadow', members: 5 }]);
     const teamList = document.getElementById('teamList');
     function renderTeams() {
-      teamList.innerHTML = teams.map(t => `
-        <div class="team-card">
-          <div><strong>${t.name}</strong> (${t.members} игроков)</div>
-          <button class="btn" onclick="tg.showAlert('Приглашение отправлено (симуляция)')">Войти</button>
-        </div>
-      `).join('');
+      teamList.innerHTML = teams.map(t => `<div class="team-card"><div><strong>${t.name}</strong> (${t.members} игроков)</div><button class="btn" onclick="tg.showAlert('Приглашение отправлено (симуляция)')">Войти</button></div>`).join('');
     }
     renderTeams();
     document.getElementById('createTeamBtn').addEventListener('click', () => {
@@ -844,25 +984,15 @@
       renderTeams();
     });
 
-    // ========== Матчи ==========
     let myMatches = load('matches', []);
-    let globalMatches = [
-      { id: 101, maxPlayers: 2, players: 2, bet: 500, status: 'active' },
-      { id: 202, maxPlayers: 3, players: 1, bet: 300, status: 'active' },
-      { id: 303, maxPlayers: 5, players: 4, bet: 1000, status: 'active' }
-    ];
+    let globalMatches = [{ id: 101, maxPlayers: 2, players: 2, bet: 500, status: 'active' }, { id: 202, maxPlayers: 3, players: 1, bet: 300, status: 'active' }, { id: 303, maxPlayers: 5, players: 4, bet: 1000, status: 'active' }];
     const playersSlider = document.getElementById('playersSlider');
     const playersCountLabel = document.getElementById('playersCountLabel');
     const matchList = document.getElementById('matchList');
     playersSlider.addEventListener('input', () => playersCountLabel.textContent = playersSlider.value);
     function renderMatches() {
       const all = [...myMatches, ...globalMatches];
-      matchList.innerHTML = all.map((m, i) => `
-        <div class="match-card">
-          <div>ID: ${m.id} | ${m.players}/${m.maxPlayers} | ₽${m.bet} ${m.status==='finished'?'✅':''}</div>
-          <button class="btn match-detail-btn" data-index="${i}" data-source="${i < myMatches.length ? 'my' : 'global'}">Детали</button>
-        </div>
-      `).join('');
+      matchList.innerHTML = all.map((m, i) => `<div class="match-card"><div>ID: ${m.id} | ${m.players}/${m.maxPlayers} | ₽${m.bet} ${m.status==='finished'?'✅':''}</div><button class="btn match-detail-btn" data-index="${i}" data-source="${i < myMatches.length ? 'my' : 'global'}">Детали</button></div>`).join('');
       document.querySelectorAll('.match-detail-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
           if (e.target.dataset.source === 'my') showMatchDetails(parseInt(e.target.dataset.index));
@@ -914,7 +1044,6 @@
     });
     renderMatches();
 
-    // ========== Промокоды ==========
     const promoCodes = { 'VANGUARD2026': 300, 'SKINUP': 150, 'START': 100 };
     let usedPromos = load('usedPromos', []);
     document.getElementById('activatePromoBtn').addEventListener('click', () => {
@@ -934,7 +1063,6 @@
       }
     });
 
-    // ========== Пополнение ==========
     document.getElementById('addBalanceBtn').addEventListener('click', () => {
       document.getElementById('topupModal').style.display = 'flex';
     });
@@ -948,7 +1076,6 @@
       });
     });
 
-    // ========== Профиль и инвентарь ==========
     const nicknameInput = document.getElementById('nicknameInput');
     const nicknameStatus = document.getElementById('nicknameStatus');
     const tradeLinkInput = document.getElementById('tradeLinkInput');
@@ -994,7 +1121,7 @@
           ${createImg(item.image, item.name, '').outerHTML}
           <div style="flex:1; margin-left:8px;">
             <div style="font-weight:600;">${item.name}</div>
-            <div style="color:#fff;">₽ ${item.price}</div>
+            <div>₽ ${item.price}</div>
           </div>
           <div style="display:flex; gap:4px;">
             <button class="btn sell-item-btn" data-index="${idx}">Продать</button>
@@ -1021,9 +1148,9 @@
     }
     updateInventoryUI();
 
-    // Инициализация колеса при загрузке вкладки апгрейда
+    // Первичная отрисовка колеса
+    drawWheel(50);
     if (document.getElementById('section-upgrade').classList.contains('active')) refreshUpgradeTab();
-    else drawWheel(50); // начальная отрисовка
   </script>
 </body>
 </html>
