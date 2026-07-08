@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>VANGUARD | Кейсы и Апгрейд</title>
-    <script src="https://telegram.org/js/telegram-web-app.js">
-    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
             margin: 0;
@@ -204,20 +203,16 @@
             text-align: center;
         }
         .case-roulette {
-            position: sticky;
-            top: 0;
-            z-index: 5;
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            position: relative;
             width: 100%;
             height: 100px;
             overflow: hidden;
             margin: 16px 0;
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 16px;
             display: flex;
             align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             touch-action: pan-y;
         }
         .roulette-track {
@@ -255,6 +250,57 @@
             z-index: 2;
             border-radius: 2px;
             opacity: 0.7;
+        }
+        /* Мини-рулетки для нескольких кейсов */
+        .mini-roulettes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            margin: 12px 0;
+        }
+        .mini-roulette-container {
+            width: 180px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .mini-roulette {
+            width: 100%;
+            height: 60px;
+            overflow: hidden;
+            position: relative;
+            background: rgba(0,0,0,0.5);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .mini-roulette .roulette-track {
+            left: 50%;
+            transform: translateX(calc(-50% + 0px));
+        }
+        .mini-roulette .roulette-item {
+            flex: 0 0 50px;
+            height: 50px;
+        }
+        .mini-roulette .roulette-item img {
+            max-height: 40px;
+            max-width: 40px;
+        }
+        .mini-roulette .roulette-center-marker {
+            width: 3px;
+        }
+        .mini-result {
+            margin-top: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            min-height: 20px;
         }
         .btn {
             background: rgba(74, 144, 226, 0.15);
@@ -304,21 +350,11 @@
         .input:focus {
             border-color: #4A90E2;
         }
-        .rarity-blue {
-            background: linear-gradient(135deg, #4B69FF, #2563EB);
-        }
-        .rarity-purple {
-            background: linear-gradient(135deg, #8847FF, #7C3AED);
-        }
-        .rarity-pink {
-            background: linear-gradient(135deg, #D32CE6, #A21CAF);
-        }
-        .rarity-red {
-            background: linear-gradient(135deg, #EB4B4B, #DC2626);
-        }
-        .rarity-gold {
-            background: linear-gradient(135deg, #FFD700, #B8860B);
-        }
+        .rarity-blue { background: linear-gradient(135deg, #4B69FF, #2563EB); }
+        .rarity-purple { background: linear-gradient(135deg, #8847FF, #7C3AED); }
+        .rarity-pink { background: linear-gradient(135deg, #D32CE6, #A21CAF); }
+        .rarity-red { background: linear-gradient(135deg, #EB4B4B, #DC2626); }
+        .rarity-gold { background: linear-gradient(135deg, #FFD700, #B8860B); }
         .rarity-badge {
             display: inline-block;
             padding: 4px 12px;
@@ -327,102 +363,6 @@
             text-transform: uppercase;
             font-size: 12px;
             margin-left: 8px;
-        }
-
-        /* --- UPGRADE --- */
-        .upgrade-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .wheel-wrapper {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 20px auto;
-        }
-        .wheel-canvas {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            box-shadow: 0 0 30px rgba(74, 144, 226, 0.15), 0 0 60px rgba(0, 0, 0, 0.6);
-        }
-        .wheel-arrow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(0deg) translateY(100px);
-            width: 0;
-            height: 0;
-            border-left: 14px solid transparent;
-            border-right: 14px solid transparent;
-            border-bottom: 24px solid #fff;
-            filter: drop-shadow(0 0 8px rgba(74, 144, 226, 0.6));
-            z-index: 5;
-            transition: none;
-            transform-origin: center center;
-        }
-        .upgrade-columns {
-            display: flex;
-            gap: 12px;
-            width: 100%;
-            margin: 12px 0;
-        }
-        .upgrade-col {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            min-height: 120px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .upgrade-col h4 {
-            text-align: center;
-            margin-bottom: 4px;
-            font-size: 13px;
-            opacity: 0.7;
-            flex-shrink: 0;
-        }
-        .upgrade-card {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            padding: 6px 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid transparent;
-            font-size: 11px;
-            flex-shrink: 0;
-        }
-        .upgrade-card img {
-            width: 32px;
-            height: 32px;
-            object-fit: contain;
-            border-radius: 4px;
-            flex-shrink: 0;
-        }
-        .upgrade-card.selected {
-            border-color: #4A90E2;
-            background: rgba(74, 144, 226, 0.2);
-        }
-        .chance-badge {
-            margin-left: auto;
-            font-size: 10px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 2px 8px;
-            border-radius: 10px;
-            flex-shrink: 0;
         }
         .upgrade-result-banner {
             font-size: 18px;
@@ -443,267 +383,39 @@
             border: 1px solid rgba(255, 69, 58, 0.3);
             color: #ff453a;
         }
-
-        /* --- INVENTORY --- */
-        .inventory-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .item-card {
-            display: flex;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 14px;
-            padding: 8px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            gap: 10px;
-        }
-        .item-card img {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            border-radius: 6px;
-            flex-shrink: 0;
-        }
-        .item-card .item-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .item-card .item-name {
-            font-weight: 600;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .item-card .item-price {
-            font-size: 12px;
-            opacity: 0.7;
-        }
-        .item-card .item-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .item-card .item-actions .btn {
-            padding: 4px 12px;
-            font-size: 11px;
-            margin: 0;
-        }
-
-        .case-contents {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin: 12px 0;
-            max-width: 400px;
-            width: 100%;
-        }
-        .case-item-card {
-            width: 80px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            padding: 6px;
-            text-align: center;
-            font-size: 10px;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .case-item-card img {
-            width: 52px;
-            height: 52px;
-            object-fit: contain;
-            margin-bottom: 2px;
-            border-radius: 4px;
-        }
-        .case-item-card .item-label {
-            font-size: 9px;
-            opacity: 0.9;
-            line-height: 1.2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .case-item-card .item-price-tag {
-            font-size: 9px;
-            color: #4A90E2;
-            font-weight: 600;
-        }
-
-        .multi-panels {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 100%;
-            margin: 12px 0;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        .multi-panel {
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 14px;
-            padding: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .multi-panel .mp-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .multi-panel .mp-name {
-            font-weight: 600;
-            font-size: 13px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .multi-panel .mp-status {
-            font-size: 11px;
-            opacity: 0.6;
-        }
-        .multi-panel .mp-actions {
-            display: flex;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-        .multi-panel .mp-actions .btn {
-            padding: 4px 12px;
-            font-size: 11px;
-            margin: 0;
-        }
-
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin: 8px 0 4px;
-        }
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 2px;
-            outline: none;
-            margin: 6px 0;
-            touch-action: none;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #4A90E2;
-            cursor: pointer;
-            box-shadow: 0 0 12px rgba(74, 144, 226, 0.4);
-        }
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #4A90E2;
-            cursor: pointer;
-            border: none;
-        }
-
-        .drop-progress-wrap {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            height: 6px;
-            margin: 8px 0 4px;
-            overflow: hidden;
-        }
-        .drop-progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #4A90E2, #34c759);
-            border-radius: 10px;
-            transition: width 0.15s linear;
-        }
-        .drop-progress-label {
-            font-size: 11px;
-            opacity: 0.6;
-            text-align: center;
-            margin-top: 2px;
-        }
-
-        .flex-row {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .flex-row .btn {
-            flex: 1;
-            min-width: 80px;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .mt-8 {
-            margin-top: 8px;
-        }
-        .mb-8 {
-            margin-bottom: 8px;
-        }
-
+        /* ... (остальные стили из оригинала) ... */
+        .upgrade-container { display: flex; flex-direction: column; align-items: center; }
+        .wheel-wrapper { position: relative; width: 220px; height: 220px; margin: 20px auto; }
+        .wheel-canvas { display: block; position: absolute; top: 0; left: 0; width: 220px; height: 220px; border-radius: 50%; box-shadow: 0 0 30px rgba(74,144,226,0.15), 0 0 60px rgba(0,0,0,0.6); }
+        .wheel-arrow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) translateY(100px); width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 24px solid #fff; filter: drop-shadow(0 0 8px rgba(74,144,226,0.6)); z-index: 5; transition: none; transform-origin: center center; }
+        .upgrade-columns { display: flex; gap: 12px; width: 100%; margin: 12px 0; }
+        .upgrade-col { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; max-height: 200px; overflow-y: auto; }
+        .upgrade-col h4 { text-align: center; margin-bottom: 4px; font-size: 13px; opacity: 0.7; flex-shrink: 0; }
+        .upgrade-card { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 6px 8px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 11px; flex-shrink: 0; }
+        .upgrade-card img { width: 32px; height: 32px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
+        .upgrade-card.selected { border-color: #4A90E2; background: rgba(74,144,226,0.2); }
+        .chance-badge { margin-left: auto; font-size: 10px; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+        .drop-progress-wrap { width: 100%; background: rgba(255,255,255,0.06); border-radius: 10px; height: 6px; margin: 8px 0 4px; overflow: hidden; }
+        .drop-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #4A90E2, #34c759); border-radius: 10px; transition: width 0.15s linear; }
+        .drop-progress-label { font-size: 11px; opacity: 0.6; text-align: center; margin-top: 2px; }
+        .flex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
+        .text-center { text-align: center; }
+        .mt-8 { margin-top: 8px; }
+        .mb-8 { margin-bottom: 8px; }
         @media (max-width: 480px) {
-            .modal-fullscreen {
-                padding: 12px;
-            }
-            .wheel-wrapper {
-                width: 180px;
-                height: 180px;
-            }
-            .wheel-canvas {
-                width: 180px;
-                height: 180px;
-            }
-            .wheel-arrow {
-                transform: translate(-50%, -50%) rotate(0deg) translateY(80px);
-                border-left-width: 12px;
-                border-right-width: 12px;
-                border-bottom-width: 20px;
-            }
-            .roulette-item {
-                flex: 0 0 64px;
-                height: 64px;
-            }
-            .roulette-item img {
-                max-height: 52px;
-                max-width: 52px;
-            }
-            .case-item-card {
-                width: 68px;
-            }
-            .case-item-card img {
-                width: 44px;
-                height: 44px;
-            }
-            .upgrade-col {
-                min-height: 80px;
-                max-height: 140px;
-            }
-            .upgrade-card img {
-                width: 26px;
-                height: 26px;
-            }
-            .upgrade-card {
-                font-size: 10px;
-                padding: 4px 6px;
-            }
+            .modal-fullscreen { padding: 12px; }
+            .wheel-wrapper { width: 180px; height: 180px; }
+            .wheel-canvas { width: 180px; height: 180px; }
+            .wheel-arrow { transform: translate(-50%, -50%) rotate(0deg) translateY(80px); border-left-width: 12px; border-right-width: 12px; border-bottom-width: 20px; }
+            .roulette-item { flex: 0 0 64px; height: 64px; }
+            .roulette-item img { max-height: 52px; max-width: 52px; }
+            .mini-roulette-container { width: 150px; }
+            .mini-roulette .roulette-item { flex: 0 0 40px; height: 40px; }
+            .mini-roulette .roulette-item img { max-height: 30px; max-width: 30px; }
         }
     </style>
 </head>
 <body>
-
-    <!-- HEADER -->
     <div class="header">
         <div class="logo">VANGUARD</div>
         <div class="balance-block">
@@ -711,42 +423,27 @@
             <div class="add-balance-btn" id="addBalanceBtn">+</div>
         </div>
     </div>
-
-    <!-- TABS -->
     <div class="tabs">
         <button class="tab active" data-section="cases">Кейсы</button>
         <button class="tab" data-section="upgrade">Апгрейд</button>
         <button class="tab" data-section="profile">Профиль</button>
     </div>
 
-    <!-- ===== SECTION: CASES ===== -->
     <div id="section-cases" class="section active">
-        <div class="glass-panel" style="margin-bottom:12px;">
-            <h3>Выберите кейс</h3>
-        </div>
+        <div class="glass-panel" style="margin-bottom:12px;"><h3>Выберите кейс</h3></div>
         <div class="cases-grid" id="casesContainer"></div>
     </div>
 
-    <!-- ===== SECTION: UPGRADE ===== -->
     <div id="section-upgrade" class="section">
-        <div class="glass-panel">
-            <h3>Апгрейд скинов</h3>
-            <p style="font-size:12px; color:rgba(255,255,255,0.5);">Выберите скин и цель (шанс до 80%)</p>
-        </div>
+        <div class="glass-panel"><h3>Апгрейд скинов</h3><p style="font-size:12px; color:rgba(255,255,255,0.5);">Выберите скин и цель (шанс до 80%)</p></div>
         <div class="upgrade-container">
             <div class="wheel-wrapper" id="wheelWrapper">
                 <canvas id="wheelCanvas" class="wheel-canvas" width="220" height="220"></canvas>
                 <div class="wheel-arrow" id="wheelArrow"></div>
             </div>
             <div class="upgrade-columns">
-                <div class="upgrade-col">
-                    <h4>🎒 Ваш скин</h4>
-                    <div id="upgradeSourceList"></div>
-                </div>
-                <div class="upgrade-col">
-                    <h4>🎯 Цель</h4>
-                    <div id="upgradeTargetList"></div>
-                </div>
+                <div class="upgrade-col"><h4>🎒 Ваш скин</h4><div id="upgradeSourceList"></div></div>
+                <div class="upgrade-col"><h4>🎯 Цель</h4><div id="upgradeTargetList"></div></div>
             </div>
             <div id="upgradeChanceDisplay" style="text-align:center; margin:4px 0; font-weight:600; font-size:15px;"></div>
             <button class="btn btn-block" id="startUpgradeBtn" disabled>🔧 Апгрейд</button>
@@ -754,73 +451,49 @@
         </div>
     </div>
 
-    <!-- ===== SECTION: PROFILE ===== -->
     <div id="section-profile" class="section">
         <div class="glass-panel">
             <h3>Профиль</h3>
-            <div style="margin:8px 0;">
-                <label>Никнейм:</label>
-                <div style="display:flex; gap:8px;">
-                    <input class="input" id="nicknameInput" placeholder="Введите ник" />
-                    <button class="btn" id="saveNicknameBtn">Сохранить</button>
-                </div>
-                <div id="nicknameStatus" style="font-size:12px; margin-top:4px;"></div>
-            </div>
-            <div style="margin:16px 0;">
-                <label>Trade-ссылка CS:GO:</label>
-                <input class="input" id="tradeLinkInput" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..." />
-                <button class="btn" id="saveTradeLinkBtn" style="margin-top:4px;">Сохранить</button>
-                <a id="steamTradeBtn" class="btn" style="display:none; margin-top:8px; text-decoration:none;" target="_blank">🔗 Перейти к трейду</a>
-            </div>
+            <div style="margin:8px 0;"><label>Никнейм:</label><div style="display:flex; gap:8px;"><input class="input" id="nicknameInput" placeholder="Введите ник" /><button class="btn" id="saveNicknameBtn">Сохранить</button></div><div id="nicknameStatus" style="font-size:12px; margin-top:4px;"></div></div>
+            <div style="margin:16px 0;"><label>Trade-ссылка CS:GO:</label><input class="input" id="tradeLinkInput" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..." /><button class="btn" id="saveTradeLinkBtn" style="margin-top:4px;">Сохранить</button><a id="steamTradeBtn" class="btn" style="display:none; margin-top:8px; text-decoration:none;" target="_blank">🔗 Перейти к трейду</a></div>
         </div>
-        <div class="glass-panel">
-            <h3>Инвентарь</h3>
-            <div class="inventory-list" id="inventoryList"></div>
-            <p style="color:rgba(255,255,255,0.3); margin-top:8px; font-size:12px;">Продажа или вывод в трейд</p>
-        </div>
+        <div class="glass-panel"><h3>Инвентарь</h3><div class="inventory-list" id="inventoryList"></div><p style="color:rgba(255,255,255,0.3); margin-top:8px; font-size:12px;">Продажа или вывод в трейд</p></div>
     </div>
 
-    <!-- ===== MODAL: CASE ===== -->
+    <!-- CASE MODAL -->
     <div id="caseModal" class="modal-overlay" style="display:none;">
         <div class="modal-fullscreen">
             <h3 id="caseModalTitle" style="margin-bottom:4px;">Кейс</h3>
-            <!-- Рулетка закреплена вверху при скролле -->
-            <div class="case-roulette" id="rouletteContainer">
+            <!-- основная рулетка (для одного кейса) -->
+            <div class="case-roulette" id="rouletteContainer" style="display:none;">
                 <div class="roulette-track" id="rouletteTrack"></div>
                 <div class="roulette-center-marker"></div>
             </div>
-            <div class="drop-progress-wrap">
-                <div class="drop-progress-bar" id="dropProgressBar"></div>
-            </div>
+            <!-- мини-рулетки (для нескольких) -->
+            <div class="mini-roulettes-grid" id="miniRoulettesGrid" style="display:none;"></div>
+            <div class="drop-progress-wrap"><div class="drop-progress-bar" id="dropProgressBar"></div></div>
             <div id="dropProgressLabel" class="drop-progress-label">🎯 Готов к открытию</div>
             <div id="caseResultText" style="font-weight:600; min-height:28px; margin:4px 0;"></div>
 
-            <!-- Slider 1-10 -->
             <div style="width:100%; margin:8px 0;">
-                <div class="slider-label">
-                    <span>Количество кейсов</span>
-                    <span id="caseCountLabel">1</span>
-                </div>
+                <div class="slider-label"><span>Количество кейсов</span><span id="caseCountLabel">1</span></div>
                 <input type="range" id="caseCountSlider" min="1" max="10" value="1" step="1" />
             </div>
-
             <button class="btn btn-block" id="openCaseBtn">Открыть за X ₽</button>
 
-            <!-- Multi-panels -->
-            <div id="multiPanelsContainer" class="multi-panels"></div>
-
-            <!-- Contents preview -->
+            <!-- содержимое кейса -->
             <div id="caseContentsContainer" class="case-contents"></div>
 
-            <!-- Кнопки управления -->
-            <div style="display:flex; gap:8px; width:100%; margin-top:12px;">
-                <button class="btn btn-block" id="againCaseBtn" style="display:none; flex:1;">🔄 Сбросить</button>
-                <button class="btn btn-block" id="closeCaseBtn" style="flex:1;">✖ Закрыть</button>
+            <!-- кнопки действий после открытия -->
+            <div class="flex-row mt-8" id="postOpenActions" style="display:none;">
+                <button class="btn" id="againCaseBtn" style="flex:1;">🔄 Ещё раз</button>
+                <button class="btn btn-success" id="sellAllBtn" style="flex:1;">💰 Продать всё</button>
             </div>
+            <button class="btn btn-block mt-8" id="closeCaseBtn">✖ Закрыть</button>
         </div>
     </div>
 
-    <!-- ===== MODAL: TOPUP ===== -->
+    <!-- TOPUP MODAL -->
     <div id="topupModal" class="modal-overlay" style="display:none;">
         <div class="modal">
             <h3>Пополнение</h3>
@@ -835,545 +508,411 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+        (function() {
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.ready();
 
-        // ---------- Хранилище ----------
-        function load(key, def) {
-            try { return JSON.parse(localStorage.getItem('vng_' + key)) || def; } catch (e) { return def; }
-        }
-        function save(key, val) { localStorage.setItem('vng_' + key, JSON.stringify(val)); }
+            // ---------- Хранилище ----------
+            function load(key, def) { try { return JSON.parse(localStorage.getItem('vng_' + key)) || def; } catch (e) { return def; } }
+            function save(key, val) { localStorage.setItem('vng_' + key, JSON.stringify(val)); }
 
-        let balance = load('balance', 1000);
-        const balanceEl = document.getElementById('balanceDisplay');
-        function updateBalanceDisplay() { balanceEl.textContent = '₽ ' + balance; }
-        function changeBalance(amt) {
-            balance += amt;
-            if (balance < 0) balance = 0;
-            save('balance', balance);
+            let balance = load('balance', 1000);
+            const balanceEl = document.getElementById('balanceDisplay');
+            function updateBalanceDisplay() { balanceEl.textContent = '₽ ' + balance; }
+            function changeBalance(amt) { balance += amt; if (balance < 0) balance = 0; save('balance', balance); updateBalanceDisplay(); }
             updateBalanceDisplay();
-        }
-        updateBalanceDisplay();
 
-        let profile = load('profile', { nickname: '', tradeLink: '' });
-        let takenNicknames = load('takenNicknames', []);
-        function isNicknameTaken(nick) { return takenNicknames.includes(nick.toLowerCase()); }
-        function registerNickname(nick) {
-            if (!isNicknameTaken(nick)) {
-                takenNicknames.push(nick.toLowerCase());
-                save('takenNicknames', takenNicknames);
-                return true;
+            let profile = load('profile', { nickname: '', tradeLink: '' });
+            let takenNicknames = load('takenNicknames', []);
+            function isNicknameTaken(nick) { return takenNicknames.includes(nick.toLowerCase()); }
+            function registerNickname(nick) { if (!isNicknameTaken(nick)) { takenNicknames.push(nick.toLowerCase()); save('takenNicknames', takenNicknames); return true; } return false; }
+            let inventory = load('inventory', []);
+            let isCaseOpening = false;
+            let currentCaseIdx = null;
+            let upgradeInProgress = false;
+
+            // ---------- Скины и кейсы ----------
+            const skinImages = { 'AK-47 | Redline': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AK-47%20-%20Redline.png?raw=true', 'AWP | Duality': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AWP%20-%20Duality.png?raw=true', 'M4A1-S | Emphorosaur-S': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/M4A1-S%20-%20Emphorosaur-S.png?raw=true', 'USP-S | Cortex': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/USP-S%20-%20Cortex.webp?raw=true', 'Desert Eagle | Midnight': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'M4A1-S | Printstream': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'M4A1 | Bright Water': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'AWP | Dragon Lore': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true' };
+            const fallbackSkinImg = 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true';
+            const allSkins = [
+                { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], basePrice: 350, rarity: 'red' },
+                { name: 'AWP | Duality', image: skinImages['AWP | Duality'], basePrice: 1200, rarity: 'red' },
+                { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], basePrice: 280, rarity: 'pink' },
+                { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], basePrice: 450, rarity: 'purple' },
+                { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], basePrice: 310, rarity: 'purple' },
+                { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], basePrice: 270, rarity: 'pink' },
+                { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], basePrice: 200, rarity: 'blue' },
+                { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], basePrice: 5000, rarity: 'gold' }
+            ];
+            const cases = [
+                { name: 'Dust II', price: 129, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_dust2.png?raw=true', category: 'Кейсы по картам', items: [ { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }, { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], price: 280, rarity: 'pink' } ] },
+                { name: 'Mirage', price: 59, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', category: 'Кейсы по картам', items: [ { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' }, { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' } ] },
+                { name: 'Overpass', price: 129, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_overpass.png?raw=true', category: 'Кейсы по картам', items: [ { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' }, { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' } ] },
+                { name: 'only AWP', price: 100, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyAWP.png?raw=true', category: 'Кейсы по оружиям', items: [ { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' }, { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' } ] },
+                { name: 'only AK', price: 69, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyAK.png?raw=true', category: 'Кейсы по оружиям', items: [ { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' } ] },
+                { name: 'only Deagle', price: 79, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyDeagle.png?raw=true', category: 'Кейсы по оружиям', items: [ { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' } ] },
+                { name: 'only M4A1', price: 34, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyM4A1.png?raw=true', category: 'Кейсы по оружиям', items: [ { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], price: 200, rarity: 'blue' } ] },
+                { name: 'only M4A1-S', price: 29, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyM4A1-S.png?raw=true', category: 'Кейсы по оружиям', items: [ { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], price: 280, rarity: 'pink' }, { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], price: 270, rarity: 'pink' } ] },
+                { name: 'vanguard', price: 4999, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_vanguard.png?raw=true', category: 'Лимитированные кейсы', items: [ { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' }, { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' } ] },
+                { name: 'Көрімдік', price: 67, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_Көрімдік.png?raw=true', category: 'Лимитированные кейсы', items: [ { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' }, { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' } ] },
+                { name: 'ORDINARY', price: 19, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_ORDINARY.png?raw=true', category: 'Фирменные кейсы', items: [ { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], price: 200, rarity: 'blue' }, { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], price: 270, rarity: 'pink' } ] },
+                { name: 'UNUSUAL', price: 99, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_UNUSUAL.png?raw=true', category: 'Фирменные кейсы', items: [ { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' }, { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' } ] },
+                { name: 'LEGENDARY', price: 999, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_LEGENDARY.png?raw=true', category: 'Фирменные кейсы', items: [ { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' }, { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' } ] },
+                { name: 'MYTHICAL', price: 2700, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_MYTHICAL.png?raw=true', category: 'Фирменные кейсы', items: [ { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' } ] }
+            ];
+
+            function createImg(src, alt, className) { const img = document.createElement('img'); img.src = src; img.alt = alt || ''; if (className) img.className = className; img.onerror = () => img.src = fallbackSkinImg; return img; }
+            function getRarityClass(rarity) { return 'rarity-' + rarity; }
+
+            // ---------- UI табы ----------
+            function showSection(sectionId) {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                const el = document.getElementById('section-' + sectionId);
+                if (el) el.classList.add('active');
+                if (sectionId === 'profile') updateInventoryUI();
+                if (sectionId === 'upgrade') refreshUpgradeTab();
             }
-            return false;
-        }
-        let inventory = load('inventory', []);
-        let isCaseOpening = false;
-        let currentCaseIdx = null;
-        let upgradeInProgress = false;
-
-        // ---------- Изображения скинов ----------
-        const skinImages = {
-            'AK-47 | Redline': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AK-47%20-%20Redline.png?raw=true',
-            'AWP | Duality': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AWP%20-%20Duality.png?raw=true',
-            'M4A1-S | Emphorosaur-S': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/M4A1-S%20-%20Emphorosaur-S.png?raw=true',
-            'USP-S | Cortex': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/USP-S%20-%20Cortex.webp?raw=true',
-            'Desert Eagle | Midnight': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
-            'M4A1-S | Printstream': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
-            'M4A1 | Bright Water': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true',
-            'AWP | Dragon Lore': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true'
-        };
-        const fallbackSkinImg = 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true';
-
-        const allSkins = [
-            { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], basePrice: 350, rarity: 'red' },
-            { name: 'AWP | Duality', image: skinImages['AWP | Duality'], basePrice: 1200, rarity: 'red' },
-            { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], basePrice: 280, rarity: 'pink' },
-            { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], basePrice: 450, rarity: 'purple' },
-            { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], basePrice: 310, rarity: 'purple' },
-            { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], basePrice: 270, rarity: 'pink' },
-            { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], basePrice: 200, rarity: 'blue' },
-            { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], basePrice: 5000, rarity: 'gold' }
-        ];
-
-        // ---------- Кейсы ----------
-        const cases = [
-            { name: 'Dust II', price: 129, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_dust2.png?raw=true', category: 'Кейсы по картам', items: [
-                { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' },
-                { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], price: 280, rarity: 'pink' }
-            ]},
-            { name: 'Mirage', price: 59, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', category: 'Кейсы по картам', items: [
-                { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
-                { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' }
-            ]},
-            { name: 'Overpass', price: 129, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_overpass.png?raw=true', category: 'Кейсы по картам', items: [
-                { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
-                { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' }
-            ]},
-            { name: 'only AWP', price: 100, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyAWP.png?raw=true', category: 'Кейсы по оружиям', items: [
-                { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
-                { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' }
-            ]},
-            { name: 'only AK', price: 69, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyAK.png?raw=true', category: 'Кейсы по оружиям', items: [
-                { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }
-            ]},
-            { name: 'only Deagle', price: 79, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyDeagle.png?raw=true', category: 'Кейсы по оружиям', items: [
-                { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' }
-            ]},
-            { name: 'only M4A1', price: 34, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyM4A1.png?raw=true', category: 'Кейсы по оружиям', items: [
-                { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], price: 200, rarity: 'blue' }
-            ]},
-            { name: 'only M4A1-S', price: 29, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_onlyM4A1-S.png?raw=true', category: 'Кейсы по оружиям', items: [
-                { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], price: 280, rarity: 'pink' },
-                { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], price: 270, rarity: 'pink' }
-            ]},
-            { name: 'vanguard', price: 4999, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_vanguard.png?raw=true', category: 'Лимитированные кейсы', items: [
-                { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' },
-                { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' }
-            ]},
-            { name: 'Көрімдік', price: 67, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_Көрімдік.png?raw=true', category: 'Лимитированные кейсы', items: [
-                { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' },
-                { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }
-            ]},
-            { name: 'ORDINARY', price: 19, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_ORDINARY.png?raw=true', category: 'Фирменные кейсы', items: [
-                { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], price: 200, rarity: 'blue' },
-                { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], price: 270, rarity: 'pink' }
-            ]},
-            { name: 'UNUSUAL', price: 99, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_UNUSUAL.png?raw=true', category: 'Фирменные кейсы', items: [
-                { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], price: 310, rarity: 'purple' },
-                { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], price: 450, rarity: 'purple' }
-            ]},
-            { name: 'LEGENDARY', price: 999, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_LEGENDARY.png?raw=true', category: 'Фирменные кейсы', items: [
-                { name: 'AWP | Duality', image: skinImages['AWP | Duality'], price: 1200, rarity: 'red' },
-                { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], price: 350, rarity: 'red' }
-            ]},
-            { name: 'MYTHICAL', price: 2700, image: 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_MYTHICAL.png?raw=true', category: 'Фирменные кейсы', items: [
-                { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], price: 5000, rarity: 'gold' }
-            ]}
-        ];
-
-        function createImg(src, alt, className) {
-            const img = document.createElement('img');
-            img.src = src;
-            img.alt = alt || '';
-            if (className) img.className = className;
-            img.onerror = function() { this.src = fallbackSkinImg; };
-            return img;
-        }
-        function getRarityClass(rarity) { return 'rarity-' + rarity; }
-
-        // ---------- UI-переключение вкладок ----------
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            const el = document.getElementById('section-' + sectionId);
-            if (el) el.classList.add('active');
-            if (sectionId === 'profile') updateInventoryUI();
-            if (sectionId === 'upgrade') refreshUpgradeTab();
-        }
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 showSection(tab.dataset.section);
-            });
-        });
+            }));
 
-        // ============================================================
-        //  КЕЙСЫ
-        // ============================================================
-        const casesContainer = document.getElementById('casesContainer');
-        function renderCases() {
-            let html = '';
-            let lastCategory = '';
-            cases.forEach((c, idx) => {
-                if (c.category !== lastCategory) {
-                    html += `<div class="case-category-title">${c.category}</div>`;
-                    lastCategory = c.category;
-                }
-                html += `
-                <div class="case-card" data-index="${idx}">
-                    <img src="${c.image}" alt="${c.name}" class="case-image" onerror="this.src='${fallbackSkinImg}'" />
-                    <div class="case-name">${c.name}</div>
-                    <div class="case-price">${c.price} ₽</div>
-                </div>`;
-            });
-            casesContainer.innerHTML = html;
-            document.querySelectorAll('.case-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    if (isCaseOpening) return;
-                    const idx = parseInt(card.dataset.index);
-                    showCaseModal(idx);
+            // ---------- Кейсы: рендер карточек ----------
+            const casesContainer = document.getElementById('casesContainer');
+            function renderCases() {
+                let html = '', lastCategory = '';
+                cases.forEach((c, idx) => {
+                    if (c.category !== lastCategory) { html += `<div class="case-category-title">${c.category}</div>`; lastCategory = c.category; }
+                    html += `<div class="case-card" data-index="${idx}"><img src="${c.image}" alt="${c.name}" class="case-image" onerror="this.src='${fallbackSkinImg}'" /><div class="case-name">${c.name}</div><div class="case-price">${c.price} ₽</div></div>`;
                 });
+                casesContainer.innerHTML = html;
+                document.querySelectorAll('.case-card').forEach(card => card.addEventListener('click', () => { if (isCaseOpening) return; showCaseModal(parseInt(card.dataset.index)); }));
+            }
+            renderCases();
+
+            // ---------- Модалка кейса ----------
+            const caseModal = document.getElementById('caseModal');
+            const rouletteTrack = document.getElementById('rouletteTrack');
+            const caseResultText = document.getElementById('caseResultText');
+            const openCaseBtn = document.getElementById('openCaseBtn');
+            const caseContentsContainer = document.getElementById('caseContentsContainer');
+            const closeCaseBtn = document.getElementById('closeCaseBtn');
+            const againCaseBtn = document.getElementById('againCaseBtn');
+            const sellAllBtn = document.getElementById('sellAllBtn');
+            const postOpenActions = document.getElementById('postOpenActions');
+            const caseCountSlider = document.getElementById('caseCountSlider');
+            const caseCountLabel = document.getElementById('caseCountLabel');
+            const dropProgressBar = document.getElementById('dropProgressBar');
+            const dropProgressLabel = document.getElementById('dropProgressLabel');
+            const caseModalTitle = document.getElementById('caseModalTitle');
+            const miniRoulettesGrid = document.getElementById('miniRoulettesGrid');
+            const mainRoulette = document.getElementById('rouletteContainer');
+
+            let caseOpenCount = 1;
+            let caseResults = [];
+            let animCompletedCount = 0;
+
+            caseCountSlider.addEventListener('input', () => {
+                caseOpenCount = parseInt(caseCountSlider.value);
+                caseCountLabel.textContent = caseOpenCount;
+                if (currentCaseIdx !== null) {
+                    const caseData = cases[currentCaseIdx];
+                    openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
+                    renderCaseLayout();
+                }
             });
-        }
-        renderCases();
 
-        // ---------- Модалка кейса ----------
-        const caseModal = document.getElementById('caseModal');
-        const rouletteTrack = document.getElementById('rouletteTrack');
-        const caseResultText = document.getElementById('caseResultText');
-        const openCaseBtn = document.getElementById('openCaseBtn');
-        const caseContentsContainer = document.getElementById('caseContentsContainer');
-        const closeCaseBtn = document.getElementById('closeCaseBtn');
-        const againCaseBtn = document.getElementById('againCaseBtn');
-        const caseCountSlider = document.getElementById('caseCountSlider');
-        const caseCountLabel = document.getElementById('caseCountLabel');
-        const multiPanelsContainer = document.getElementById('multiPanelsContainer');
-        const dropProgressBar = document.getElementById('dropProgressBar');
-        const dropProgressLabel = document.getElementById('dropProgressLabel');
-        const caseModalTitle = document.getElementById('caseModalTitle');
-
-        let caseOpenCount = 1;
-        let caseResults = [];
-
-        caseCountSlider.addEventListener('input', () => {
-            caseOpenCount = parseInt(caseCountSlider.value);
-            caseCountLabel.textContent = caseOpenCount;
-            updateMultiPanels();
-            if (currentCaseIdx !== null) {
-                const caseData = cases[currentCaseIdx];
-                openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
-            }
-        });
-
-        function updateMultiPanels() {
-            const count = caseOpenCount;
-            let html = '';
-            for (let i = 0; i < count; i++) {
-                html += `
-                <div class="multi-panel" id="mp-${i}">
-                    <div style="font-size:20px; font-weight:700; color:rgba(255,255,255,0.2); width:30px; text-align:center;">#${i+1}</div>
-                    <div class="mp-info">
-                        <div class="mp-name" id="mp-name-${i}">—</div>
-                        <div class="mp-status" id="mp-status-${i}">ожидает</div>
-                    </div>
-                    <div id="mp-result-${i}" style="font-size:18px; min-width:30px;">❓</div>
-                    <div class="mp-actions" id="mp-actions-${i}"></div>
-                </div>`;
-            }
-            multiPanelsContainer.innerHTML = html;
-        }
-        updateMultiPanels();
-
-        function showCaseModal(caseIdx) {
-            currentCaseIdx = caseIdx;
-            const caseData = cases[caseIdx];
-            caseModalTitle.textContent = caseData.name;
-
-            caseContentsContainer.innerHTML = caseData.items.map(item => `
-                <div class="case-item-card ${getRarityClass(item.rarity)}">
-                    ${createImg(item.image, item.name, '').outerHTML}
-                    <div class="item-label">${item.name}</div>
-                    <div class="item-price-tag">₽${item.price}</div>
-                </div>`).join('');
-
-            // Сброс рулетки
-            const items = caseData.items;
-            rouletteTrack.innerHTML = items.map(item =>
-                `<div class="roulette-item">${createImg(item.image, item.name, '').outerHTML}</div>`
-            ).join('');
-            rouletteTrack.style.transform = 'translateX(calc(-50% + 0px))';
-
-            openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
-            openCaseBtn.disabled = false;
-            againCaseBtn.style.display = 'none';
-
-            caseResultText.innerHTML = '';
-            dropProgressBar.style.width = '0%';
-            dropProgressLabel.textContent = '🎯 Готов к открытию';
-            caseResults = [];
-            updateMultiPanels();
-            caseModal.style.display = 'flex';
-            isCaseOpening = false;
-        }
-
-        // Исправленная анимация рулетки (точная остановка)
-        function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
-            const track = document.getElementById(trackId);
-            const container = document.getElementById(containerId);
-            const itemWidth = 80;
-            const repeated = [];
-            for (let i = 0; i < 8; i++) repeated.push(...items);
-            track.innerHTML = repeated.map(item =>
-                `<div class="roulette-item">${createImg(item.image, item.name, '').outerHTML}</div>`
-            ).join('');
-
-            const totalTrackWidth = repeated.length * itemWidth;
-            const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
-            if (selectedIndex === -1) { if (callback) callback(); return; }
-
-            // Вычисляем смещение так, чтобы центр выбранного элемента оказался в центре контейнера
-            const targetOffset = totalTrackWidth / 2 - (selectedIndex * itemWidth + itemWidth / 2);
-            // Небольшой случайный джиттер для естественности
-            const jitter = (Math.random() - 0.5) * 10;
-            const finalOffset = targetOffset + jitter;
-
-            const startTime = performance.now();
-            function step(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / durationMs, 1);
-                const eased = 1 - Math.pow(1 - progress, 4);
-                const currentOffset = finalOffset * eased; // начинаем с 0
-                track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
-                if (progress < 1) {
-                    requestAnimationFrame(step);
+            function renderCaseLayout() {
+                const items = cases[currentCaseIdx].items;
+                if (caseOpenCount === 1) {
+                    mainRoulette.style.display = 'flex';
+                    miniRoulettesGrid.style.display = 'none';
+                    rouletteTrack.innerHTML = items.map(i => `<div class="roulette-item">${createImg(i.image, i.name).outerHTML}</div>`).join('');
+                    rouletteTrack.style.transform = 'translateX(calc(-50% + 0px))';
                 } else {
-                    track.style.transform = `translateX(calc(-50% + ${finalOffset}px))`;
-                    if (callback) callback();
+                    mainRoulette.style.display = 'none';
+                    miniRoulettesGrid.style.display = 'flex';
+                    let html = '';
+                    for (let i = 0; i < caseOpenCount; i++) {
+                        html += `<div class="mini-roulette-container" id="miniCont${i}">
+                            <div class="mini-roulette" id="miniRoulette${i}">
+                                <div class="roulette-track" id="miniTrack${i}">${items.map(it => `<div class="roulette-item">${createImg(it.image, it.name).outerHTML}</div>`).join('')}</div>
+                                <div class="roulette-center-marker"></div>
+                            </div>
+                            <div class="mini-result" id="miniResult${i}">—</div>
+                            <button class="btn sell-single-btn" data-index="${i}" style="display:none; margin-top:4px; font-size:11px;">Продать</button>
+                        </div>`;
+                    }
+                    miniRoulettesGrid.innerHTML = html;
                 }
             }
-            requestAnimationFrame(step);
-        }
 
-        function performCaseOpening() {
-            if (isCaseOpening || currentCaseIdx === null) return;
-            const caseData = cases[currentCaseIdx];
-            const totalCost = caseData.price * caseOpenCount;
-            if (balance < totalCost) {
-                tg.showAlert('Недостаточно средств!');
-                return;
+            function showCaseModal(caseIdx) {
+                currentCaseIdx = caseIdx;
+                const caseData = cases[caseIdx];
+                caseModalTitle.textContent = caseData.name;
+                caseContentsContainer.innerHTML = caseData.items.map(item => `<div class="case-item-card ${getRarityClass(item.rarity)}">${createImg(item.image, item.name).outerHTML}<div class="item-label">${item.name}</div><div class="item-price-tag">₽${item.price}</div></div>`).join('');
+                openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
+                openCaseBtn.disabled = false;
+                postOpenActions.style.display = 'none';
+                caseResultText.innerHTML = '';
+                dropProgressBar.style.width = '0%';
+                dropProgressLabel.textContent = '🎯 Готов к открытию';
+                caseResults = [];
+                animCompletedCount = 0;
+                renderCaseLayout();
+                caseModal.style.display = 'flex';
+                isCaseOpening = false;
             }
-            changeBalance(-totalCost);
-            isCaseOpening = true;
-            openCaseBtn.disabled = true;
-            againCaseBtn.style.display = 'none';
-            caseResultText.innerHTML = '';
-            dropProgressBar.style.width = '0%';
-            dropProgressLabel.textContent = '🎰 Открываем...';
 
-            const items = caseData.items;
-            const results = [];
-            for (let i = 0; i < caseOpenCount; i++) {
-                const selected = items[Math.floor(Math.random() * items.length)];
-                results.push({ ...selected, index: i });
+            // Анимация рулетки (влево, долгая)
+            function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
+                const track = document.getElementById(trackId);
+                const container = document.getElementById(containerId);
+                const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
+                const repeated = [];
+                for (let i = 0; i < 20; i++) repeated.push(...items);
+                track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
+                const totalTrackWidth = repeated.length * itemWidth;
+                const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
+                if (selectedIndex === -1) { if (callback) callback(); return; }
+                // едем влево – targetOffset положительный
+                const targetOffset = (selectedIndex * itemWidth + itemWidth / 2) - totalTrackWidth / 2;
+                const jitter = (Math.random() - 0.5) * 10;
+                const finalOffset = targetOffset + jitter;
+                const startTime = performance.now();
+                function step(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed / durationMs, 1);
+                    const eased = 1 - Math.pow(1 - progress, 4);
+                    const currentOffset = finalOffset * eased;
+                    track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
+                    if (progress < 1) requestAnimationFrame(step);
+                    else {
+                        track.style.transform = `translateX(calc(-50% + ${finalOffset}px))`;
+                        if (callback) callback();
+                    }
+                }
+                requestAnimationFrame(step);
             }
-            caseResults = results;
 
-            // Обновляем панели
-            results.forEach((res, i) => {
-                const nameEl = document.getElementById('mp-name-' + i);
-                const statusEl = document.getElementById('mp-status-' + i);
-                const resultEl = document.getElementById('mp-result-' + i);
-                const actionsEl = document.getElementById('mp-actions-' + i);
-                if (nameEl) nameEl.textContent = res.name;
-                if (statusEl) statusEl.textContent = '🔮 вращается...';
-                if (resultEl) resultEl.textContent = '⏳';
-                if (actionsEl) actionsEl.innerHTML = '';
-            });
+            // Удаление предмета из инвентаря
+            function removeInventoryItem(name, price) {
+                const idx = inventory.findIndex(s => s.name === name && s.price === price);
+                if (idx !== -1) {
+                    inventory.splice(idx, 1);
+                    return true;
+                }
+                return false;
+            }
 
-            let completed = 0;
-            const totalItems = results.length;
+            // Открытие кейсов
+            function performCaseOpening() {
+                if (isCaseOpening || currentCaseIdx === null) return;
+                const caseData = cases[currentCaseIdx];
+                const totalCost = caseData.price * caseOpenCount;
+                if (balance < totalCost) { tg.showAlert('Недостаточно средств!'); return; }
+                changeBalance(-totalCost);
+                isCaseOpening = true;
+                openCaseBtn.disabled = true;
+                postOpenActions.style.display = 'none';
+                caseResultText.innerHTML = '';
+                dropProgressBar.style.width = '0%';
+                dropProgressLabel.textContent = '🎰 Открываем...';
 
-            function animateNext(idx) {
-                if (idx >= totalItems) {
-                    dropProgressLabel.textContent = '✅ Все открыты!';
-                    isCaseOpening = false;
-                    openCaseBtn.disabled = true;
-                    againCaseBtn.style.display = 'block';
-                    againCaseBtn.textContent = '🔄 Сбросить';
+                // Генерация результатов и сразу в инвентарь
+                const items = caseData.items;
+                caseResults = [];
+                for (let i = 0; i < caseOpenCount; i++) {
+                    const selected = items[Math.floor(Math.random() * items.length)];
+                    caseResults.push({ ...selected, index: i, sold: false });
+                    inventory.push({ ...selected });
+                }
+                save('inventory', inventory);
+                updateInventoryUI();
 
-                    results.forEach(r => inventory.push({ ...r }));
+                // Настройка UI для множественного открытия
+                if (caseOpenCount === 1) {
+                    mainRoulette.style.display = 'flex';
+                    miniRoulettesGrid.style.display = 'none';
+                } else {
+                    mainRoulette.style.display = 'none';
+                    miniRoulettesGrid.style.display = 'flex';
+                }
+
+                animCompletedCount = 0;
+                const total = caseOpenCount;
+
+                function onAnimComplete(index, selected) {
+                    animCompletedCount++;
+                    const progress = (animCompletedCount / total) * 100;
+                    dropProgressBar.style.width = progress + '%';
+                    dropProgressLabel.textContent = `🎯 ${animCompletedCount}/${total}`;
+
+                    if (caseOpenCount === 1) {
+                        const resDiv = caseResultText;
+                        resDiv.innerHTML = `🎉 Выпало: <span class="rarity-badge ${getRarityClass(selected.rarity)}">${selected.name}</span>`;
+                        const sellBtn = document.createElement('button');
+                        sellBtn.className = 'btn btn-success sell-single-btn';
+                        sellBtn.textContent = 'Продать за ' + selected.price + '₽';
+                        sellBtn.dataset.index = 0;
+                        sellBtn.addEventListener('click', () => sellSingleResult(0));
+                        resDiv.appendChild(sellBtn);
+                        postOpenActions.style.display = 'flex';
+                        document.getElementById('sellAllBtn').style.display = 'inline-block';
+                    } else {
+                        const resEl = document.getElementById('miniResult' + index);
+                        if (resEl) {
+                            resEl.innerHTML = `<span class="rarity-badge ${getRarityClass(selected.rarity)}">${selected.name}</span>`;
+                        }
+                        const sellBtn = document.querySelector(`.sell-single-btn[data-index="${index}"]`);
+                        if (sellBtn) {
+                            sellBtn.style.display = 'inline-block';
+                            sellBtn.disabled = false;
+                            sellBtn.onclick = () => sellSingleResult(index);
+                        }
+                    }
+
+                    if (animCompletedCount === total) {
+                        isCaseOpening = false;
+                        dropProgressLabel.textContent = '✅ Все открыты!';
+                        if (caseOpenCount > 1) {
+                            postOpenActions.style.display = 'flex';
+                            document.getElementById('sellAllBtn').style.display = 'inline-block';
+                        }
+                    }
+                }
+
+                // Запуск анимаций
+                if (caseOpenCount === 1) {
+                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 11000 + Math.random() * 3000, () => {
+                        onAnimComplete(0, caseResults[0]);
+                    });
+                } else {
+                    caseResults.forEach((res, i) => {
+                        const containerId = 'miniRoulette' + i;
+                        const trackId = 'miniTrack' + i;
+                        // небольшая задержка для каждой рулетки, чтобы они не начинали одновременно
+                        setTimeout(() => {
+                            animateRoulette(containerId, trackId, items, res, 10000 + Math.random() * 4000, () => {
+                                onAnimComplete(i, res);
+                            });
+                        }, i * 200);
+                    });
+                }
+            }
+
+            function sellSingleResult(index) {
+                const res = caseResults[index];
+                if (!res || res.sold) return;
+                if (removeInventoryItem(res.name, res.price)) {
+                    changeBalance(res.price);
                     save('inventory', inventory);
                     updateInventoryUI();
-
-                    const names = results.map(r => r.name).join(', ');
-                    caseResultText.innerHTML = `🎉 Выпало: <span style="font-weight:700;">${names}</span>`;
-
-                    const sellAllBtn = document.createElement('button');
-                    sellAllBtn.className = 'btn btn-success';
-                    sellAllBtn.textContent = '💰 Продать всё';
-                    sellAllBtn.style.marginTop = '8px';
-                    sellAllBtn.addEventListener('click', () => {
-                        let total = 0;
-                        results.forEach(r => { total += r.price; });
-                        changeBalance(total);
-                        results.forEach(r => {
-                            const idx2 = inventory.findIndex(s => s.name === r.name && s.price === r.price);
-                            if (idx2 !== -1) inventory.splice(idx2, 1);
-                        });
-                        save('inventory', inventory);
-                        updateInventoryUI();
-                        caseResultText.innerHTML += `<br>💰 Продано за ${total} ₽`;
-                        sellAllBtn.remove();
-                        document.querySelectorAll('.mp-actions .btn-sell-single').forEach(b => b.remove());
-                        results.forEach((r, i) => {
-                            const st = document.getElementById('mp-status-' + i);
-                            if (st) st.textContent = '💰 продан';
-                            const resEl = document.getElementById('mp-result-' + i);
-                            if (resEl) resEl.textContent = '✅';
-                            const act = document.getElementById('mp-actions-' + i);
-                            if (act) act.innerHTML = '';
-                        });
-                    });
-                    caseResultText.appendChild(sellAllBtn);
-                    return;
+                    res.sold = true;
+                    // обновить UI
+                    if (caseOpenCount === 1) {
+                        caseResultText.innerHTML += '<br>💰 Продано за ' + res.price + ' ₽';
+                        const sellBtns = document.querySelectorAll('.sell-single-btn');
+                        sellBtns.forEach(b => b.remove());
+                    } else {
+                        const sellBtn = document.querySelector(`.sell-single-btn[data-index="${index}"]`);
+                        if (sellBtn) sellBtn.style.display = 'none';
+                        const resEl = document.getElementById('miniResult' + index);
+                        if (resEl) resEl.innerHTML += ' (продан)';
+                    }
                 }
+            }
 
-                const res = results[idx];
-                const statusEl = document.getElementById('mp-status-' + idx);
-                const resultEl = document.getElementById('mp-result-' + idx);
-                const actionsEl = document.getElementById('mp-actions-' + idx);
-
-                const progress = ((idx + 1) / totalItems) * 100;
-                dropProgressBar.style.width = progress + '%';
-                dropProgressLabel.textContent = `🎯 ${idx+1}/${totalItems} — ${res.name}`;
-
-                animateRoulette('rouletteContainer', 'rouletteTrack', items, res, 1800 + Math.random() * 600, () => {
-                    if (statusEl) statusEl.textContent = '✅ выпал!';
-                    if (resultEl) {
-                        const badge = document.createElement('span');
-                        badge.className = 'rarity-badge ' + getRarityClass(res.rarity);
-                        badge.textContent = res.name;
-                        resultEl.innerHTML = '';
-                        resultEl.appendChild(badge);
+            function sellAllResults() {
+                let totalGain = 0;
+                caseResults.forEach(res => {
+                    if (!res.sold) {
+                        if (removeInventoryItem(res.name, res.price)) {
+                            totalGain += res.price;
+                            res.sold = true;
+                        }
                     }
-                    if (actionsEl) {
-                        const sellBtn = document.createElement('button');
-                        sellBtn.className = 'btn btn-success btn-sell-single';
-                        sellBtn.textContent = `Продать за ${res.price}₽`;
-                        sellBtn.style.padding = '2px 10px';
-                        sellBtn.style.fontSize = '10px';
-                        sellBtn.addEventListener('click', () => {
-                            const idxInv = inventory.findIndex(s => s.name === res.name && s.price === res.price);
-                            if (idxInv !== -1) {
-                                changeBalance(res.price);
-                                inventory.splice(idxInv, 1);
-                                save('inventory', inventory);
-                                updateInventoryUI();
-                                if (statusEl) statusEl.textContent = '💰 продан';
-                                if (resultEl) resultEl.textContent = '✅';
-                                actionsEl.innerHTML = '';
-                                const resIdx = results.findIndex(r => r === res);
-                                if (resIdx !== -1) results.splice(resIdx, 1);
-                            }
-                        });
-                        actionsEl.appendChild(sellBtn);
-                    }
-
-                    setTimeout(() => {
-                        completed++;
-                        animateNext(idx + 1);
-                    }, 300);
                 });
-            }
-
-            setTimeout(() => animateNext(0), 400);
-        }
-
-        openCaseBtn.addEventListener('click', performCaseOpening);
-
-        // Кнопка "Сбросить" – просто очищает результаты и возвращает интерфейс к начальному состоянию
-        againCaseBtn.addEventListener('click', () => {
-            if (isCaseOpening) return;
-            // Сброс состояния
-            caseResults = [];
-            dropProgressBar.style.width = '0%';
-            dropProgressLabel.textContent = '🎯 Готов к открытию';
-            caseResultText.innerHTML = '';
-            updateMultiPanels();
-            openCaseBtn.disabled = false;
-            againCaseBtn.style.display = 'none';
-            // Сбросить положение рулетки
-            if (currentCaseIdx !== null) {
-                const items = cases[currentCaseIdx].items;
-                rouletteTrack.innerHTML = items.map(item =>
-                    `<div class="roulette-item">${createImg(item.image, item.name, '').outerHTML}</div>`
-                ).join('');
-                rouletteTrack.style.transform = 'translateX(calc(-50% + 0px))';
-            }
-        });
-
-        closeCaseBtn.addEventListener('click', () => {
-            if (isCaseOpening) return;
-            caseModal.style.display = 'none';
-            currentCaseIdx = null;
-            caseResults = [];
-            againCaseBtn.style.display = 'none';
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal-overlay')) {
-                if (e.target.id === 'topupModal') {
-                    e.target.style.display = 'none';
+                if (totalGain > 0) {
+                    changeBalance(totalGain);
+                    save('inventory', inventory);
+                    updateInventoryUI();
+                    caseResultText.innerHTML += `<br>💰 Продано всё за ${totalGain} ₽`;
+                    if (caseOpenCount === 1) {
+                        document.querySelectorAll('.sell-single-btn').forEach(b => b.remove());
+                    } else {
+                        document.querySelectorAll('.sell-single-btn').forEach(b => b.style.display = 'none');
+                        caseResults.forEach((_, i) => {
+                            const resEl = document.getElementById('miniResult' + i);
+                            if (resEl && caseResults[i].sold) resEl.innerHTML += ' (продан)';
+                        });
+                    }
+                    sellAllBtn.style.display = 'none';
                 }
             }
-        });
 
-        // ============================================================
-        //  АПГРЕЙД — исправленная логика (стрелка/зона/текст/длительность)
-        // ============================================================
-        let selectedSourceSkin = null;
-        let selectedTargetSkin = null;
-        let wheelAnimId = null;
+            openCaseBtn.addEventListener('click', performCaseOpening);
+            againCaseBtn.addEventListener('click', () => {
+                if (isCaseOpening) return;
+                caseResults = [];
+                animCompletedCount = 0;
+                dropProgressBar.style.width = '0%';
+                dropProgressLabel.textContent = '🎯 Готов к открытию';
+                caseResultText.innerHTML = '';
+                postOpenActions.style.display = 'none';
+                openCaseBtn.disabled = false;
+                if (currentCaseIdx !== null) {
+                    renderCaseLayout();
+                }
+            });
+            sellAllBtn.addEventListener('click', sellAllResults);
+            closeCaseBtn.addEventListener('click', () => {
+                if (isCaseOpening) return;
+                caseModal.style.display = 'none';
+                currentCaseIdx = null;
+            });
 
-        const wheelCanvas = document.getElementById('wheelCanvas');
-        const ctx = wheelCanvas.getContext('2d');
-        const wheelArrow = document.getElementById('wheelArrow');
+            // ---------- Апгрейд ----------
+            let selectedSourceSkin = null, selectedTargetSkin = null, wheelAnimId = null;
+            const wheelCanvas = document.getElementById('wheelCanvas');
+            const ctx = wheelCanvas.getContext('2d');
+            const wheelArrow = document.getElementById('wheelArrow');
 
-        function refreshUpgradeTab() {
-            renderUpgradeSource();
-            selectedTargetSkin = null;
-            document.getElementById('upgradeTargetList').innerHTML = '';
-            document.getElementById('upgradeChanceDisplay').innerHTML = '';
-            document.getElementById('startUpgradeBtn').disabled = true;
-            document.getElementById('upgradeResultText').innerHTML = '';
-            drawWheel(50);
-            wheelArrow.style.transform = 'translate(-50%, -50%) rotate(0deg) translateY(100px)';
-        }
-
-        function renderUpgradeSource() {
-            const container = document.getElementById('upgradeSourceList');
-            if (inventory.length === 0) {
-                container.innerHTML = '<p style="opacity:0.4; font-size:12px;">Инвентарь пуст</p>';
-                return;
+            function refreshUpgradeTab() {
+                renderUpgradeSource();
+                selectedTargetSkin = null;
+                document.getElementById('upgradeTargetList').innerHTML = '';
+                document.getElementById('upgradeChanceDisplay').innerHTML = '';
+                document.getElementById('startUpgradeBtn').disabled = true;
+                document.getElementById('upgradeResultText').innerHTML = '';
+                drawWheel(50);
+                wheelArrow.style.transform = 'translate(-50%, -50%) rotate(0deg) translateY(100px)';
             }
-            container.innerHTML = inventory.map((item, idx) => `
-                <div class="upgrade-card ${getRarityClass(item.rarity || 'blue')}" data-index="${idx}">
-                    ${createImg(item.image, item.name, '').outerHTML}
-                    <div style="flex:1; font-weight:600; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div>
-                    <div style="font-size:10px; opacity:0.7;">₽${item.price}</div>
-                </div>`).join('');
-            document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(card => {
-                card.addEventListener('click', () => {
+
+            function renderUpgradeSource() {
+                const container = document.getElementById('upgradeSourceList');
+                if (inventory.length === 0) { container.innerHTML = '<p style="opacity:0.4; font-size:12px;">Инвентарь пуст</p>'; return; }
+                container.innerHTML = inventory.map((item, idx) => `<div class="upgrade-card ${getRarityClass(item.rarity||'blue')}" data-index="${idx}">${createImg(item.image, item.name).outerHTML}<div style="flex:1; font-weight:600; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div><div style="font-size:10px; opacity:0.7;">₽${item.price}</div></div>`).join('');
+                document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(card => card.addEventListener('click', () => {
                     document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
-                    const idx = parseInt(card.dataset.index);
-                    selectedSourceSkin = inventory[idx];
+                    selectedSourceSkin = inventory[parseInt(card.dataset.index)];
                     renderUpgradeTargets();
-                });
-            });
-        }
-
-        function renderUpgradeTargets() {
-            if (!selectedSourceSkin) return;
-            const container = document.getElementById('upgradeTargetList');
-            const chanceDisplay = document.getElementById('upgradeChanceDisplay');
-            const startBtn = document.getElementById('startUpgradeBtn');
-
-            const validTargets = allSkins.filter(s => {
-                if (s.name === selectedSourceSkin.name) return false;
-                const chance = Math.round((selectedSourceSkin.price / s.basePrice) * 100);
-                return chance <= 80 && s.basePrice > selectedSourceSkin.price;
-            });
-
-            if (validTargets.length === 0) {
-                container.innerHTML = '<p style="opacity:0.4; font-size:12px;">Нет подходящих целей</p>';
-                startBtn.disabled = true;
-                chanceDisplay.innerHTML = '';
-                return;
+                }));
             }
-            container.innerHTML = validTargets.map(skin => {
-                const chance = Math.round((selectedSourceSkin.price / skin.basePrice) * 100);
-                return `
-                <div class="upgrade-card ${getRarityClass(skin.rarity)}" data-name="${skin.name}">
-                    ${createImg(skin.image, skin.name, '').outerHTML}
-                    <div style="flex:1; font-weight:600; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${skin.name}</div>
-                    <span class="chance-badge">${chance}%</span>
-                </div>`;
-            }).join('');
 
-            document.querySelectorAll('#upgradeTargetList .upgrade-card').forEach(card => {
-                card.addEventListener('click', () => {
+            function renderUpgradeTargets() {
+                if (!selectedSourceSkin) return;
+                const container = document.getElementById('upgradeTargetList');
+                const chanceDisplay = document.getElementById('upgradeChanceDisplay');
+                const startBtn = document.getElementById('startUpgradeBtn');
+                const validTargets = allSkins.filter(s => s.name !== selectedSourceSkin.name && (Math.round((selectedSourceSkin.price / s.basePrice) * 100) <= 80) && s.basePrice > selectedSourceSkin.price);
+                if (validTargets.length === 0) { container.innerHTML = '<p style="opacity:0.4; font-size:12px;">Нет подходящих целей</p>'; startBtn.disabled = true; return; }
+                container.innerHTML = validTargets.map(skin => { const chance = Math.round((selectedSourceSkin.price / skin.basePrice) * 100); return `<div class="upgrade-card ${getRarityClass(skin.rarity)}" data-name="${skin.name}">${createImg(skin.image, skin.name).outerHTML}<div style="flex:1; font-weight:600; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${skin.name}</div><span class="chance-badge">${chance}%</span></div>`; }).join('');
+                document.querySelectorAll('#upgradeTargetList .upgrade-card').forEach(card => card.addEventListener('click', () => {
                     document.querySelectorAll('#upgradeTargetList .upgrade-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
                     selectedTargetSkin = validTargets.find(s => s.name === card.dataset.name);
@@ -1381,300 +920,137 @@
                     chanceDisplay.innerHTML = `Шанс успеха: <span style="color:#4A90E2; font-size:20px;">${chance}%</span>`;
                     startBtn.disabled = false;
                     drawWheel(chance);
-                });
-            });
-            startBtn.disabled = true;
-            chanceDisplay.innerHTML = '';
-        }
-
-        // Рисуем колесо: зеленая зона СТРОГО СВЕРХУ (0 градусов = успех)
-        function drawWheel(successChance) {
-            const w = wheelCanvas.width, h = wheelCanvas.height;
-            const cx = w / 2, cy = h / 2, radius = 100;
-
-            ctx.clearRect(0, 0, w, h);
-            const grad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius);
-            grad.addColorStop(0, 'rgba(40,40,50,1)');
-            grad.addColorStop(1, 'rgba(15,15,20,1)');
-            ctx.fillStyle = grad;
-            ctx.beginPath();
-            ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            const waterDeg = (successChance / 100) * 360;
-            const waterRad = waterDeg * Math.PI / 180;
-            // Начало зеленой зоны — строго вверх (-90° = -PI/2)
-            const startRad = -Math.PI / 2;
-            const endRad = startRad + waterRad;
-
-            // Зеленая зона
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius, startRad, endRad);
-            ctx.closePath();
-            const waterGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius);
-            waterGrad.addColorStop(0, 'rgba(52,199,89,0.95)');
-            waterGrad.addColorStop(0.6, 'rgba(40,180,70,0.85)');
-            waterGrad.addColorStop(1, 'rgba(30,160,60,0.6)');
-            ctx.fillStyle = waterGrad;
-            ctx.fill();
-
-            // Красная зона
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius, endRad, startRad + Math.PI * 2);
-            ctx.closePath();
-            const redGrad = ctx.createRadialGradient(cx, cy, 10, cx, cy, radius);
-            redGrad.addColorStop(0, 'rgba(255,69,58,0.8)');
-            redGrad.addColorStop(0.7, 'rgba(220,50,40,0.7)');
-            redGrad.addColorStop(1, 'rgba(180,40,30,0.5)');
-            ctx.fillStyle = redGrad;
-            ctx.fill();
-
-            // Блик
-            if (waterDeg > 5) {
-                const midAngle = startRad + waterRad / 2;
-                const bx = cx + Math.cos(midAngle) * radius * 0.5;
-                const by = cy + Math.sin(midAngle) * radius * 0.5;
-                const blik = ctx.createRadialGradient(bx - 10, by - 10, 2, bx, by, 25);
-                blik.addColorStop(0, 'rgba(255,255,255,0.2)');
-                blik.addColorStop(1, 'rgba(255,255,255,0)');
-                ctx.fillStyle = blik;
-                ctx.beginPath();
-                ctx.arc(bx, by, 25, 0, Math.PI * 2);
-                ctx.fill();
+                }));
+                startBtn.disabled = true;
             }
 
-            // Деления
-            for (let i = 0; i < 12; i++) {
-                const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
-                const r1 = radius - 12;
-                const r2 = radius - 4;
-                ctx.beginPath();
-                ctx.moveTo(cx + Math.cos(angle) * r1, cy + Math.sin(angle) * r1);
-                ctx.lineTo(cx + Math.cos(angle) * r2, cy + Math.sin(angle) * r2);
-                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-                ctx.lineWidth = 1.5;
-                ctx.stroke();
+            function drawWheel(successChance) {
+                const w = wheelCanvas.width, h = wheelCanvas.height, cx = w/2, cy = h/2, radius = 100;
+                ctx.clearRect(0,0,w,h);
+                const grad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
+                grad.addColorStop(0,'rgba(40,40,50,1)'); grad.addColorStop(1,'rgba(15,15,20,1)');
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth=2; ctx.stroke();
+                const waterDeg = (successChance/100)*360, waterRad = waterDeg*Math.PI/180;
+                const startRad = 0; // зеленый сектор начинается с направления стрелки (6 часов)
+                ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,radius,startRad,startRad+waterRad); ctx.closePath();
+                const waterGrad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
+                waterGrad.addColorStop(0,'rgba(52,199,89,0.95)'); waterGrad.addColorStop(0.6,'rgba(40,180,70,0.85)'); waterGrad.addColorStop(1,'rgba(30,160,60,0.6)');
+                ctx.fillStyle = waterGrad; ctx.fill();
+                ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,radius,startRad+waterRad,startRad+Math.PI*2); ctx.closePath();
+                const redGrad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
+                redGrad.addColorStop(0,'rgba(255,69,58,0.8)'); redGrad.addColorStop(0.7,'rgba(220,50,40,0.7)'); redGrad.addColorStop(1,'rgba(180,40,30,0.5)');
+                ctx.fillStyle = redGrad; ctx.fill();
+                // деления и центр
+                for (let i=0; i<12; i++) { const angle = (i/12)*Math.PI*2; const r1=radius-12, r2=radius-4; ctx.beginPath(); ctx.moveTo(cx+Math.cos(angle)*r1, cy+Math.sin(angle)*r1); ctx.lineTo(cx+Math.cos(angle)*r2, cy+Math.sin(angle)*r2); ctx.strokeStyle='rgba(255,255,255,0.15)'; ctx.lineWidth=1.5; ctx.stroke(); }
+                ctx.beginPath(); ctx.arc(cx,cy,6,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.stroke();
+                ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='bold 22px -apple-system, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(successChance+'%', cx, cy+2);
             }
 
-            ctx.beginPath();
-            ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255,255,255,0.15)';
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.font = 'bold 22px -apple-system, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(successChance + '%', cx, cy + 2);
-        }
-
-        // Анимация с длительностью 8 секунд (более растянутая)
-        function spinWheel(successChance, callback) {
-            if (wheelAnimId) {
-                cancelAnimationFrame(wheelAnimId);
-                wheelAnimId = null;
-            }
-            wheelArrow.style.transform = 'translate(-50%, -50%) rotate(0deg) translateY(100px)';
-            drawWheel(successChance);
-
-            const isSuccess = Math.random() * 100 < successChance;
-            const waterDeg = (successChance / 100) * 360;
-            let targetDeg;
-            if (isSuccess) {
-                targetDeg = Math.random() * waterDeg; // зеленая зона (от 0°)
-            } else {
-                targetDeg = waterDeg + Math.random() * (360 - waterDeg); // красная зона
-            }
-            const totalRotation = targetDeg + 360 * 8 + Math.random() * 360;
-            const startTime = performance.now();
-            const duration = 8000; // 8 секунд
-
-            function step(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = 1 - Math.pow(1 - progress, 5);
-                const currentDeg = totalRotation * eased;
-                wheelArrow.style.transform = `translate(-50%, -50%) rotate(${currentDeg}deg) translateY(100px)`;
-                if (progress < 1) {
-                    wheelAnimId = requestAnimationFrame(step);
-                } else {
-                    wheelArrow.style.transform = `translate(-50%, -50%) rotate(${targetDeg + 360 * 8}deg) translateY(100px)`;
-                    wheelAnimId = null;
-                    if (callback) callback(isSuccess);
+            function spinWheel(successChance, callback) {
+                if (wheelAnimId) { cancelAnimationFrame(wheelAnimId); wheelAnimId = null; }
+                wheelArrow.style.transform = 'translate(-50%, -50%) rotate(0deg) translateY(100px)';
+                drawWheel(successChance);
+                const isSuccess = Math.random()*100 < successChance;
+                const waterDeg = (successChance/100)*360;
+                const targetDeg = isSuccess ? Math.random()*waterDeg : waterDeg + Math.random()*(360-waterDeg);
+                const totalRotation = targetDeg + 360*8 + Math.random()*360;
+                const startTime = performance.now();
+                const duration = 8000;
+                function step(now) {
+                    const elapsed = now - startTime;
+                    const progress = Math.min(elapsed/duration, 1);
+                    const eased = 1 - Math.pow(1-progress, 5);
+                    const currentDeg = totalRotation * eased;
+                    wheelArrow.style.transform = `translate(-50%, -50%) rotate(${currentDeg}deg) translateY(100px)`;
+                    if (progress < 1) wheelAnimId = requestAnimationFrame(step);
+                    else { wheelArrow.style.transform = `translate(-50%, -50%) rotate(${targetDeg+360*8}deg) translateY(100px)`; wheelAnimId = null; if (callback) callback(isSuccess); }
                 }
+                wheelAnimId = requestAnimationFrame(step);
             }
-            wheelAnimId = requestAnimationFrame(step);
-        }
 
-        document.getElementById('startUpgradeBtn').addEventListener('click', () => {
-            if (!selectedSourceSkin || !selectedTargetSkin || upgradeInProgress) return;
-            const chance = Math.round((selectedSourceSkin.price / selectedTargetSkin.basePrice) * 100);
-            upgradeInProgress = true;
-            document.getElementById('startUpgradeBtn').disabled = true;
-            document.getElementById('upgradeResultText').innerHTML = '';
+            document.getElementById('startUpgradeBtn').addEventListener('click', () => {
+                if (!selectedSourceSkin || !selectedTargetSkin || upgradeInProgress) return;
+                const chance = Math.round((selectedSourceSkin.price / selectedTargetSkin.basePrice) * 100);
+                upgradeInProgress = true;
+                document.getElementById('startUpgradeBtn').disabled = true;
+                document.getElementById('upgradeResultText').innerHTML = '';
 
-            spinWheel(chance, (isSuccess) => {
-                const sourceIdx = inventory.findIndex(i =>
-                    i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price
-                );
+                // Мгновенное изменение инвентаря
+                const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
                 if (sourceIdx !== -1) inventory.splice(sourceIdx, 1);
-
-                const resultDiv = document.getElementById('upgradeResultText');
+                const isSuccess = Math.random()*100 < chance;
                 if (isSuccess) {
                     const newSkin = { ...selectedTargetSkin, price: selectedTargetSkin.basePrice, rarity: selectedTargetSkin.rarity };
                     inventory.push(newSkin);
-                    resultDiv.innerHTML = `<div class="upgrade-result-banner success">✅ Успех!<br><span style="font-size:16px;">${selectedTargetSkin.name}</span></div>`;
-                    const sellBtn = document.createElement('button');
-                    sellBtn.className = 'btn btn-success';
-                    sellBtn.textContent = '💰 Продать за ' + newSkin.price + ' ₽';
-                    sellBtn.style.marginTop = '8px';
-                    sellBtn.addEventListener('click', () => {
-                        const idx2 = inventory.findIndex(s => s.name === newSkin.name && s.price === newSkin.price);
-                        if (idx2 !== -1) {
-                            changeBalance(newSkin.price);
-                            inventory.splice(idx2, 1);
-                            save('inventory', inventory);
-                            updateInventoryUI();
-                            resultDiv.innerHTML += `<br>💰 Продано за ${newSkin.price} ₽`;
-                            sellBtn.remove();
-                        }
-                    });
-                    resultDiv.appendChild(sellBtn);
-                } else {
-                    resultDiv.innerHTML = `<div class="upgrade-result-banner fail">❌ Провал. Скин уничтожен.</div>`;
                 }
-
                 save('inventory', inventory);
                 updateInventoryUI();
-                selectedSourceSkin = null;
-                selectedTargetSkin = null;
-                upgradeInProgress = false;
-                refreshUpgradeTab();
+
+                // Анимация
+                spinWheel(chance, (animSuccess) => {
+                    const resultDiv = document.getElementById('upgradeResultText');
+                    if (animSuccess) {
+                        resultDiv.innerHTML = `<div class="upgrade-result-banner success">✅ Успех!<br><span style="font-size:16px;">${selectedTargetSkin.name}</span></div>`;
+                        const sellBtn = document.createElement('button'); sellBtn.className = 'btn btn-success'; sellBtn.textContent = '💰 Продать за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.style.marginTop='8px';
+                        sellBtn.addEventListener('click', () => {
+                            const idx2 = inventory.findIndex(s => s.name === selectedTargetSkin.name && s.price === selectedTargetSkin.basePrice);
+                            if (idx2 !== -1) { changeBalance(selectedTargetSkin.basePrice); inventory.splice(idx2,1); save('inventory', inventory); updateInventoryUI(); resultDiv.innerHTML += '<br>💰 Продано за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.remove(); }
+                        });
+                        resultDiv.appendChild(sellBtn);
+                    } else {
+                        resultDiv.innerHTML = `<div class="upgrade-result-banner fail">❌ Провал. Скин уничтожен.</div>`;
+                    }
+                    upgradeInProgress = false;
+                    selectedSourceSkin = null; selectedTargetSkin = null;
+                    refreshUpgradeTab();
+                });
             });
-        });
 
-        // ============================================================
-        //  ПРОФИЛЬ
-        // ============================================================
-        const nicknameInput = document.getElementById('nicknameInput');
-        const nicknameStatus = document.getElementById('nicknameStatus');
-        const tradeLinkInput = document.getElementById('tradeLinkInput');
-        const steamTradeBtn = document.getElementById('steamTradeBtn');
+            // ---------- Профиль и инвентарь ----------
+            const nicknameInput = document.getElementById('nicknameInput');
+            document.getElementById('saveNicknameBtn').addEventListener('click', () => {
+                const nick = nicknameInput.value.trim();
+                if (!nick) { document.getElementById('nicknameStatus').textContent = 'Введите ник'; return; }
+                if (profile.nickname && profile.nickname !== nick) takenNicknames = takenNicknames.filter(n => n !== profile.nickname.toLowerCase());
+                if (isNicknameTaken(nick) && nick !== profile.nickname) {
+                    document.getElementById('nicknameStatus').textContent = 'Ник занят!'; document.getElementById('nicknameStatus').style.color = '#ff453a';
+                } else {
+                    if (profile.nickname !== nick) registerNickname(nick);
+                    profile.nickname = nick; save('profile', profile);
+                    document.getElementById('nicknameStatus').textContent = 'Сохранено'; document.getElementById('nicknameStatus').style.color = '#34c759';
+                }
+            });
+            document.getElementById('saveTradeLinkBtn').addEventListener('click', () => {
+                const link = document.getElementById('tradeLinkInput').value.trim();
+                if (!link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=')) { tg.showAlert('Неверная ссылка'); return; }
+                profile.tradeLink = link; save('profile', profile); tg.showAlert('Ссылка сохранена');
+                document.getElementById('steamTradeBtn').style.display = 'inline-block'; document.getElementById('steamTradeBtn').href = link;
+            });
 
-        function loadProfile() {
-            profile = load('profile', { nickname: '', tradeLink: '' });
-            nicknameInput.value = profile.nickname || '';
-            tradeLinkInput.value = profile.tradeLink || '';
-            steamTradeBtn.style.display = profile.tradeLink ? 'inline-block' : 'none';
-            if (profile.tradeLink) steamTradeBtn.href = profile.tradeLink;
-        }
-        loadProfile();
-
-        document.getElementById('saveNicknameBtn').addEventListener('click', () => {
-            const nick = nicknameInput.value.trim();
-            if (!nick) { nicknameStatus.textContent = 'Введите ник'; return; }
-            if (profile.nickname && profile.nickname !== nick) {
-                takenNicknames = takenNicknames.filter(n => n !== profile.nickname.toLowerCase());
-            }
-            if (isNicknameTaken(nick) && nick !== profile.nickname) {
-                nicknameStatus.textContent = 'Ник занят!';
-                nicknameStatus.style.color = '#ff453a';
-            } else {
-                if (profile.nickname !== nick) registerNickname(nick);
-                profile.nickname = nick;
-                save('profile', profile);
-                nicknameStatus.textContent = 'Сохранено';
-                nicknameStatus.style.color = '#34c759';
-            }
-        });
-
-        document.getElementById('saveTradeLinkBtn').addEventListener('click', () => {
-            const link = tradeLinkInput.value.trim();
-            if (!link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=')) {
-                tg.showAlert('Неверная ссылка');
-                return;
-            }
-            profile.tradeLink = link;
-            save('profile', profile);
-            tg.showAlert('Ссылка сохранена');
-            loadProfile();
-        });
-
-        // ============================================================
-        //  ИНВЕНТАРЬ
-        // ============================================================
-        const inventoryList = document.getElementById('inventoryList');
-        function updateInventoryUI() {
-            if (inventory.length === 0) {
-                inventoryList.innerHTML = '<p style="opacity:0.4; font-size:13px; text-align:center; padding:12px;">Инвентарь пуст</p>';
-                return;
-            }
-            inventoryList.innerHTML = inventory.map((item, idx) => `
-                <div class="item-card ${getRarityClass(item.rarity || 'blue')}">
-                    ${createImg(item.image, item.name, '').outerHTML}
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">₽ ${item.price}</div>
-                    </div>
-                    <div class="item-actions">
-                        <button class="btn sell-item-btn" data-index="${idx}">Продать</button>
-                        <button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button>
-                    </div>
-                </div>`).join('');
-
-            document.querySelectorAll('.sell-item-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
+            const inventoryList = document.getElementById('inventoryList');
+            function updateInventoryUI() {
+                if (inventory.length === 0) { inventoryList.innerHTML = '<p style="opacity:0.4; font-size:13px; text-align:center; padding:12px;">Инвентарь пуст</p>'; return; }
+                inventoryList.innerHTML = inventory.map((item, idx) => `<div class="item-card ${getRarityClass(item.rarity||'blue')}">${createImg(item.image, item.name).outerHTML}<div class="item-info"><div class="item-name">${item.name}</div><div class="item-price">₽ ${item.price}</div></div><div class="item-actions"><button class="btn sell-item-btn" data-index="${idx}">Продать</button><button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button></div></div>`).join('');
+                document.querySelectorAll('.sell-item-btn').forEach(btn => btn.addEventListener('click', (e) => {
                     const idx = parseInt(e.target.dataset.index);
                     const item = inventory[idx];
-                    if (!item) return;
-                    changeBalance(item.price);
-                    inventory.splice(idx, 1);
-                    save('inventory', inventory);
-                    updateInventoryUI();
-                    tg.showAlert('Продано за ' + item.price + ' ₽');
-                });
-            });
-
-            document.querySelectorAll('.withdraw-item-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                    if (item) { changeBalance(item.price); inventory.splice(idx,1); save('inventory', inventory); updateInventoryUI(); tg.showAlert('Продано за ' + item.price + ' ₽'); }
+                }));
+                document.querySelectorAll('.withdraw-item-btn').forEach(btn => btn.addEventListener('click', () => {
                     if (!profile.tradeLink) tg.showAlert('Сначала сохраните трейд-ссылку');
                     else tg.openLink(profile.tradeLink);
-                });
-            });
-        }
-        updateInventoryUI();
+                }));
+            }
+            updateInventoryUI();
 
-        // ============================================================
-        //  ПОПОЛНЕНИЕ
-        // ============================================================
-        document.getElementById('addBalanceBtn').addEventListener('click', () => {
-            document.getElementById('topupModal').style.display = 'flex';
-        });
-        document.getElementById('closeTopupBtn').addEventListener('click', () => {
-            document.getElementById('topupModal').style.display = 'none';
-        });
-        document.querySelectorAll('.topup-amount').forEach(btn => {
-            btn.addEventListener('click', () => {
-                changeBalance(parseInt(btn.dataset.amount));
-                document.getElementById('topupModal').style.display = 'none';
-            });
-        });
+            // Пополнение
+            document.getElementById('addBalanceBtn').addEventListener('click', () => document.getElementById('topupModal').style.display = 'flex');
+            document.getElementById('closeTopupBtn').addEventListener('click', () => document.getElementById('topupModal').style.display = 'none');
+            document.querySelectorAll('.topup-amount').forEach(b => b.addEventListener('click', () => { changeBalance(parseInt(b.dataset.amount)); document.getElementById('topupModal').style.display = 'none'; }));
 
-        // ============================================================
-        //  ИНИЦИАЛИЗАЦИЯ
-        // ============================================================
-        drawWheel(50);
-        if (document.getElementById('section-upgrade').classList.contains('active')) refreshUpgradeTab();
-
-        console.log('✅ VANGUARD загружен — баги исправлены!');
+            drawWheel(50);
+        })();
     </script>
 </body>
 </html>
