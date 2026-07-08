@@ -837,7 +837,7 @@
 
     <script>
         // ============================================================
-        //  VANGUARD — ФИНАЛЬНАЯ ВЕРСИЯ С ИСПРАВЛЕНИЯМИ
+        //  VANGUARD — ФИНАЛЬНАЯ ВЕРСИЯ С ИСПРАВЛЕНИЯМИ (баги устранены)
         // ============================================================
 
         const tg = window.Telegram.WebApp;
@@ -1113,7 +1113,6 @@
             caseOpenCount = parseInt(caseCountSlider.value);
             caseCountLabel.textContent = caseOpenCount;
             updateMultiPanels();
-            // Обновляем кнопку открытия
             if (currentCaseIdx !== null) {
                 const caseData = cases[currentCaseIdx];
                 openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
@@ -1161,7 +1160,6 @@
             ).join('');
             rouletteTrack.style.transform = 'translateX(calc(-50% + 0px))';
 
-            // Обновляем кнопку
             openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
             openCaseBtn.disabled = false;
             againCaseBtn.style.display = 'none';
@@ -1281,17 +1279,16 @@
                         let total = 0;
                         results.forEach(r => { total += r.price; });
                         changeBalance(total);
-                        for (let i = 0; i < results.length; i++) {
-                            const idx2 = inventory.findIndex(s => s.name === results[i].name && s
-                            .price === results[i].price);
+                        // Удаляем каждый скин по одному (поиск по имени и цене)
+                        results.forEach(r => {
+                            const idx2 = inventory.findIndex(s => s.name === r.name && s.price === r.price);
                             if (idx2 !== -1) inventory.splice(idx2, 1);
-                        }
+                        });
                         save('inventory', inventory);
                         updateInventoryUI();
                         caseResultText.innerHTML += `<br>💰 Продано за ${total} ₽`;
                         sellAllBtn.remove();
                         document.querySelectorAll('.mp-actions .btn-sell-single').forEach(b => b.remove());
-                        // Обновить статусы в панелях
                         results.forEach((r, i) => {
                             const st = document.getElementById('mp-status-' + i);
                             if (st) st.textContent = '💰 продан';
@@ -1330,8 +1327,7 @@
                         sellBtn.style.padding = '2px 10px';
                         sellBtn.style.fontSize = '10px';
                         sellBtn.addEventListener('click', () => {
-                            const idxInv = inventory.findIndex(s => s.name === res.name && s.price === res
-                                .price);
+                            const idxInv = inventory.findIndex(s => s.name === res.name && s.price === res.price);
                             if (idxInv !== -1) {
                                 changeBalance(res.price);
                                 inventory.splice(idxInv, 1);
@@ -1359,19 +1355,15 @@
             }, 400);
         }
 
-        // Нажатие "Открыть"
         openCaseBtn.addEventListener('click', performCaseOpening);
 
-        // Нажатие "Ещё раз"
         againCaseBtn.addEventListener('click', () => {
             if (isCaseOpening || currentCaseIdx === null) return;
-            // Сбрасываем всё и запускаем заново
             caseResultText.innerHTML = '';
             dropProgressBar.style.width = '0%';
             dropProgressLabel.textContent = '🎯 Готов к открытию';
             caseResults = [];
             updateMultiPanels();
-            // Перезапускаем открытие
             performCaseOpening();
         });
 
@@ -1383,10 +1375,13 @@
             againCaseBtn.style.display = 'none';
         });
 
-        // Закрытие по клику на оверлей
+        // Закрытие модалок по клику на оверлей (кроме caseModal, у него своя кнопка)
         window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal-overlay') && e.target.id !== 'caseModal') {
-                e.target.style.display = 'none';
+            if (e.target.classList.contains('modal-overlay')) {
+                if (e.target.id === 'topupModal') {
+                    e.target.style.display = 'none';
+                }
+                // caseModal закрывается только кнопкой
             }
         });
 
@@ -1577,6 +1572,15 @@
 
         // Анимация остановки (6 секунд) — успех = зелёная зона
         function spinWheel(successChance, callback) {
+            // Отменяем предыдущую анимацию, если есть
+            if (wheelAnimId) {
+                cancelAnimationFrame(wheelAnimId);
+                wheelAnimId = null;
+            }
+
+            // Сбрасываем стрелку в начальное положение перед анимацией (избегаем рывка)
+            wheelArrow.style.transform = 'translate(-50%, -50%) rotate(0deg) translateY(100px)';
+
             drawWheel(successChance);
 
             const isSuccess = Math.random() * 100 < successChance;
@@ -1604,6 +1608,7 @@
                 } else {
                     wheelArrow.style.transform =
                         `translate(-50%, -50%) rotate(${targetDeg + 360 * 8}deg) translateY(100px)`;
+                    wheelAnimId = null;
                     if (callback) callback(isSuccess);
                 }
             }
