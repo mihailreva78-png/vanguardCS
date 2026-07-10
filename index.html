@@ -484,8 +484,8 @@
         </div>
     </div>
 
-    <!-- Админ-панель -->
-    <div id="section-admin" class="section" style="display:none;">
+    <!-- Админ-панель (без inline display:none) -->
+    <div id="section-admin" class="section">
         <div class="glass-panel">
             <h3>Админ-панель</h3>
             <div style="margin:12px 0;">
@@ -732,11 +732,12 @@
                 isCaseOpening = false;
             }
 
+            // Новая плавная анимация (ease-in-out), 7 секунд, огромный трек
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 150; // очень много, чтобы лента никогда не кончалась
+                const repeatCount = 300; // колоссальный запас
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
@@ -750,7 +751,8 @@
                 function step(now) {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed / durationMs, 1);
-                    const eased = 1 - Math.pow(1 - progress, 4);
+                    // easeInOutQuad: плавный разгон и торможение
+                    const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
                     const currentOffset = finalOffset * eased;
                     track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
                     if (progress < 1) {
@@ -858,7 +860,6 @@
                     }
                 }
 
-                // Фиксированная длительность 7 секунд для всех
                 if (caseOpenCount === 1) {
                     animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 7000, () => {
                         onAnimComplete(0, caseResults[0]);
@@ -1139,7 +1140,6 @@
                         btn.addEventListener('click', (e) => {
                             const idx = parseInt(e.target.dataset.index);
                             const req = withdrawRequests[idx];
-                            // Удаляем скин из инвентаря
                             const invIdx = inventory.findIndex(s => s.name === req.skinName && s.price === req.price && s.withdrawStatus === 'pending');
                             if (invIdx !== -1) {
                                 inventory.splice(invIdx, 1);
@@ -1240,6 +1240,7 @@
                         });
                         save('withdrawRequests', withdrawRequests);
                         updateInventoryUI();
+                        updateAdminPanelUI();
                         tg.showAlert('Запрос на вывод создан. Ожидайте подтверждения администратора.');
                     }
                 }));
