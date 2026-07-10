@@ -400,8 +400,10 @@
         .item-label { font-size: 9px; opacity: 0.9; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-price-tag { font-size: 9px; color: #4A90E2; font-weight: 600; }
         .inventory-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-        .item-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.06); gap: 10px; }
+        .item-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.06); gap: 10px; position: relative; }
         .item-card img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+        .item-card.withdraw-pending img { filter: blur(3px) grayscale(0.5); }
+        .item-card .withdraw-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border-radius: 14px; font-size: 12px; font-weight: 700; color: #fff; }
         .item-card .item-info { flex: 1; min-width: 0; }
         .item-card .item-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .item-card .item-price { font-size: 12px; opacity: 0.7; }
@@ -482,7 +484,7 @@
         </div>
     </div>
 
-    <!-- Админ-панель (появляется после активации) -->
+    <!-- Админ-панель -->
     <div id="section-admin" class="section" style="display:none;">
         <div class="glass-panel">
             <h3>Админ-панель</h3>
@@ -491,12 +493,15 @@
                 <button class="btn" id="toggleBoostBtn">Включить подкрутку</button>
             </div>
             <div style="margin:12px 0;">
-                <label>Изменить баланс:</label>
+                <label>Изменить баланс (введите +сумма или -сумма):</label>
                 <div style="display:flex; gap:8px; align-items:center;">
-                    <input class="input" type="number" id="adminBalanceAmount" placeholder="Сумма" value="1000" style="width:100px;" />
-                    <button class="btn" id="adminAddBalanceBtn">+</button>
-                    <button class="btn" id="adminSubBalanceBtn">-</button>
+                    <input class="input" type="text" id="adminBalanceInput" placeholder="+1000 или -500" style="flex:1;" />
+                    <button class="btn" id="adminApplyBalanceBtn">Применить</button>
                 </div>
+            </div>
+            <div style="margin:16px 0;">
+                <h4>Запросы на вывод</h4>
+                <div id="withdrawRequestsList"></div>
             </div>
         </div>
     </div>
@@ -563,7 +568,8 @@
             let takenNicknames = load('takenNicknames', []);
             function isNicknameTaken(nick) { return takenNicknames.includes(nick.toLowerCase()); }
             function registerNickname(nick) { if (!isNicknameTaken(nick)) { takenNicknames.push(nick.toLowerCase()); save('takenNicknames', takenNicknames); return true; } return false; }
-            let inventory = load('inventory', []);
+            let inventory = load('inventory', []).map(item => ({ ...item, withdrawStatus: item.withdrawStatus || null }));
+            let withdrawRequests = load('withdrawRequests', []);
             let isCaseOpening = false;
             let currentCaseIdx = null;
             let upgradeInProgress = false;
@@ -571,7 +577,6 @@
             let isAdmin = load('isAdmin', false);
             let adminBoost = load('adminBoost', false);
 
-            // Обновление видимости вкладки Админ
             function updateAdminTabVisibility() {
                 const adminTab = document.getElementById('adminTab');
                 if (isAdmin) {
@@ -727,12 +732,11 @@
                 isCaseOpening = false;
             }
 
-            // Изменённая анимация: медленнее, больше повторов, но без пустоты
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 60; // достаточно для плавной длинной ленты
+                const repeatCount = 150; // очень много, чтобы лента никогда не кончалась
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
@@ -760,22 +764,19 @@
             }
 
             function removeInventoryItem(name, price) {
-                const idx = inventory.findIndex(s => s.name === name && s.price === price);
+                const idx = inventory.findIndex(s => s.name === name && s.price === price && !s.withdrawStatus);
                 if (idx !== -1) { inventory.splice(idx, 1); return true; }
                 return false;
             }
 
-            // Подкрутка для кейсов: увеличивает шанс дорогих предметов
             function getWeightedRandomItem(items) {
                 if (!isAdmin || !adminBoost) {
                     return items[Math.floor(Math.random() * items.length)];
                 }
-                // Сортируем по цене по убыванию, верхняя половина получает больший вес
                 const sorted = [...items].sort((a, b) => b.price - a.price);
                 const half = Math.ceil(sorted.length / 2);
                 const topHalf = sorted.slice(0, half);
                 const bottomHalf = sorted.slice(half);
-                // 70% шанс выбрать из дорогой половины
                 if (Math.random() < 0.7 && topHalf.length > 0) {
                     return topHalf[Math.floor(Math.random() * topHalf.length)];
                 } else {
@@ -801,7 +802,7 @@
                 for (let i = 0; i < caseOpenCount; i++) {
                     const selected = getWeightedRandomItem(items);
                     caseResults.push({ ...selected, index: i, sold: false });
-                    inventory.push({ ...selected });
+                    inventory.push({ ...selected, withdrawStatus: null });
                 }
                 save('inventory', inventory);
                 updateInventoryUI();
@@ -857,16 +858,16 @@
                     }
                 }
 
-                // Увеличенная длительность для медленного вращения
+                // Фиксированная длительность 7 секунд для всех
                 if (caseOpenCount === 1) {
-                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 15000 + Math.random() * 3000, () => {
+                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 7000, () => {
                         onAnimComplete(0, caseResults[0]);
                     });
                 } else {
                     caseResults.forEach((res, i) => {
                         const containerId = 'miniRoulette' + i;
                         const trackId = 'miniTrack' + i;
-                        animateRoulette(containerId, trackId, items, res, 14000 + Math.random() * 4000, () => {
+                        animateRoulette(containerId, trackId, items, res, 7000, () => {
                             onAnimComplete(i, res);
                         });
                     });
@@ -958,12 +959,14 @@
 
             function renderUpgradeSource() {
                 const container = document.getElementById('upgradeSourceList');
-                if (inventory.length === 0) { container.innerHTML = '<p style="opacity:0.4; font-size:12px;">Инвентарь пуст</p>'; return; }
-                container.innerHTML = inventory.map((item, idx) => `<div class="upgrade-card ${getRarityClass(item.rarity||'blue')}" data-index="${idx}">${createImg(item.image, item.name).outerHTML}<div style="flex:1; font-weight:600; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div><div style="font-size:10px; opacity:0.7;">₽${item.price}</div></div>`).join('');
+                const available = inventory.filter(item => !item.withdrawStatus);
+                if (available.length === 0) { container.innerHTML = '<p style="opacity:0.4; font-size:12px;">Нет доступных скинов</p>'; return; }
+                container.innerHTML = available.map((item, idx) => `<div class="upgrade-card ${getRarityClass(item.rarity||'blue')}" data-index="${idx}">${createImg(item.image, item.name).outerHTML}<div style="flex:1; font-weight:600; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${item.name}</div><div style="font-size:10px; opacity:0.7;">₽${item.price}</div></div>`).join('');
                 document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(card => card.addEventListener('click', () => {
                     document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
-                    selectedSourceSkin = inventory[parseInt(card.dataset.index)];
+                    const idx = parseInt(card.dataset.index);
+                    selectedSourceSkin = available[idx];
                     renderUpgradeTargets();
                 }));
             }
@@ -1038,22 +1041,22 @@
 
             document.getElementById('startUpgradeBtn').addEventListener('click', () => {
                 if (!selectedSourceSkin || !selectedTargetSkin || upgradeInProgress) return;
+                if (selectedSourceSkin.withdrawStatus) return;
                 const chance = Math.round((selectedSourceSkin.price / selectedTargetSkin.basePrice) * 100);
                 upgradeInProgress = true;
                 document.getElementById('startUpgradeBtn').disabled = true;
                 document.getElementById('upgradeResultText').innerHTML = '';
 
-                // Подкрутка для апгрейда
                 let realChance = chance;
                 if (isAdmin && adminBoost) {
                     realChance = Math.min(chance * 1.8, 95);
                 }
                 const isSuccess = Math.random()*100 < realChance;
 
-                const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
+                const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price && !i.withdrawStatus);
                 if (sourceIdx !== -1) inventory.splice(sourceIdx, 1);
                 if (isSuccess) {
-                    const newSkin = { ...selectedTargetSkin, price: selectedTargetSkin.basePrice, rarity: selectedTargetSkin.rarity };
+                    const newSkin = { ...selectedTargetSkin, price: selectedTargetSkin.basePrice, rarity: selectedTargetSkin.rarity, withdrawStatus: null };
                     inventory.push(newSkin);
                 }
                 save('inventory', inventory);
@@ -1065,7 +1068,7 @@
                         resultDiv.innerHTML = `<div class="upgrade-result-banner success">✅ Успех!<br><span style="font-size:16px;">${selectedTargetSkin.name}</span></div>`;
                         const sellBtn = document.createElement('button'); sellBtn.className = 'btn btn-success'; sellBtn.textContent = '💰 Продать за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.style.marginTop='8px';
                         sellBtn.addEventListener('click', () => {
-                            const idx2 = inventory.findIndex(s => s.name === selectedTargetSkin.name && s.price === selectedTargetSkin.basePrice);
+                            const idx2 = inventory.findIndex(s => s.name === selectedTargetSkin.name && s.price === selectedTargetSkin.basePrice && !s.withdrawStatus);
                             if (idx2 !== -1) { changeBalance(selectedTargetSkin.basePrice); inventory.splice(idx2,1); save('inventory', inventory); updateInventoryUI(); resultDiv.innerHTML += '<br>💰 Продано за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.remove(); }
                         });
                         resultDiv.appendChild(sellBtn);
@@ -1089,7 +1092,6 @@
                         updateAdminTabVisibility();
                         statusEl.textContent = '✅ Админ-панель активирована!';
                         statusEl.style.color = '#34c759';
-                        // Автоматически переключаем на новую вкладку
                         setTimeout(() => {
                             const adminTab = document.getElementById('adminTab');
                             if (adminTab) adminTab.click();
@@ -1117,6 +1119,40 @@
                     boostStatus.style.color = '#ff453a';
                     toggleBtn.textContent = 'Включить подкрутку';
                 }
+
+                const requestsList = document.getElementById('withdrawRequestsList');
+                if (withdrawRequests.length === 0) {
+                    requestsList.innerHTML = '<p style="opacity:0.5;">Нет активных запросов на вывод</p>';
+                } else {
+                    requestsList.innerHTML = withdrawRequests.map((req, idx) => `
+                        <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:12px; margin-bottom:8px;">
+                            <div><strong>${req.skinName}</strong> (${req.price}₽)</div>
+                            <div>Пользователь: ${req.nickname}</div>
+                            <div style="display:flex; gap:6px; margin-top:6px;">
+                                <button class="btn" onclick="navigator.clipboard.writeText('${req.tradeLink}')">📋 Копировать трейд-ссылку</button>
+                                <button class="btn btn-success confirm-withdraw-btn" data-index="${idx}">✅ Подтвердить вывод</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    document.querySelectorAll('.confirm-withdraw-btn').forEach(btn => {
+                        btn.addEventListener('click', (e) => {
+                            const idx = parseInt(e.target.dataset.index);
+                            const req = withdrawRequests[idx];
+                            // Удаляем скин из инвентаря
+                            const invIdx = inventory.findIndex(s => s.name === req.skinName && s.price === req.price && s.withdrawStatus === 'pending');
+                            if (invIdx !== -1) {
+                                inventory.splice(invIdx, 1);
+                                save('inventory', inventory);
+                            }
+                            withdrawRequests.splice(idx, 1);
+                            save('withdrawRequests', withdrawRequests);
+                            updateInventoryUI();
+                            updateAdminPanelUI();
+                            tg.showAlert('Вывод подтверждён, скин удалён из инвентаря.');
+                        });
+                    });
+                }
             }
 
             document.getElementById('toggleBoostBtn').addEventListener('click', () => {
@@ -1125,13 +1161,16 @@
                 updateAdminPanelUI();
             });
 
-            document.getElementById('adminAddBalanceBtn').addEventListener('click', () => {
-                const amount = parseInt(document.getElementById('adminBalanceAmount').value) || 0;
-                if (amount > 0) changeBalance(amount);
-            });
-            document.getElementById('adminSubBalanceBtn').addEventListener('click', () => {
-                const amount = parseInt(document.getElementById('adminBalanceAmount').value) || 0;
-                if (amount > 0) changeBalance(-amount);
+            document.getElementById('adminApplyBalanceBtn').addEventListener('click', () => {
+                const input = document.getElementById('adminBalanceInput').value.trim();
+                const match = input.match(/^([+-]?\d+)$/);
+                if (match) {
+                    const val = parseInt(match[1]);
+                    changeBalance(val);
+                    document.getElementById('adminBalanceInput').value = '';
+                } else {
+                    tg.showAlert('Введите число с + или -, например +1000');
+                }
             });
 
             // ---------- Профиль и инвентарь ----------
@@ -1158,15 +1197,63 @@
             const inventoryList = document.getElementById('inventoryList');
             function updateInventoryUI() {
                 if (inventory.length === 0) { inventoryList.innerHTML = '<p style="opacity:0.4; font-size:13px; text-align:center; padding:12px;">Инвентарь пуст</p>'; return; }
-                inventoryList.innerHTML = inventory.map((item, idx) => `<div class="item-card ${getRarityClass(item.rarity||'blue')}">${createImg(item.image, item.name).outerHTML}<div class="item-info"><div class="item-name">${item.name}</div><div class="item-price">₽ ${item.price}</div></div><div class="item-actions"><button class="btn sell-item-btn" data-index="${idx}">Продать</button><button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button></div></div>`).join('');
+                inventoryList.innerHTML = inventory.map((item, idx) => {
+                    const isPending = item.withdrawStatus === 'pending';
+                    let actionsHtml = '';
+                    if (isPending) {
+                        actionsHtml = `<button class="btn cancel-withdraw-btn" data-index="${idx}">Отменить вывод</button>`;
+                    } else {
+                        actionsHtml = `<button class="btn sell-item-btn" data-index="${idx}">Продать</button>
+                                       <button class="btn withdraw-item-btn" data-index="${idx}">Вывести</button>`;
+                    }
+                    return `<div class="item-card ${getRarityClass(item.rarity||'blue')} ${isPending ? 'withdraw-pending' : ''}">
+                        ${createImg(item.image, item.name).outerHTML}
+                        ${isPending ? '<div class="withdraw-overlay">На выводе</div>' : ''}
+                        <div class="item-info">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-price">₽ ${item.price}</div>
+                        </div>
+                        <div class="item-actions">${actionsHtml}</div>
+                    </div>`;
+                }).join('');
+
                 document.querySelectorAll('.sell-item-btn').forEach(btn => btn.addEventListener('click', (e) => {
                     const idx = parseInt(e.target.dataset.index);
                     const item = inventory[idx];
-                    if (item) { changeBalance(item.price); inventory.splice(idx,1); save('inventory', inventory); updateInventoryUI(); tg.showAlert('Продано за ' + item.price + ' ₽'); }
+                    if (item && !item.withdrawStatus) { changeBalance(item.price); inventory.splice(idx,1); save('inventory', inventory); updateInventoryUI(); tg.showAlert('Продано за ' + item.price + ' ₽'); }
                 }));
-                document.querySelectorAll('.withdraw-item-btn').forEach(btn => btn.addEventListener('click', () => {
-                    if (!profile.tradeLink) tg.showAlert('Сначала сохраните трейд-ссылку');
-                    else tg.openLink(profile.tradeLink);
+                document.querySelectorAll('.withdraw-item-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.dataset.index);
+                    const item = inventory[idx];
+                    if (item && !item.withdrawStatus) {
+                        if (!profile.tradeLink) {
+                            tg.showAlert('Сначала сохраните трейд-ссылку в профиле.');
+                            return;
+                        }
+                        item.withdrawStatus = 'pending';
+                        save('inventory', inventory);
+                        withdrawRequests.push({
+                            skinName: item.name,
+                            price: item.price,
+                            nickname: profile.nickname || 'Аноним',
+                            tradeLink: profile.tradeLink
+                        });
+                        save('withdrawRequests', withdrawRequests);
+                        updateInventoryUI();
+                        tg.showAlert('Запрос на вывод создан. Ожидайте подтверждения администратора.');
+                    }
+                }));
+                document.querySelectorAll('.cancel-withdraw-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                    const idx = parseInt(e.target.dataset.index);
+                    const item = inventory[idx];
+                    if (item && item.withdrawStatus === 'pending') {
+                        item.withdrawStatus = null;
+                        save('inventory', inventory);
+                        withdrawRequests = withdrawRequests.filter(req => !(req.skinName === item.name && req.price === item.price));
+                        save('withdrawRequests', withdrawRequests);
+                        updateInventoryUI();
+                        updateAdminPanelUI();
+                    }
                 }));
             }
             updateInventoryUI();
