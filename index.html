@@ -252,7 +252,6 @@
             border-radius: 2px;
             opacity: 0.7;
         }
-        /* Мини-рулетки для нескольких кейсов */
         .mini-roulettes-grid {
             display: flex;
             flex-wrap: wrap;
@@ -436,10 +435,11 @@
             <div class="add-balance-btn" id="addBalanceBtn">+</div>
         </div>
     </div>
-    <div class="tabs">
+    <div class="tabs" id="tabsContainer">
         <button class="tab active" data-section="cases">Кейсы</button>
         <button class="tab" data-section="upgrade">Апгрейд</button>
         <button class="tab" data-section="profile">Профиль</button>
+        <button class="tab" data-section="promo">Промокоды</button>
     </div>
 
     <div id="section-cases" class="section active">
@@ -471,6 +471,34 @@
             <div style="margin:16px 0;"><label>Trade-ссылка CS:GO:</label><input class="input" id="tradeLinkInput" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..." /><button class="btn" id="saveTradeLinkBtn" style="margin-top:4px;">Сохранить</button><a id="steamTradeBtn" class="btn" style="display:none; margin-top:8px; text-decoration:none;" target="_blank">🔗 Перейти к трейду</a></div>
         </div>
         <div class="glass-panel"><h3>Инвентарь</h3><div class="inventory-list" id="inventoryList"></div><p style="color:rgba(255,255,255,0.3); margin-top:8px; font-size:12px;">Продажа или вывод в трейд</p></div>
+    </div>
+
+    <div id="section-promo" class="section">
+        <div class="glass-panel">
+            <h3>Промокод</h3>
+            <input class="input" id="promoInput" placeholder="Введите код" />
+            <button class="btn btn-block" id="applyPromoBtn">Активировать</button>
+            <div id="promoStatus" style="margin-top:8px; font-size:14px;"></div>
+        </div>
+    </div>
+
+    <!-- Админ-панель (появляется после активации) -->
+    <div id="section-admin" class="section" style="display:none;">
+        <div class="glass-panel">
+            <h3>Админ-панель</h3>
+            <div style="margin:12px 0;">
+                <label>Подкрутка (удача) : <span id="boostStatus">выкл</span></label>
+                <button class="btn" id="toggleBoostBtn">Включить подкрутку</button>
+            </div>
+            <div style="margin:12px 0;">
+                <label>Изменить баланс:</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <input class="input" type="number" id="adminBalanceAmount" placeholder="Сумма" value="1000" style="width:100px;" />
+                    <button class="btn" id="adminAddBalanceBtn">+</button>
+                    <button class="btn" id="adminSubBalanceBtn">-</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- CASE MODAL -->
@@ -540,6 +568,33 @@
             let currentCaseIdx = null;
             let upgradeInProgress = false;
 
+            let isAdmin = load('isAdmin', false);
+            let adminBoost = load('adminBoost', false);
+
+            // Обновление видимости вкладки Админ
+            function updateAdminTabVisibility() {
+                const adminTab = document.getElementById('adminTab');
+                if (isAdmin) {
+                    if (!adminTab) {
+                        const tabsContainer = document.getElementById('tabsContainer');
+                        const tab = document.createElement('button');
+                        tab.className = 'tab';
+                        tab.dataset.section = 'admin';
+                        tab.id = 'adminTab';
+                        tab.textContent = 'Админ';
+                        tab.addEventListener('click', () => {
+                            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                            tab.classList.add('active');
+                            showSection('admin');
+                        });
+                        tabsContainer.appendChild(tab);
+                    }
+                } else {
+                    if (adminTab) adminTab.remove();
+                }
+            }
+            updateAdminTabVisibility();
+
             const skinImages = { 'AK-47 | Redline': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AK-47%20-%20Redline.png?raw=true', 'AWP | Duality': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/AWP%20-%20Duality.png?raw=true', 'M4A1-S | Emphorosaur-S': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/M4A1-S%20-%20Emphorosaur-S.png?raw=true', 'USP-S | Cortex': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/USP-S%20-%20Cortex.webp?raw=true', 'Desert Eagle | Midnight': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'M4A1-S | Printstream': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'M4A1 | Bright Water': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true', 'AWP | Dragon Lore': 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true' };
             const fallbackSkinImg = 'https://github.com/mihailreva78-png/vanguardCS/blob/main/case_mirage.png?raw=true';
             const allSkins = [
@@ -578,6 +633,7 @@
                 if (el) el.classList.add('active');
                 if (sectionId === 'profile') updateInventoryUI();
                 if (sectionId === 'upgrade') refreshUpgradeTab();
+                if (sectionId === 'admin') updateAdminPanelUI();
             }
             document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -671,20 +727,19 @@
                 isCaseOpening = false;
             }
 
+            // Изменённая анимация: медленнее, больше повторов, но без пустоты
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 200; // очень много повторов, чтобы трек не кончался
+                const repeatCount = 60; // достаточно для плавной длинной ленты
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
                 const totalItems = repeated.length;
                 const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
                 if (selectedIndex === -1) { if (callback) callback(); return; }
-                // вычисляем смещение так, чтобы центр выбранного элемента оказался строго по центру контейнера
                 const targetOffset = (selectedIndex * itemWidth + itemWidth/2) - (totalItems * itemWidth) / 2;
-                // небольшой джиттер для естественности
                 const jitter = (Math.random() - 0.5) * 8;
                 const finalOffset = targetOffset + jitter;
                 const startTime = performance.now();
@@ -710,6 +765,24 @@
                 return false;
             }
 
+            // Подкрутка для кейсов: увеличивает шанс дорогих предметов
+            function getWeightedRandomItem(items) {
+                if (!isAdmin || !adminBoost) {
+                    return items[Math.floor(Math.random() * items.length)];
+                }
+                // Сортируем по цене по убыванию, верхняя половина получает больший вес
+                const sorted = [...items].sort((a, b) => b.price - a.price);
+                const half = Math.ceil(sorted.length / 2);
+                const topHalf = sorted.slice(0, half);
+                const bottomHalf = sorted.slice(half);
+                // 70% шанс выбрать из дорогой половины
+                if (Math.random() < 0.7 && topHalf.length > 0) {
+                    return topHalf[Math.floor(Math.random() * topHalf.length)];
+                } else {
+                    return bottomHalf.length > 0 ? bottomHalf[Math.floor(Math.random() * bottomHalf.length)] : topHalf[0];
+                }
+            }
+
             function performCaseOpening() {
                 if (isCaseOpening || currentCaseIdx === null) return;
                 const caseData = cases[currentCaseIdx];
@@ -726,7 +799,7 @@
                 const items = caseData.items;
                 caseResults = [];
                 for (let i = 0; i < caseOpenCount; i++) {
-                    const selected = items[Math.floor(Math.random() * items.length)];
+                    const selected = getWeightedRandomItem(items);
                     caseResults.push({ ...selected, index: i, sold: false });
                     inventory.push({ ...selected });
                 }
@@ -784,16 +857,16 @@
                     }
                 }
 
-                // Запуск всех анимаций одновременно
+                // Увеличенная длительность для медленного вращения
                 if (caseOpenCount === 1) {
-                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 11000 + Math.random() * 3000, () => {
+                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 15000 + Math.random() * 3000, () => {
                         onAnimComplete(0, caseResults[0]);
                     });
                 } else {
                     caseResults.forEach((res, i) => {
                         const containerId = 'miniRoulette' + i;
                         const trackId = 'miniTrack' + i;
-                        animateRoulette(containerId, trackId, items, res, 10000 + Math.random() * 4000, () => {
+                        animateRoulette(containerId, trackId, items, res, 14000 + Math.random() * 4000, () => {
                             onAnimComplete(i, res);
                         });
                     });
@@ -866,7 +939,7 @@
                 currentCaseIdx = null;
             });
 
-            // ---------- Апгрейд (исправлен) ----------
+            // ---------- Апгрейд ----------
             let selectedSourceSkin = null, selectedTargetSkin = null, wheelAnimId = null;
             const wheelCanvas = document.getElementById('wheelCanvas');
             const ctx = wheelCanvas.getContext('2d');
@@ -922,7 +995,7 @@
                 grad.addColorStop(0,'rgba(40,40,50,1)'); grad.addColorStop(1,'rgba(15,15,20,1)');
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
                 ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth=2; ctx.stroke();
-                const startRad = Math.PI/2; // направление стрелки (вниз)
+                const startRad = Math.PI/2;
                 const waterDeg = (successChance/100)*360, waterRad = waterDeg*Math.PI/180;
                 ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,radius,startRad,startRad+waterRad); ctx.closePath();
                 const waterGrad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
@@ -943,8 +1016,7 @@
                 drawWheel(successChance);
                 const waterDeg = (successChance/100)*360;
                 const targetDeg = isSuccess ? Math.random()*waterDeg : waterDeg + Math.random()*(360-waterDeg);
-                // убираем лишний случайный доворот, просто добавляем целое число оборотов
-                const fullRotations = 8; // количество полных оборотов
+                const fullRotations = 8;
                 const totalRotation = targetDeg + 360 * fullRotations;
                 const startTime = performance.now();
                 const duration = 8000;
@@ -971,7 +1043,12 @@
                 document.getElementById('startUpgradeBtn').disabled = true;
                 document.getElementById('upgradeResultText').innerHTML = '';
 
-                const isSuccess = Math.random()*100 < chance;
+                // Подкрутка для апгрейда
+                let realChance = chance;
+                if (isAdmin && adminBoost) {
+                    realChance = Math.min(chance * 1.8, 95);
+                }
+                const isSuccess = Math.random()*100 < realChance;
 
                 const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price);
                 if (sourceIdx !== -1) inventory.splice(sourceIdx, 1);
@@ -999,6 +1076,62 @@
                     selectedSourceSkin = null; selectedTargetSkin = null;
                     refreshUpgradeTab();
                 });
+            });
+
+            // ---------- Промокоды ----------
+            document.getElementById('applyPromoBtn').addEventListener('click', () => {
+                const code = document.getElementById('promoInput').value.trim();
+                const statusEl = document.getElementById('promoStatus');
+                if (code === '256159HVGN') {
+                    if (!isAdmin) {
+                        isAdmin = true;
+                        save('isAdmin', true);
+                        updateAdminTabVisibility();
+                        statusEl.textContent = '✅ Админ-панель активирована!';
+                        statusEl.style.color = '#34c759';
+                        // Автоматически переключаем на новую вкладку
+                        setTimeout(() => {
+                            const adminTab = document.getElementById('adminTab');
+                            if (adminTab) adminTab.click();
+                        }, 500);
+                    } else {
+                        statusEl.textContent = 'Админ-панель уже активна.';
+                        statusEl.style.color = '#ff0';
+                    }
+                } else {
+                    statusEl.textContent = '❌ Неверный промокод.';
+                    statusEl.style.color = '#ff453a';
+                }
+            });
+
+            // ---------- Админ-панель ----------
+            function updateAdminPanelUI() {
+                const boostStatus = document.getElementById('boostStatus');
+                const toggleBtn = document.getElementById('toggleBoostBtn');
+                if (adminBoost) {
+                    boostStatus.textContent = 'вкл';
+                    boostStatus.style.color = '#34c759';
+                    toggleBtn.textContent = 'Выключить подкрутку';
+                } else {
+                    boostStatus.textContent = 'выкл';
+                    boostStatus.style.color = '#ff453a';
+                    toggleBtn.textContent = 'Включить подкрутку';
+                }
+            }
+
+            document.getElementById('toggleBoostBtn').addEventListener('click', () => {
+                adminBoost = !adminBoost;
+                save('adminBoost', adminBoost);
+                updateAdminPanelUI();
+            });
+
+            document.getElementById('adminAddBalanceBtn').addEventListener('click', () => {
+                const amount = parseInt(document.getElementById('adminBalanceAmount').value) || 0;
+                if (amount > 0) changeBalance(amount);
+            });
+            document.getElementById('adminSubBalanceBtn').addEventListener('click', () => {
+                const amount = parseInt(document.getElementById('adminBalanceAmount').value) || 0;
+                if (amount > 0) changeBalance(-amount);
             });
 
             // ---------- Профиль и инвентарь ----------
