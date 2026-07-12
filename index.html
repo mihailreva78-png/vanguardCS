@@ -13,20 +13,20 @@
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #000;
+            background: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #000 70%);
             color: #fff;
             padding: 16px;
             min-height: 100vh;
         }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 24px;
             padding: 16px;
             margin-bottom: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255,255,255,0.03);
         }
         .header {
             display: flex;
@@ -37,7 +37,8 @@
         .logo {
             font-size: 28px;
             font-weight: 700;
-            color: #4A90E2;
+            color: #5B9CF5;
+            text-shadow: 0 0 20px rgba(91,156,245,0.4);
         }
         .balance-block {
             display: flex;
@@ -47,15 +48,16 @@
         .balance {
             font-weight: 600;
             font-size: 16px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(91,156,245,0.1);
             padding: 8px 16px;
             border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(91,156,245,0.25);
+            color: #fff;
         }
         .add-balance-btn {
-            background: rgba(74, 144, 226, 0.2);
-            border: 1px solid rgba(74, 144, 226, 0.4);
-            color: #4A90E2;
+            background: rgba(91,156,245,0.25);
+            border: 1px solid rgba(91,156,245,0.5);
+            color: #5B9CF5;
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -68,7 +70,7 @@
         }
         .add-balance-btn:active {
             transform: scale(0.9);
-            background: rgba(74, 144, 226, 0.4);
+            background: rgba(91,156,245,0.4);
         }
         .tabs {
             display: flex;
@@ -79,9 +81,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        .tabs::-webkit-scrollbar {
-            display: none;
-        }
+        .tabs::-webkit-scrollbar { display: none; }
         .tab {
             padding: 10px 20px;
             background: rgba(255, 255, 255, 0.03);
@@ -97,18 +97,17 @@
             color: rgba(255, 255, 255, 0.7);
         }
         .tab.active {
-            background: rgba(74, 144, 226, 0.2);
-            border-color: rgba(74, 144, 226, 0.4);
+            background: rgba(91,156,245,0.2);
+            border-color: rgba(91,156,245,0.4);
             color: #fff;
             font-weight: 600;
+            box-shadow: 0 0 12px rgba(91,156,245,0.2);
         }
         .section {
             display: none;
             animation: fadeIn 0.3s ease;
         }
-        .section.active {
-            display: block;
-        }
+        .section.active { display: block; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -117,7 +116,7 @@
             font-size: 16px;
             font-weight: 700;
             margin: 16px 0 8px;
-            color: #4A90E2;
+            color: #5B9CF5;
             text-transform: uppercase;
             letter-spacing: 1px;
             grid-column: 1 / -1;
@@ -128,20 +127,21 @@
             gap: 12px;
         }
         .case-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
             padding: 12px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         .case-card:active {
             transform: scale(0.95);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.08);
         }
         .case-image {
             width: 100%;
@@ -156,7 +156,7 @@
             font-size: 13px;
         }
         .case-price {
-            color: #4A90E2;
+            color: #5B9CF5;
             font-weight: 500;
             font-size: 13px;
         }
@@ -179,7 +179,7 @@
             width: 100%;
             max-width: 500px;
             min-height: 100vh;
-            background: rgba(20, 20, 20, 0.97);
+            background: rgba(15, 15, 25, 0.97);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
             border: none;
@@ -193,10 +193,10 @@
             position: relative;
         }
         .modal {
-            background: rgba(20, 20, 20, 0.95);
+            background: rgba(15, 15, 25, 0.95);
             backdrop-filter: blur(30px);
             -webkit-backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 28px;
             padding: 24px;
             max-width: 400px;
@@ -209,11 +209,11 @@
             height: 100px;
             overflow: hidden;
             margin: 16px 0;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 16px;
             display: flex;
             align-items: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             touch-action: pan-y;
         }
         .roulette-track {
@@ -221,7 +221,7 @@
             gap: 0;
             position: absolute;
             left: 50%;
-            transform: translateX(calc(-50% + 0px));
+            transform: translateX(-50%);
             transition: none;
             will-change: transform;
         }
@@ -246,11 +246,11 @@
             transform: translateX(-50%);
             width: 4px;
             height: 100%;
-            background: #4A90E2;
-            box-shadow: 0 0 16px #4A90E2;
+            background: #5B9CF5;
+            box-shadow: 0 0 20px #5B9CF5, 0 0 40px rgba(91,156,245,0.4);
             z-index: 2;
             border-radius: 2px;
-            opacity: 0.7;
+            opacity: 0.9;
         }
         .mini-roulettes-grid {
             display: flex;
@@ -262,13 +262,13 @@
         }
         .mini-roulette-container {
             width: 180px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0,0,0,0.4);
             border-radius: 12px;
             padding: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         .mini-roulette {
             width: 100%;
@@ -279,11 +279,11 @@
             border-radius: 8px;
             display: flex;
             align-items: center;
-            border: 1px solid rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.06);
         }
         .mini-roulette .roulette-track {
             left: 50%;
-            transform: translateX(calc(-50% + 0px));
+            transform: translateX(-50%);
         }
         .mini-roulette .roulette-item {
             flex: 0 0 50px;
@@ -303,8 +303,8 @@
             min-height: 20px;
         }
         .btn {
-            background: rgba(74, 144, 226, 0.15);
-            border: 1px solid rgba(74, 144, 226, 0.3);
+            background: linear-gradient(135deg, rgba(91,156,245,0.2) 0%, rgba(91,156,245,0.05) 100%);
+            border: 1px solid rgba(91,156,245,0.3);
             color: #fff;
             border-radius: 14px;
             padding: 12px 24px;
@@ -315,30 +315,28 @@
             margin: 6px 0;
             display: inline-block;
             user-select: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .btn:active {
-            background: rgba(74, 144, 226, 0.3);
+            background: linear-gradient(135deg, rgba(91,156,245,0.4) 0%, rgba(91,156,245,0.15) 100%);
             transform: scale(0.97);
         }
         .btn:disabled {
             opacity: 0.4;
             pointer-events: none;
         }
-        .btn-block {
-            display: block;
-            width: 100%;
-        }
+        .btn-block { display: block; width: 100%; }
         .btn-success {
-            background: rgba(52, 199, 89, 0.15);
-            border-color: rgba(52, 199, 89, 0.3);
+            background: linear-gradient(135deg, rgba(52, 199, 89, 0.25) 0%, rgba(52, 199, 89, 0.08) 100%);
+            border-color: rgba(52, 199, 89, 0.4);
         }
         .btn-gold {
-            background: rgba(255, 215, 0, 0.15);
-            border-color: rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.25) 0%, rgba(255, 215, 0, 0.08) 100%);
+            border-color: rgba(255, 215, 0, 0.4);
         }
         .input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             padding: 12px;
             color: #fff;
@@ -347,9 +345,7 @@
             outline: none;
             font-size: 14px;
         }
-        .input:focus {
-            border-color: #4A90E2;
-        }
+        .input:focus { border-color: #5B9CF5; }
         .rarity-blue { background: linear-gradient(135deg, #4B69FF, #2563EB); }
         .rarity-purple { background: linear-gradient(135deg, #8847FF, #7C3AED); }
         .rarity-pink { background: linear-gradient(135deg, #D32CE6, #A21CAF); }
@@ -376,38 +372,64 @@
             transform: scale(0.9);
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
-        .upgrade-result-banner.show {
-            opacity: 1;
-            transform: scale(1);
-        }
+        .upgrade-result-banner.show { opacity: 1; transform: scale(1); }
         .upgrade-result-banner.success {
             background: rgba(52, 199, 89, 0.15);
-            border: 1px solid rgba(52, 199, 89, 0.3);
+            border: 1px solid rgba(52, 199, 89, 0.4);
             color: #34c759;
         }
         .upgrade-result-banner.fail {
             background: rgba(255, 69, 58, 0.15);
-            border: 1px solid rgba(255, 69, 58, 0.3);
+            border: 1px solid rgba(255, 69, 58, 0.4);
             color: #ff453a;
         }
         .upgrade-container { display: flex; flex-direction: column; align-items: center; }
-        .wheel-wrapper { position: relative; width: 220px; height: 220px; margin: 20px auto; }
-        .wheel-canvas { display: block; position: absolute; top: 0; left: 0; width: 220px; height: 220px; border-radius: 50%; box-shadow: 0 0 30px rgba(74,144,226,0.15), 0 0 60px rgba(0,0,0,0.6); }
-        .wheel-arrow { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) translateY(100px); width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent; border-bottom: 24px solid #fff; filter: drop-shadow(0 0 8px rgba(74,144,226,0.6)); z-index: 5; transition: none; transform-origin: center center; }
+        .wheel-wrapper {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            margin: 20px auto;
+            filter: drop-shadow(0 0 20px rgba(91,156,245,0.3));
+        }
+        .wheel-canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(91,156,245,0.15), 0 0 80px rgba(0,0,0,0.7);
+        }
+        .wheel-arrow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg) translateY(100px);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-bottom: 24px solid #fff;
+            filter: drop-shadow(0 0 12px #5B9CF5);
+            z-index: 5;
+            transition: none;
+            transform-origin: center center;
+        }
         .upgrade-columns { display: flex; gap: 12px; width: 100%; margin: 12px 0; }
-        .upgrade-col { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; max-height: 200px; overflow-y: auto; }
+        .upgrade-col { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; gap: 6px; min-height: 120px; max-height: 200px; overflow-y: auto; }
         .upgrade-col h4 { text-align: center; margin-bottom: 4px; font-size: 13px; opacity: 0.7; flex-shrink: 0; }
         .upgrade-card { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border-radius: 10px; padding: 6px 8px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; font-size: 11px; flex-shrink: 0; }
         .upgrade-card img { width: 32px; height: 32px; object-fit: contain; border-radius: 4px; flex-shrink: 0; }
-        .upgrade-card.selected { border-color: #4A90E2; background: rgba(74,144,226,0.2); }
+        .upgrade-card.selected { border-color: #5B9CF5; background: rgba(91,156,245,0.25); }
         .chance-badge { margin-left: auto; font-size: 10px; background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
         .case-contents { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0; max-width: 400px; width: 100%; }
-        .case-item-card { width: 80px; background: rgba(255, 255, 255, 0.06); border-radius: 10px; padding: 6px; text-align: center; font-size: 10px; backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.04); }
+        .case-item-card { width: 80px; background: rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 6px; text-align: center; font-size: 10px; backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.06); }
         .case-item-card img { width: 52px; height: 52px; object-fit: contain; margin-bottom: 2px; border-radius: 4px; }
         .item-label { font-size: 9px; opacity: 0.9; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-price-tag { font-size: 9px; color: #4A90E2; font-weight: 600; }
+        .item-price-tag { font-size: 9px; color: #5B9CF5; font-weight: 600; }
         .inventory-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-        .item-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.04); border-radius: 14px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.06); gap: 10px; position: relative; }
+        .item-card { display: flex; align-items: center; background: rgba(255, 255, 255, 0.05); border-radius: 14px; padding: 8px 12px; border: 1px solid rgba(255, 255, 255, 0.08); gap: 10px; position: relative; }
         .item-card img { width: 40px; height: 40px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
         .item-card.withdraw-pending img { filter: blur(3px) grayscale(0.5); }
         .item-card .withdraw-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); border-radius: 14px; font-size: 12px; font-weight: 700; color: #fff; }
@@ -416,9 +438,9 @@
         .item-card .item-price { font-size: 12px; opacity: 0.7; }
         .item-card .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
         .item-card .item-actions .btn { padding: 4px 12px; font-size: 11px; margin: 0; }
-        .drop-progress-wrap { width: 100%; background: rgba(255,255,255,0.06); border-radius: 10px; height: 6px; margin: 8px 0 4px; overflow: hidden; }
-        .drop-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #4A90E2, #34c759); border-radius: 10px; transition: width 0.15s linear; }
-        .drop-progress-label { font-size: 11px; opacity: 0.6; text-align: center; margin-top: 2px; }
+        .drop-progress-wrap { width: 100%; background: rgba(255,255,255,0.08); border-radius: 10px; height: 6px; margin: 8px 0 4px; overflow: hidden; }
+        .drop-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #5B9CF5, #34c759); border-radius: 10px; transition: width 0.15s linear; }
+        .drop-progress-label { font-size: 11px; opacity: 0.7; text-align: center; margin-top: 2px; }
         .flex-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: center; }
         .text-center { text-align: center; }
         .mt-8 { margin-top: 8px; }
@@ -457,8 +479,8 @@
             transition: 0.2s;
         }
         .quantity-btn.active {
-            background: rgba(74,144,226,0.3);
-            border-color: #4A90E2;
+            background: rgba(91,156,245,0.35);
+            border-color: #5B9CF5;
         }
         .fast-toggle {
             display: flex;
@@ -470,15 +492,15 @@
         .fast-btn {
             padding: 8px 20px;
             border-radius: 20px;
-            background: rgba(255,215,0,0.1);
-            border: 1px solid rgba(255,215,0,0.3);
+            background: rgba(255,215,0,0.15);
+            border: 1px solid rgba(255,215,0,0.4);
             color: #FFD700;
             cursor: pointer;
             transition: 0.2s;
             font-weight: 600;
         }
         .fast-btn.active {
-            background: rgba(255,215,0,0.3);
+            background: rgba(255,215,0,0.35);
             border-color: #FFD700;
         }
         @media (max-width: 480px) {
@@ -552,7 +574,6 @@
         </div>
     </div>
 
-    <!-- Админ-панель -->
     <div id="section-admin" class="section">
         <div class="glass-panel">
             <h3>Админ-панель</h3>
@@ -588,7 +609,6 @@
             <div id="dropProgressLabel" class="drop-progress-label">🎯 Готов к открытию</div>
             <div id="caseResultText" style="font-weight:600; min-height:28px; margin:4px 0;"></div>
 
-            <!-- Кнопки выбора количества -->
             <div class="quantity-btns" id="quantityBtns">
                 <button class="quantity-btn active" data-qty="1">1</button>
                 <button class="quantity-btn" data-qty="2">2</button>
@@ -655,7 +675,7 @@
 
             let isAdmin = load('isAdmin', false);
             let adminBoost = load('adminBoost', false);
-            let fastMode = false; // глобальный режим быстро
+            let fastMode = false;
 
             function updateAdminTabVisibility() {
                 const adminTab = document.getElementById('adminTab');
@@ -758,7 +778,6 @@
             let caseResults = [];
             let animCompletedCount = 0;
 
-            // Переключение быстрого режима для кейсов
             caseFastBtn.addEventListener('click', () => {
                 fastMode = !fastMode;
                 caseFastBtn.classList.toggle('active', fastMode);
@@ -785,7 +804,7 @@
                     mainRoulette.style.display = 'flex';
                     miniRoulettesGrid.style.display = 'none';
                     rouletteTrack.innerHTML = items.map(i => `<div class="roulette-item">${createImg(i.image, i.name).outerHTML}</div>`).join('');
-                    rouletteTrack.style.transform = 'translateX(calc(-50% + 0px))';
+                    rouletteTrack.style.transform = 'translateX(-50%)';
                 } else {
                     mainRoulette.style.display = 'none';
                     miniRoulettesGrid.style.display = 'flex';
@@ -822,34 +841,32 @@
                 isCaseOpening = false;
             }
 
-            // Анимация рулетки с остановкой в диапазоне 60-85%
+            // ✅ Исправленная анимация – скины движутся слева направо
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 150;
+                const repeatCount = Math.max(30, Math.floor(durationMs / 20)); // плавность под скорость
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
                 const totalItems = repeated.length;
-                // Находим все индексы выбранного предмета
                 const allIndices = [];
                 for (let i = 0; i < totalItems; i++) {
                     if (repeated[i].name === selectedItem.name) allIndices.push(i);
                 }
                 if (allIndices.length === 0) { if (callback) callback(); return; }
-                // Выбираем индекс в диапазоне 60% - 85% от общей длины
                 const minIdx = Math.floor(totalItems * 0.6);
                 const maxIdx = Math.floor(totalItems * 0.85);
                 let targetIdx = allIndices.find(idx => idx >= minIdx && idx <= maxIdx);
                 if (targetIdx === undefined) {
-                    // если нет в диапазоне, берем ближайший к середине диапазона
                     const midRange = (minIdx + maxIdx) / 2;
                     targetIdx = allIndices.reduce((prev, curr) => Math.abs(curr - midRange) < Math.abs(prev - midRange) ? curr : prev);
                 }
                 const targetOffset = (targetIdx * itemWidth + itemWidth/2) - (totalItems * itemWidth) / 2;
                 const jitter = (Math.random() - 0.5) * 8;
-                const finalOffset = targetOffset + jitter;
+                // Отрицательный finalOffset → лента едет влево → предметы проходят слева направо
+                const finalOffset = -(targetOffset + jitter);
                 const startTime = performance.now();
                 function step(now) {
                     const elapsed = now - startTime;
@@ -874,18 +891,13 @@
             }
 
             function getWeightedRandomItem(items) {
-                if (!isAdmin || !adminBoost) {
-                    return items[Math.floor(Math.random() * items.length)];
-                }
+                if (!isAdmin || !adminBoost) return items[Math.floor(Math.random() * items.length)];
                 const sorted = [...items].sort((a, b) => b.price - a.price);
                 const half = Math.ceil(sorted.length / 2);
                 const topHalf = sorted.slice(0, half);
                 const bottomHalf = sorted.slice(half);
-                if (Math.random() < 0.7 && topHalf.length > 0) {
-                    return topHalf[Math.floor(Math.random() * topHalf.length)];
-                } else {
-                    return bottomHalf.length > 0 ? bottomHalf[Math.floor(Math.random() * bottomHalf.length)] : topHalf[0];
-                }
+                if (Math.random() < 0.7 && topHalf.length > 0) return topHalf[Math.floor(Math.random() * topHalf.length)];
+                return bottomHalf.length > 0 ? bottomHalf[Math.floor(Math.random() * bottomHalf.length)] : topHalf[0];
             }
 
             function performCaseOpening() {
@@ -900,7 +912,6 @@
                 caseResultText.innerHTML = '';
                 dropProgressBar.style.width = '0%';
                 dropProgressLabel.textContent = '🎰 Открываем...';
-
                 const items = caseData.items;
                 caseResults = [];
                 for (let i = 0; i < caseOpenCount; i++) {
@@ -910,7 +921,6 @@
                 }
                 save('inventory', inventory);
                 updateInventoryUI();
-
                 if (caseOpenCount === 1) {
                     mainRoulette.style.display = 'flex';
                     miniRoulettesGrid.style.display = 'none';
@@ -918,7 +928,6 @@
                     mainRoulette.style.display = 'none';
                     miniRoulettesGrid.style.display = 'flex';
                 }
-
                 animCompletedCount = 0;
                 const total = caseOpenCount;
                 const duration = fastMode ? 1000 : 7000;
@@ -928,7 +937,6 @@
                     const progress = (animCompletedCount / total) * 100;
                     dropProgressBar.style.width = progress + '%';
                     dropProgressLabel.textContent = `🎯 ${animCompletedCount}/${total}`;
-
                     if (caseOpenCount === 1) {
                         const resDiv = caseResultText;
                         resDiv.innerHTML = `🎉 Выпало: <span class="rarity-badge ${getRarityClass(selected.rarity)}">${selected.name}</span>`;
@@ -952,7 +960,6 @@
                             sellBtn.onclick = () => sellSingleResult(index);
                         }
                     }
-
                     if (animCompletedCount === total) {
                         isCaseOpening = false;
                         dropProgressLabel.textContent = '✅ Все открыты!';
@@ -988,8 +995,7 @@
                     res.sold = true;
                     if (caseOpenCount === 1) {
                         caseResultText.innerHTML += '<br>💰 Продано за ' + res.price + ' ₽';
-                        const sellBtns = document.querySelectorAll('.sell-single-btn');
-                        sellBtns.forEach(b => b.remove());
+                        document.querySelectorAll('.sell-single-btn').forEach(b => b.remove());
                     } else {
                         const sellBtn = document.querySelector(`.sell-single-btn[data-index="${index}"]`);
                         if (sellBtn) sellBtn.style.display = 'none';
@@ -1094,7 +1100,7 @@
                     card.classList.add('selected');
                     selectedTargetSkin = validTargets.find(s => s.name === card.dataset.name);
                     const chance = Math.round((selectedSourceSkin.price / selectedTargetSkin.basePrice) * 100);
-                    chanceDisplay.innerHTML = `Шанс успеха: <span style="color:#4A90E2; font-size:20px;">${chance}%</span>`;
+                    chanceDisplay.innerHTML = `Шанс успеха: <span style="color:#5B9CF5; font-size:20px;">${chance}%</span>`;
                     startBtn.disabled = false;
                     drawWheel(chance);
                 }));
@@ -1107,7 +1113,7 @@
                 const grad = ctx.createRadialGradient(cx,cy,10,cx,cy,radius);
                 grad.addColorStop(0,'rgba(40,40,50,1)'); grad.addColorStop(1,'rgba(15,15,20,1)');
                 ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
-                ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth=2; ctx.stroke();
+                ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth=2; ctx.stroke();
                 const startRad = Math.PI/2;
                 const waterDeg = (successChance/100)*360, waterRad = waterDeg*Math.PI/180;
                 ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,radius,startRad,startRad+waterRad); ctx.closePath();
@@ -1158,9 +1164,7 @@
                 document.getElementById('upgradeResultText').innerHTML = '';
 
                 let realChance = chance;
-                if (isAdmin && adminBoost) {
-                    realChance = Math.min(chance * 1.8, 95);
-                }
+                if (isAdmin && adminBoost) realChance = Math.min(chance * 1.8, 95);
                 const isSuccess = Math.random()*100 < realChance;
 
                 const sourceIdx = inventory.findIndex(i => i.name === selectedSourceSkin.name && i.price === selectedSourceSkin.price && !i.withdrawStatus);
@@ -1179,9 +1183,7 @@
                     banner.textContent = isSuccess ? '✅ Успех' : '❌ Провал';
                     resultDiv.innerHTML = '';
                     resultDiv.appendChild(banner);
-                    requestAnimationFrame(() => {
-                        banner.classList.add('show');
-                    });
+                    requestAnimationFrame(() => { banner.classList.add('show'); });
 
                     if (isSuccess) {
                         const sellBtn = document.createElement('button'); 
@@ -1196,7 +1198,6 @@
                     }
                     upgradeInProgress = false;
                     selectedSourceSkin = null; selectedTargetSkin = null;
-                    // Не сбрасываем результат! Просто обновим список исходных скинов
                     renderUpgradeSource();
                     document.getElementById('upgradeTargetList').innerHTML = '';
                     document.getElementById('upgradeChanceDisplay').innerHTML = '';
@@ -1229,20 +1230,16 @@
                 }
             });
 
-            // ---------- Админ-панель ----------
             function updateAdminPanelUI() {
                 const boostStatus = document.getElementById('boostStatus');
                 const toggleBtn = document.getElementById('toggleBoostBtn');
                 if (adminBoost) {
-                    boostStatus.textContent = 'вкл';
-                    boostStatus.style.color = '#34c759';
+                    boostStatus.textContent = 'вкл'; boostStatus.style.color = '#34c759';
                     toggleBtn.textContent = 'Выключить подкрутку';
                 } else {
-                    boostStatus.textContent = 'выкл';
-                    boostStatus.style.color = '#ff453a';
+                    boostStatus.textContent = 'выкл'; boostStatus.style.color = '#ff453a';
                     toggleBtn.textContent = 'Включить подкрутку';
                 }
-
                 const requestsList = document.getElementById('withdrawRequestsList');
                 if (withdrawRequests.length === 0) {
                     requestsList.innerHTML = '<p style="opacity:0.5;">Нет активных запросов на вывод</p>';
@@ -1257,7 +1254,6 @@
                             </div>
                         </div>
                     `).join('');
-
                     document.querySelectorAll('.confirm-withdraw-btn').forEach(btn => {
                         btn.addEventListener('click', (e) => {
                             const idx = parseInt(e.target.dataset.index);
@@ -1287,15 +1283,13 @@
                 const input = document.getElementById('adminBalanceInput').value.trim();
                 const match = input.match(/^([+-]?\d+)$/);
                 if (match) {
-                    const val = parseInt(match[1]);
-                    changeBalance(val);
+                    changeBalance(parseInt(match[1]));
                     document.getElementById('adminBalanceInput').value = '';
                 } else {
                     tg.showAlert('Введите число с + или -, например +1000');
                 }
             });
 
-            // ---------- Профиль и инвентарь ----------
             const nicknameInput = document.getElementById('nicknameInput');
             document.getElementById('saveNicknameBtn').addEventListener('click', () => {
                 const nick = nicknameInput.value.trim();
@@ -1348,18 +1342,10 @@
                     const idx = parseInt(e.target.dataset.index);
                     const item = inventory[idx];
                     if (item && !item.withdrawStatus) {
-                        if (!profile.tradeLink) {
-                            tg.showAlert('Сначала сохраните трейд-ссылку в профиле.');
-                            return;
-                        }
+                        if (!profile.tradeLink) { tg.showAlert('Сначала сохраните трейд-ссылку в профиле.'); return; }
                         item.withdrawStatus = 'pending';
                         save('inventory', inventory);
-                        withdrawRequests.push({
-                            skinName: item.name,
-                            price: item.price,
-                            nickname: profile.nickname || 'Аноним',
-                            tradeLink: profile.tradeLink
-                        });
+                        withdrawRequests.push({ skinName: item.name, price: item.price, nickname: profile.nickname || 'Аноним', tradeLink: profile.tradeLink });
                         save('withdrawRequests', withdrawRequests);
                         updateInventoryUI();
                         updateAdminPanelUI();
