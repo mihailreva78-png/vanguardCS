@@ -729,7 +729,6 @@
             let caseResults = [];
             let animCompletedCount = 0;
 
-            // Кнопки количества
             const quantityBtns = document.getElementById('quantityBtns');
             quantityBtns.addEventListener('click', (e) => {
                 if (e.target.classList.contains('quantity-btn')) {
@@ -787,12 +786,12 @@
                 isCaseOpening = false;
             }
 
-            // Плавная анимация с easeOut
+            // *** ВОТ ГЛАВНАЯ ПРАВКА: repeatCount увеличен до 300 ***
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 80; // достаточно для плавной прокрутки
+                const repeatCount = 300; // Было 80, теперь скинов хватит на всю анимацию
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
@@ -806,8 +805,7 @@
                 function step(now) {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed / durationMs, 1);
-                    // easeOutCubic: плавное замедление
-                    const eased = 1 - Math.pow(1 - progress, 3);
+                    const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
                     const currentOffset = finalOffset * eased;
                     track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
                     if (progress < 1) {
@@ -996,7 +994,7 @@
                 currentCaseIdx = null;
             });
 
-            // ---------- Апгрейд с анимацией появления текста ----------
+            // ---------- Апгрейд ----------
             let selectedSourceSkin = null, selectedTargetSkin = null, wheelAnimId = null;
             const wheelCanvas = document.getElementById('wheelCanvas');
             const ctx = wheelCanvas.getContext('2d');
@@ -1125,7 +1123,6 @@
                     banner.textContent = isSuccess ? '✅ Успех' : '❌ Провал';
                     resultDiv.innerHTML = '';
                     resultDiv.appendChild(banner);
-                    // Плавное появление
                     requestAnimationFrame(() => {
                         banner.classList.add('show');
                     });
