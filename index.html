@@ -460,6 +460,27 @@
             background: rgba(74,144,226,0.3);
             border-color: #4A90E2;
         }
+        .fast-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            justify-content: center;
+        }
+        .fast-btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            color: #FFD700;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+        }
+        .fast-btn.active {
+            background: rgba(255,215,0,0.3);
+            border-color: #FFD700;
+        }
         @media (max-width: 480px) {
             .modal-fullscreen { padding: 12px; }
             .wheel-wrapper { width: 180px; height: 180px; }
@@ -505,6 +526,9 @@
                 <div class="upgrade-col"><h4>🎯 Цель</h4><div id="upgradeTargetList"></div></div>
             </div>
             <div id="upgradeChanceDisplay" style="text-align:center; margin:4px 0; font-weight:600; font-size:15px;"></div>
+            <div class="fast-toggle">
+                <button class="fast-btn" id="upgradeFastBtn">⚡ Быстро</button>
+            </div>
             <button class="btn btn-block" id="startUpgradeBtn" disabled>🔧 Апгрейд</button>
             <div id="upgradeResultText" style="text-align:center; margin-top:8px;"></div>
         </div>
@@ -572,6 +596,9 @@
                 <button class="quantity-btn" data-qty="5">5</button>
                 <button class="quantity-btn" data-qty="10">10</button>
             </div>
+            <div class="fast-toggle">
+                <button class="fast-btn" id="caseFastBtn">⚡ Быстро</button>
+            </div>
 
             <button class="btn btn-block" id="openCaseBtn">Открыть за X ₽</button>
 
@@ -628,6 +655,7 @@
 
             let isAdmin = load('isAdmin', false);
             let adminBoost = load('adminBoost', false);
+            let fastMode = false; // глобальный режим быстро
 
             function updateAdminTabVisibility() {
                 const adminTab = document.getElementById('adminTab');
@@ -724,10 +752,18 @@
             const caseModalTitle = document.getElementById('caseModalTitle');
             const miniRoulettesGrid = document.getElementById('miniRoulettesGrid');
             const mainRoulette = document.getElementById('rouletteContainer');
+            const caseFastBtn = document.getElementById('caseFastBtn');
 
             let caseOpenCount = 1;
             let caseResults = [];
             let animCompletedCount = 0;
+
+            // Переключение быстрого режима для кейсов
+            caseFastBtn.addEventListener('click', () => {
+                fastMode = !fastMode;
+                caseFastBtn.classList.toggle('active', fastMode);
+                document.getElementById('upgradeFastBtn').classList.toggle('active', fastMode);
+            });
 
             const quantityBtns = document.getElementById('quantityBtns');
             quantityBtns.addEventListener('click', (e) => {
@@ -786,26 +822,39 @@
                 isCaseOpening = false;
             }
 
-            // *** ВОТ ГЛАВНАЯ ПРАВКА: repeatCount увеличен до 300 ***
+            // Анимация рулетки с остановкой в диапазоне 60-85%
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 300; // Было 80, теперь скинов хватит на всю анимацию
+                const repeatCount = 150;
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
                 const totalItems = repeated.length;
-                const selectedIndex = repeated.findIndex(it => it.name === selectedItem.name);
-                if (selectedIndex === -1) { if (callback) callback(); return; }
-                const targetOffset = (selectedIndex * itemWidth + itemWidth/2) - (totalItems * itemWidth) / 2;
+                // Находим все индексы выбранного предмета
+                const allIndices = [];
+                for (let i = 0; i < totalItems; i++) {
+                    if (repeated[i].name === selectedItem.name) allIndices.push(i);
+                }
+                if (allIndices.length === 0) { if (callback) callback(); return; }
+                // Выбираем индекс в диапазоне 60% - 85% от общей длины
+                const minIdx = Math.floor(totalItems * 0.6);
+                const maxIdx = Math.floor(totalItems * 0.85);
+                let targetIdx = allIndices.find(idx => idx >= minIdx && idx <= maxIdx);
+                if (targetIdx === undefined) {
+                    // если нет в диапазоне, берем ближайший к середине диапазона
+                    const midRange = (minIdx + maxIdx) / 2;
+                    targetIdx = allIndices.reduce((prev, curr) => Math.abs(curr - midRange) < Math.abs(prev - midRange) ? curr : prev);
+                }
+                const targetOffset = (targetIdx * itemWidth + itemWidth/2) - (totalItems * itemWidth) / 2;
                 const jitter = (Math.random() - 0.5) * 8;
                 const finalOffset = targetOffset + jitter;
                 const startTime = performance.now();
                 function step(now) {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed / durationMs, 1);
-                    const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+                    const eased = 1 - Math.pow(1 - progress, 3);
                     const currentOffset = finalOffset * eased;
                     track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
                     if (progress < 1) {
@@ -872,6 +921,7 @@
 
                 animCompletedCount = 0;
                 const total = caseOpenCount;
+                const duration = fastMode ? 1000 : 7000;
 
                 function onAnimComplete(index, selected) {
                     animCompletedCount++;
@@ -914,14 +964,14 @@
                 }
 
                 if (caseOpenCount === 1) {
-                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], 7000, () => {
+                    animateRoulette('rouletteContainer', 'rouletteTrack', items, caseResults[0], duration, () => {
                         onAnimComplete(0, caseResults[0]);
                     });
                 } else {
                     caseResults.forEach((res, i) => {
                         const containerId = 'miniRoulette' + i;
                         const trackId = 'miniTrack' + i;
-                        animateRoulette(containerId, trackId, items, res, 7000, () => {
+                        animateRoulette(containerId, trackId, items, res, duration, () => {
                             onAnimComplete(i, res);
                         });
                     });
@@ -999,6 +1049,12 @@
             const wheelCanvas = document.getElementById('wheelCanvas');
             const ctx = wheelCanvas.getContext('2d');
             const wheelArrow = document.getElementById('wheelArrow');
+            const upgradeFastBtn = document.getElementById('upgradeFastBtn');
+            upgradeFastBtn.addEventListener('click', () => {
+                fastMode = !fastMode;
+                upgradeFastBtn.classList.toggle('active', fastMode);
+                caseFastBtn.classList.toggle('active', fastMode);
+            });
 
             function refreshUpgradeTab() {
                 renderUpgradeSource();
@@ -1076,7 +1132,7 @@
                 const fullRotations = 8;
                 const totalRotation = targetDeg + 360 * fullRotations;
                 const startTime = performance.now();
-                const duration = 8000;
+                const duration = fastMode ? 1000 : 8000;
                 function step(now) {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed/duration, 1);
@@ -1140,7 +1196,11 @@
                     }
                     upgradeInProgress = false;
                     selectedSourceSkin = null; selectedTargetSkin = null;
-                    refreshUpgradeTab();
+                    // Не сбрасываем результат! Просто обновим список исходных скинов
+                    renderUpgradeSource();
+                    document.getElementById('upgradeTargetList').innerHTML = '';
+                    document.getElementById('upgradeChanceDisplay').innerHTML = '';
+                    document.getElementById('startUpgradeBtn').disabled = true;
                 });
             });
 
