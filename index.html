@@ -372,6 +372,13 @@
             text-align: center;
             margin: 8px 0;
             width: 100%;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        .upgrade-result-banner.show {
+            opacity: 1;
+            transform: scale(1);
         }
         .upgrade-result-banner.success {
             background: rgba(52, 199, 89, 0.15);
@@ -416,6 +423,43 @@
         .text-center { text-align: center; }
         .mt-8 { margin-top: 8px; }
         .mb-8 { margin-bottom: 8px; }
+        .close-btn-corner {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .quantity-btns {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        .quantity-btn {
+            padding: 8px 16px;
+            font-size: 16px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .quantity-btn.active {
+            background: rgba(74,144,226,0.3);
+            border-color: #4A90E2;
+        }
         @media (max-width: 480px) {
             .modal-fullscreen { padding: 12px; }
             .wheel-wrapper { width: 180px; height: 180px; }
@@ -484,7 +528,7 @@
         </div>
     </div>
 
-    <!-- Админ-панель (без inline display:none) -->
+    <!-- Админ-панель -->
     <div id="section-admin" class="section">
         <div class="glass-panel">
             <h3>Админ-панель</h3>
@@ -509,6 +553,7 @@
     <!-- CASE MODAL -->
     <div id="caseModal" class="modal-overlay" style="display:none;">
         <div class="modal-fullscreen">
+            <button class="close-btn-corner" id="closeCaseBtnCorner">✕</button>
             <h3 id="caseModalTitle" style="margin-bottom:4px;">Кейс</h3>
             <div class="case-roulette" id="rouletteContainer" style="display:none;">
                 <div class="roulette-track" id="rouletteTrack"></div>
@@ -519,19 +564,26 @@
             <div id="dropProgressLabel" class="drop-progress-label">🎯 Готов к открытию</div>
             <div id="caseResultText" style="font-weight:600; min-height:28px; margin:4px 0;"></div>
 
-            <div style="width:100%; margin:8px 0;">
-                <div class="slider-label"><span>Количество кейсов</span><span id="caseCountLabel">1</span></div>
-                <input type="range" id="caseCountSlider" min="1" max="10" value="1" step="1" />
+            <!-- Кнопки выбора количества -->
+            <div class="quantity-btns" id="quantityBtns">
+                <button class="quantity-btn active" data-qty="1">1</button>
+                <button class="quantity-btn" data-qty="2">2</button>
+                <button class="quantity-btn" data-qty="3">3</button>
+                <button class="quantity-btn" data-qty="5">5</button>
+                <button class="quantity-btn" data-qty="10">10</button>
             </div>
+
             <button class="btn btn-block" id="openCaseBtn">Открыть за X ₽</button>
 
-            <div id="caseContentsContainer" class="case-contents"></div>
+            <div style="margin-top:12px; width:100%;">
+                <div style="font-size:14px; font-weight:600; margin-bottom:6px;">Содержимое кейса</div>
+                <div id="caseContentsContainer" class="case-contents"></div>
+            </div>
 
             <div class="flex-row mt-8" id="postOpenActions" style="display:none;">
                 <button class="btn" id="againCaseBtn" style="flex:1;">🔄 Ещё раз</button>
                 <button class="btn btn-success" id="sellAllBtn" style="flex:1;">💰 Продать всё</button>
             </div>
-            <button class="btn btn-block mt-8" id="closeCaseBtn">✖ Закрыть</button>
         </div>
     </div>
 
@@ -663,12 +715,10 @@
             const caseResultText = document.getElementById('caseResultText');
             const openCaseBtn = document.getElementById('openCaseBtn');
             const caseContentsContainer = document.getElementById('caseContentsContainer');
-            const closeCaseBtn = document.getElementById('closeCaseBtn');
+            const closeCaseBtn = document.getElementById('closeCaseBtnCorner');
             const againCaseBtn = document.getElementById('againCaseBtn');
             const sellAllBtn = document.getElementById('sellAllBtn');
             const postOpenActions = document.getElementById('postOpenActions');
-            const caseCountSlider = document.getElementById('caseCountSlider');
-            const caseCountLabel = document.getElementById('caseCountLabel');
             const dropProgressBar = document.getElementById('dropProgressBar');
             const dropProgressLabel = document.getElementById('dropProgressLabel');
             const caseModalTitle = document.getElementById('caseModalTitle');
@@ -679,13 +729,18 @@
             let caseResults = [];
             let animCompletedCount = 0;
 
-            caseCountSlider.addEventListener('input', () => {
-                caseOpenCount = parseInt(caseCountSlider.value);
-                caseCountLabel.textContent = caseOpenCount;
-                if (currentCaseIdx !== null) {
-                    const caseData = cases[currentCaseIdx];
-                    openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
-                    renderCaseLayout();
+            // Кнопки количества
+            const quantityBtns = document.getElementById('quantityBtns');
+            quantityBtns.addEventListener('click', (e) => {
+                if (e.target.classList.contains('quantity-btn')) {
+                    document.querySelectorAll('.quantity-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    caseOpenCount = parseInt(e.target.dataset.qty);
+                    if (currentCaseIdx !== null) {
+                        const caseData = cases[currentCaseIdx];
+                        openCaseBtn.textContent = `Открыть ${caseOpenCount} за ${caseData.price * caseOpenCount} ₽`;
+                        renderCaseLayout();
+                    }
                 }
             });
 
@@ -732,12 +787,12 @@
                 isCaseOpening = false;
             }
 
-            // Новая плавная анимация (ease-in-out), 7 секунд, огромный трек
+            // Плавная анимация с easeOut
             function animateRoulette(containerId, trackId, items, selectedItem, durationMs, callback) {
                 const track = document.getElementById(trackId);
                 const container = document.getElementById(containerId);
                 const itemWidth = container.classList.contains('mini-roulette') ? 50 : 80;
-                const repeatCount = 300; // колоссальный запас
+                const repeatCount = 80; // достаточно для плавной прокрутки
                 const repeated = [];
                 for (let i = 0; i < repeatCount; i++) repeated.push(...items);
                 track.innerHTML = repeated.map(item => `<div class="roulette-item">${createImg(item.image, item.name).outerHTML}</div>`).join('');
@@ -751,8 +806,8 @@
                 function step(now) {
                     const elapsed = now - startTime;
                     const progress = Math.min(elapsed / durationMs, 1);
-                    // easeInOutQuad: плавный разгон и торможение
-                    const eased = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                    // easeOutCubic: плавное замедление
+                    const eased = 1 - Math.pow(1 - progress, 3);
                     const currentOffset = finalOffset * eased;
                     track.style.transform = `translateX(calc(-50% + ${currentOffset}px))`;
                     if (progress < 1) {
@@ -941,7 +996,7 @@
                 currentCaseIdx = null;
             });
 
-            // ---------- Апгрейд ----------
+            // ---------- Апгрейд с анимацией появления текста ----------
             let selectedSourceSkin = null, selectedTargetSkin = null, wheelAnimId = null;
             const wheelCanvas = document.getElementById('wheelCanvas');
             const ctx = wheelCanvas.getContext('2d');
@@ -1065,16 +1120,26 @@
 
                 spinWheel(chance, isSuccess, () => {
                     const resultDiv = document.getElementById('upgradeResultText');
+                    const banner = document.createElement('div');
+                    banner.className = 'upgrade-result-banner ' + (isSuccess ? 'success' : 'fail');
+                    banner.textContent = isSuccess ? '✅ Успех' : '❌ Провал';
+                    resultDiv.innerHTML = '';
+                    resultDiv.appendChild(banner);
+                    // Плавное появление
+                    requestAnimationFrame(() => {
+                        banner.classList.add('show');
+                    });
+
                     if (isSuccess) {
-                        resultDiv.innerHTML = `<div class="upgrade-result-banner success">✅ Успех!<br><span style="font-size:16px;">${selectedTargetSkin.name}</span></div>`;
-                        const sellBtn = document.createElement('button'); sellBtn.className = 'btn btn-success'; sellBtn.textContent = '💰 Продать за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.style.marginTop='8px';
+                        const sellBtn = document.createElement('button'); 
+                        sellBtn.className = 'btn btn-success'; 
+                        sellBtn.textContent = '💰 Продать за ' + selectedTargetSkin.basePrice + ' ₽'; 
+                        sellBtn.style.marginTop='8px';
                         sellBtn.addEventListener('click', () => {
                             const idx2 = inventory.findIndex(s => s.name === selectedTargetSkin.name && s.price === selectedTargetSkin.basePrice && !s.withdrawStatus);
                             if (idx2 !== -1) { changeBalance(selectedTargetSkin.basePrice); inventory.splice(idx2,1); save('inventory', inventory); updateInventoryUI(); resultDiv.innerHTML += '<br>💰 Продано за ' + selectedTargetSkin.basePrice + ' ₽'; sellBtn.remove(); }
                         });
                         resultDiv.appendChild(sellBtn);
-                    } else {
-                        resultDiv.innerHTML = `<div class="upgrade-result-banner fail">❌ Провал. Скин уничтожен.</div>`;
                     }
                     upgradeInProgress = false;
                     selectedSourceSkin = null; selectedTargetSkin = null;
