@@ -1,1094 +1,1254 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>VANGUARD | Кейсы, Апгрейд, Mythical Mod</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- CS2 style font (Stratum2 fallback) -->
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Stratum2', 'Oswald', 'Arial Black', sans-serif;
-      background: #000;
-      color: #fff;
-      min-height: 100vh;
-      padding: 16px;
-      overflow-x: hidden;
-    }
-
-    /* --- CS2 sharp design --- */
-    .glass-panel {
-      background: rgba(20, 20, 20, 0.95);
-      border: 1px solid #333;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.8);
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .logo {
-      font-size: 28px;
-      font-weight: 700;
-      color: #fff;
-      text-shadow: 0 0 8px rgba(255,255,255,0.3);
-      letter-spacing: 2px;
-    }
-
-    .balance-block {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: #111;
-      border: 1px solid #333;
-      padding: 4px 12px;
-    }
-
-    .balance {
-      font-weight: 600;
-      font-size: 16px;
-      color: #fff;
-    }
-
-    .add-balance-btn {
-      background: #1a1a1a;
-      border: 1px solid #555;
-      color: #ccc;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      cursor: pointer;
-      transition: 0.15s;
-      font-weight: 700;
-    }
-
-    .add-balance-btn:active {
-      background: #333;
-      transform: scale(0.95);
-    }
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border: 2px solid #444;
-      cursor: pointer;
-      object-fit: cover;
-      transition: 0.15s;
-      background: #1a1a1a;
-    }
-
-    .avatar:active {
-      border-color: #888;
-      transform: scale(0.95);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 20px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-
-    .tabs::-webkit-scrollbar {
-      display: none;
-    }
-
-    .tab {
-      padding: 10px 18px;
-      background: #111;
-      border: 1px solid #333;
-      cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
-      font-size: 14px;
-      transition: 0.15s;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .tab.active {
-      background: #222;
-      border-color: #888;
-      color: #fff;
-      box-shadow: 0 0 8px rgba(255,255,255,0.1);
-    }
-
-    .section {
-      display: none;
-      animation: fadeIn 0.2s ease;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(5px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .case-category-title {
-      font-size: 14px;
-      font-weight: 700;
-      margin: 16px 0 8px;
-      color: #aaa;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      grid-column: 1 / -1;
-      border-bottom: 1px solid #333;
-      padding-bottom: 4px;
-    }
-
-    .cases-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .case-card {
-      background: #111;
-      border: 1px solid #333;
-      padding: 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.15s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-
-    .case-card:active {
-      background: #222;
-      transform: scale(0.97);
-      border-color: #666;
-    }
-
-    .case-image {
-      width: 100%;
-      aspect-ratio: 1/1;
-      object-fit: cover;
-      margin-bottom: 6px;
-    }
-
-    .case-name {
-      font-weight: 600;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .case-price {
-      color: #ccc;
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    /* modals */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.9);
-      backdrop-filter: blur(6px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    .modal {
-      background: #111;
-      border: 1px solid #444;
-      padding: 20px;
-      max-width: 400px;
-      width: 100%;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.9);
-    }
-
-    .modal h3 {
-      margin-bottom: 12px;
-      font-size: 18px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border-bottom: 1px solid #333;
-      padding-bottom: 6px;
-    }
-
-    .btn {
-      background: #1a1a1a;
-      border: 1px solid #555;
-      color: #fff;
-      padding: 10px 20px;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      transition: 0.15s;
-      display: inline-block;
-      user-select: none;
-      margin: 4px 0;
-      font-family: inherit;
-    }
-
-    .btn:active {
-      background: #333;
-      transform: scale(0.97);
-    }
-
-    .btn:disabled {
-      opacity: 0.4;
-      pointer-events: none;
-    }
-
-    .btn-block {
-      display: block;
-      width: 100%;
-    }
-
-    .btn-success {
-      border-color: #4caf50;
-      color: #4caf50;
-      background: rgba(76,175,80,0.15);
-    }
-
-    .input {
-      background: #111;
-      border: 1px solid #444;
-      padding: 10px;
-      color: #fff;
-      width: 100%;
-      margin: 4px 0;
-      outline: none;
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    .input:focus {
-      border-color: #888;
-    }
-
-    .rarity-badge {
-      display: inline-block;
-      padding: 2px 10px;
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 11px;
-      margin-left: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    /* upgrade wheel */
-    .upgrade-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .wheel-wrapper {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 15px auto;
-    }
-
-    .wheel-canvas {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      box-shadow: 0 0 30px rgba(0,0,0,0.8);
-    }
-
-    .wheel-arrow {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(0deg) translateY(90px);
-      width: 0;
-      height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-bottom: 20px solid #fff;
-      filter: drop-shadow(0 0 8px #aaa);
-      z-index: 5;
-      transform-origin: center center;
-    }
-
-    .upgrade-columns {
-      display: flex;
-      gap: 8px;
-      width: 100%;
-      margin: 10px 0;
-    }
-
-    .upgrade-col {
-      flex: 1;
-      background: #111;
-      border: 1px solid #333;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      max-height: 180px;
-      overflow-y: auto;
-    }
-
-    .upgrade-col h4 {
-      text-align: center;
-      font-size: 12px;
-      color: #888;
-      margin-bottom: 4px;
-    }
-
-    .upgrade-card {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      padding: 4px 6px;
-      cursor: pointer;
-      font-size: 11px;
-      transition: 0.1s;
-    }
-
-    .upgrade-card.selected {
-      border-color: #aaa;
-      background: #222;
-    }
-
-    .upgrade-card img {
-      width: 30px;
-      height: 30px;
-      object-fit: contain;
-    }
-
-    .chance-badge {
-      margin-left: auto;
-      font-size: 10px;
-      background: #000;
-      padding: 1px 6px;
-      border: 1px solid #555;
-    }
-
-    /* Mythical Mod */
-    #mythicalOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 200;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s;
-    }
-
-    #mythicalOverlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    #mythicalOverlay .bg-video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 0;
-    }
-
-    .mythical-text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-      text-align: center;
-      opacity: 0;
-      transition: opacity 0.6s;
-    }
-
-    .mythical-text.show {
-      opacity: 1;
-    }
-
-    .mythical-title {
-      font-size: 36px;
-      font-weight: 700;
-      color: #fff;
-      text-shadow: 0 0 20px rgba(255,255,255,0.5);
-      letter-spacing: 4px;
-    }
-
-    .mythical-sub {
-      font-size: 24px;
-      color: #888;
-      margin-top: 8px;
-      letter-spacing: 3px;
-    }
-
-    .mythical-controls {
-      position: absolute;
-      bottom: 40px;
-      left: 20px;
-      right: 20px;
-      z-index: 10;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-      opacity: 0;
-      transition: opacity 0.6s;
-    }
-
-    .mythical-controls.show {
-      opacity: 1;
-    }
-
-    .green-slider {
-      width: 100%;
-      accent-color: #4caf50;
-      height: 8px;
-    }
-
-    .amount-input {
-      background: #111;
-      border: 2px solid #4caf50;
-      color: #fff;
-      width: 100%;
-      padding: 8px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .btn-mythical-open {
-      background: rgba(76,175,80,0.6);
-      border: 3px solid #4caf50;
-      color: #fff;
-      padding: 12px;
-      font-weight: 700;
-      font-size: 20px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      transition: 0.2s;
-      width: 100%;
-      font-family: inherit;
-      backdrop-filter: blur(4px);
-    }
-
-    .btn-mythical-open:active {
-      background: rgba(76,175,80,0.9);
-    }
-
-    .blur-overlay {
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 100%;
-      z-index: 20;
-      backdrop-filter: blur(20px);
-      background: rgba(0,0,0,0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.4s;
-      pointer-events: none;
-    }
-
-    .blur-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .color-flash {
-      width: 100%;
-      height: 100%;
-      transition: background-color 0.3s;
-    }
-
-    .shake {
-      animation: shake 0.15s ease-in-out;
-    }
-
-    @keyframes shake {
-      0% { transform: translate(0,0); }
-      25% { transform: translate(-8px, 5px); }
-      50% { transform: translate(8px, -5px); }
-      75% { transform: translate(-5px, -8px); }
-      100% { transform: translate(5px, 5px); }
-    }
-
-    .close-mythical {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      z-index: 30;
-      background: rgba(0,0,0,0.6);
-      border: 1px solid #555;
-      color: #fff;
-      width: 36px;
-      height: 36px;
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .inventory-list .item-card {
-      display: flex;
-      align-items: center;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      padding: 6px 10px;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .item-card img {
-      width: 36px;
-      height: 36px;
-      object-fit: contain;
-    }
-
-    .item-card .item-info {
-      flex: 1;
-    }
-
-    .item-card .item-name {
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    .item-card .item-price {
-      font-size: 11px;
-      color: #aaa;
-    }
-
-    .item-card .item-actions .btn {
-      padding: 2px 10px;
-      font-size: 11px;
-      margin: 0 2px;
-    }
-
-    .fast-btn.active {
-      border-color: #ffd700;
-      color: #ffd700;
-      background: rgba(255,215,0,0.2);
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>VANGUARD | Кейсы, Апгрейд, Mythical Mod</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Stratum2', 'Oswald', 'Arial Black', sans-serif;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid #333;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.8);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+        }
+        .balance-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #111;
+            border: 1px solid #333;
+            padding: 4px 12px;
+        }
+        .balance {
+            font-weight: 600;
+            font-size: 16px;
+            color: #fff;
+        }
+        .add-balance-btn {
+            background: #1a1a1a;
+            border: 1px solid #555;
+            color: #ccc;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.15s;
+            font-weight: 700;
+        }
+        .add-balance-btn:active {
+            background: #333;
+            transform: scale(0.95);
+        }
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #444;
+            cursor: pointer;
+            object-fit: cover;
+            background: #1a1a1a;
+        }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+            padding: 10px 18px;
+            background: #111;
+            border: 1px solid #333;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.15s;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tab.active {
+            background: #222;
+            border-color: #888;
+            color: #fff;
+            box-shadow: 0 0 8px rgba(255,255,255,0.1);
+        }
+        .section {
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+        .section.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .case-category-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 16px 0 8px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 4px;
+        }
+        .cases-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .case-card {
+            background: #111;
+            border: 1px solid #333;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.15s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+        .case-card:active {
+            background: #222;
+            transform: scale(0.97);
+            border-color: #666;
+        }
+        .case-image {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            margin-bottom: 6px;
+        }
+        .case-name {
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .case-price {
+            color: #ccc;
+            font-weight: 500;
+            font-size: 13px;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal {
+            background: #111;
+            border: 1px solid #444;
+            padding: 20px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+        }
+        .modal h3 {
+            margin-bottom: 12px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 6px;
+        }
+        .btn {
+            background: #1a1a1a;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 10px 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: 0.15s;
+            display: inline-block;
+            user-select: none;
+            margin: 4px 0;
+            font-family: inherit;
+        }
+        .btn:active { background: #333; transform: scale(0.97); }
+        .btn:disabled { opacity: 0.4; pointer-events: none; }
+        .btn-block { display: block; width: 100%; }
+        .btn-success {
+            border-color: #4caf50;
+            color: #4caf50;
+            background: rgba(76,175,80,0.15);
+        }
+        .input {
+            background: #111;
+            border: 1px solid #444;
+            padding: 10px;
+            color: #fff;
+            width: 100%;
+            margin: 4px 0;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .input:focus { border-color: #888; }
+        .rarity-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 11px;
+            margin-left: 6px;
+            letter-spacing: 0.5px;
+        }
+        .upgrade-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .wheel-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 15px auto;
+        }
+        .wheel-canvas {
+            display: block;
+            position: absolute;
+            top: 0; left: 0;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .wheel-arrow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -100%) rotate(0deg);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid #fff;
+            filter: drop-shadow(0 0 8px #aaa);
+            z-index: 5;
+            pointer-events: none;
+        }
+        .upgrade-columns {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            margin: 10px 0;
+        }
+        .upgrade-col {
+            flex: 1;
+            background: #111;
+            border: 1px solid #333;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+        .upgrade-col h4 {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+        .upgrade-card {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 4px 6px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.1s;
+        }
+        .upgrade-card.selected {
+            border-color: #aaa;
+            background: #222;
+        }
+        .upgrade-card img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+        }
+        .chance-badge {
+            margin-left: auto;
+            font-size: 10px;
+            background: #000;
+            padding: 1px 6px;
+            border: 1px solid #555;
+        }
+        .fast-btn.active {
+            border-color: #ffd700;
+            color: #ffd700;
+            background: rgba(255,215,0,0.2);
+        }
+        .inventory-list .item-card {
+            display: flex;
+            align-items: center;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 6px 10px;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .item-card img { width: 36px; height: 36px; object-fit: contain; }
+        .item-card .item-info { flex: 1; }
+        .item-card .item-name { font-weight: 600; font-size: 13px; }
+        .item-card .item-price { font-size: 11px; color: #aaa; }
+        .item-card .item-actions .btn { padding: 2px 10px; font-size: 11px; margin: 0 2px; }
+
+        /* roulette */
+        .case-roulette {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            overflow: hidden;
+            border: 1px solid #333;
+            background: #0a0a0a;
+        }
+        .roulette-track {
+            display: flex;
+            transition: transform 0.1s linear;
+            will-change: transform;
+        }
+        .roulette-item {
+            flex: 0 0 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .roulette-item img { max-width: 70px; max-height: 70px; }
+        .roulette-center-marker {
+            position: absolute;
+            top: 0; left: 50%;
+            width: 2px;
+            height: 100%;
+            background: #fff;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        .mini-roulettes-grid {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            padding: 8px 0;
+        }
+        .drop-progress-wrap {
+            margin: 10px 0;
+            height: 4px;
+            background: #222;
+        }
+        .drop-progress-bar {
+            height: 100%;
+            background: #4caf50;
+            width: 0%;
+            transition: width 0.05s linear;
+        }
+        .quantity-btns { display: flex; gap: 6px; justify-content: center; margin: 8px 0; }
+        .quantity-btn { padding: 6px 12px; }
+        .quantity-btn.active { border-color: #4caf50; color: #4caf50; }
+
+        /* mythical */
+        #mythicalOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 200;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s;
+        }
+        #mythicalOverlay.active { opacity: 1; pointer-events: auto; }
+        .bg-video { position: absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+        .mythical-text {
+            position: absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+            z-index:5; text-align:center; opacity:0; transition: opacity 0.6s;
+        }
+        .mythical-text.show { opacity:1; }
+        .mythical-title { font-size:36px; font-weight:700; color:#fff; text-shadow:0 0 20px rgba(255,255,255,0.5); letter-spacing:4px; }
+        .mythical-sub { font-size:24px; color:#888; margin-top:8px; letter-spacing:3px; }
+        .mythical-controls { position:absolute; bottom:40px; left:20px; right:20px; z-index:10; display:flex; flex-direction:column; align-items:center; gap:16px; opacity:0; transition:opacity 0.6s; }
+        .mythical-controls.show { opacity:1; }
+        .green-slider { width:100%; accent-color:#4caf50; height:8px; }
+        .amount-input { background:#111; border:2px solid #4caf50; color:#fff; width:100%; padding:8px; text-align:center; font-size:18px; font-weight:700; }
+        .btn-mythical-open { background:rgba(76,175,80,0.6); border:3px solid #4caf50; color:#fff; padding:12px; font-weight:700; font-size:20px; cursor:pointer; text-transform:uppercase; width:100%; }
+        .blur-overlay { position:absolute; top:0; left:0; width:100%; height:100%; z-index:20; backdrop-filter:blur(20px); background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.4s; pointer-events:none; }
+        .blur-overlay.active { opacity:1; pointer-events:auto; }
+        .color-flash { width:100%; height:100%; transition:background-color 0.3s; }
+        .shake { animation: shake 0.15s ease-in-out; }
+        @keyframes shake { 0%{transform:translate(0,0)} 25%{transform:translate(-8px,5px)} 50%{transform:translate(8px,-5px)} 75%{transform:translate(-5px,-8px)} 100%{transform:translate(5px,5px)} }
+        .close-mythical { position:absolute; top:20px; right:20px; z-index:30; background:rgba(0,0,0,0.6); border:1px solid #555; color:#fff; width:36px; height:36px; font-size:20px; cursor:pointer; }
+    </style>
 </head>
 <body>
-  <!-- Header -->
-  <div class="header">
+<div class="header">
     <div class="logo">VANGUARD</div>
     <div class="balance-block">
-      <div class="balance" id="balanceDisplay">₽ 1000</div>
-      <div class="add-balance-btn" id="addBalanceBtn">+</div>
-      <!-- Аватарка Telegram -->
-      <img id="avatarImg" class="avatar" src="" alt="Профиль" style="display:none;" />
+        <div class="balance" id="balanceDisplay">₽ 1000</div>
+        <div class="add-balance-btn" id="addBalanceBtn">+</div>
+        <img id="avatarImg" class="avatar" src="" alt="Профиль" style="display:none;" />
     </div>
-  </div>
-
-  <!-- Tabs -->
-  <div class="tabs" id="tabsContainer">
+</div>
+<div class="tabs" id="tabsContainer">
     <button class="tab active" data-section="cases">Кейсы</button>
     <button class="tab" data-section="upgrade">Апгрейд</button>
     <button class="tab" data-section="mythical">Mythical Mod</button>
     <button class="tab" data-section="promo">Промокоды</button>
-  </div>
+</div>
 
-  <!-- Sections -->
-  <div id="section-cases" class="section active">
+<div id="section-cases" class="section active">
     <div class="glass-panel"><h3>Выберите кейс</h3></div>
     <div class="cases-grid" id="casesContainer"></div>
-  </div>
-
-  <div id="section-upgrade" class="section">
+</div>
+<div id="section-upgrade" class="section">
     <div class="glass-panel"><h3>Апгрейд скинов</h3></div>
     <div class="upgrade-container">
-      <div class="wheel-wrapper" id="wheelWrapper">
-        <canvas id="wheelCanvas" class="wheel-canvas" width="200" height="200"></canvas>
-        <div class="wheel-arrow" id="wheelArrow"></div>
-      </div>
-      <div class="upgrade-columns">
-        <div class="upgrade-col"><h4>🎒 Ваш скин</h4><div id="upgradeSourceList"></div></div>
-        <div class="upgrade-col"><h4>🎯 Цель</h4><div id="upgradeTargetList"></div></div>
-      </div>
-      <div id="upgradeChanceDisplay" style="text-align:center; font-weight:600;"></div>
-      <div style="margin:6px 0;">
-        <button class="btn fast-btn" id="upgradeFastBtn">⚡ Быстро</button>
-      </div>
-      <button class="btn btn-block" id="startUpgradeBtn" disabled>🔧 Апгрейд</button>
-      <div id="upgradeResultText" style="text-align:center; margin-top:6px;"></div>
+        <div class="wheel-wrapper" id="wheelWrapper">
+            <canvas id="wheelCanvas" class="wheel-canvas" width="200" height="200"></canvas>
+            <div class="wheel-arrow"></div>
+        </div>
+        <div class="upgrade-columns">
+            <div class="upgrade-col"><h4>🎒 Ваш скин</h4><div id="upgradeSourceList"></div></div>
+            <div class="upgrade-col"><h4>🎯 Цель</h4><div id="upgradeTargetList"></div></div>
+        </div>
+        <div id="upgradeChanceDisplay" style="text-align:center; font-weight:600;"></div>
+        <div style="margin:6px 0;"><button class="btn fast-btn" id="upgradeFastBtn">⚡ Быстро</button></div>
+        <button class="btn btn-block" id="startUpgradeBtn" disabled>🔧 Апгрейд</button>
+        <div id="upgradeResultText" style="text-align:center; margin-top:6px;"></div>
     </div>
-  </div>
-
-  <div id="section-mythical" class="section">
+</div>
+<div id="section-mythical" class="section">
     <div class="glass-panel" style="text-align:center;">
-      <h3>MYTHICAL MOD</h3>
-      <p>Нажмите кнопку ниже, чтобы войти в режим Mythical</p>
-      <button class="btn btn-block" id="enterMythicalBtn" style="margin-top:16px; font-size:18px;">▶ Войти в Mythical Mod</button>
+        <h3>MYTHICAL MOD</h3>
+        <p>Нажмите кнопку ниже, чтобы войти в режим Mythical</p>
+        <button class="btn btn-block" id="enterMythicalBtn" style="margin-top:16px; font-size:18px;">▶ Войти в Mythical Mod</button>
     </div>
-  </div>
-
-  <div id="section-promo" class="section">
+</div>
+<div id="section-promo" class="section">
     <div class="glass-panel">
-      <h3>Промокод</h3>
-      <input class="input" id="promoInput" placeholder="Введите код" />
-      <button class="btn btn-block" id="applyPromoBtn">Активировать</button>
-      <div id="promoStatus" style="margin-top:8px; font-size:14px;"></div>
+        <h3>Промокод</h3>
+        <input class="input" id="promoInput" placeholder="Введите код" />
+        <button class="btn btn-block" id="applyPromoBtn">Активировать</button>
+        <div id="promoStatus" style="margin-top:8px; font-size:14px;"></div>
     </div>
-  </div>
-
-  <div id="section-admin" class="section">
+</div>
+<div id="section-admin" class="section">
     <div class="glass-panel">
-      <h3>Админ-панель</h3>
-      <div style="margin:12px 0;">
-        <label>Подкрутка: <span id="boostStatus">выкл</span></label>
-        <button class="btn" id="toggleBoostBtn">Включить</button>
-      </div>
-      <div style="margin:12px 0;">
-        <label>Изменить баланс (±):</label>
-        <div style="display:flex; gap:8px;">
-          <input class="input" id="adminBalanceInput" placeholder="+1000 или -500" style="flex:1;" />
-          <button class="btn" id="adminApplyBalanceBtn">Применить</button>
+        <h3>Админ-панель</h3>
+        <div style="margin:12px 0;">
+            <label>Подкрутка: <span id="boostStatus">выкл</span></label>
+            <button class="btn" id="toggleBoostBtn">Включить</button>
         </div>
-      </div>
-      <div style="margin-top:16px;">
-        <h4>Запросы на вывод</h4>
-        <div id="withdrawRequestsList"></div>
-      </div>
+        <div style="margin:12px 0;">
+            <label>Изменить баланс (±):</label>
+            <div style="display:flex; gap:8px;">
+                <input class="input" id="adminBalanceInput" placeholder="+1000 или -500" style="flex:1;" />
+                <button class="btn" id="adminApplyBalanceBtn">Применить</button>
+            </div>
+        </div>
+        <div style="margin-top:16px;">
+            <h4>Запросы на вывод</h4>
+            <div id="withdrawRequestsList"></div>
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- Case modal -->
-  <div id="caseModal" class="modal-overlay" style="display:none;">
+<!-- Case modal -->
+<div id="caseModal" class="modal-overlay" style="display:none;">
     <div class="modal" style="max-width:95%; max-height:90vh; overflow-y:auto;">
-      <button id="closeCaseBtn" class="btn" style="position:absolute; top:10px; left:10px;">✕</button>
-      <h3 id="caseModalTitle">Кейс</h3>
-      <div id="rouletteContainer" class="case-roulette" style="display:none; margin:10px 0;">
-        <div class="roulette-track" id="rouletteTrack"></div>
-        <div class="roulette-center-marker"></div>
-      </div>
-      <div class="mini-roulettes-grid" id="miniRoulettesGrid" style="display:none;"></div>
-      <div class="drop-progress-wrap" style="margin:10px 0;"><div class="drop-progress-bar" id="dropProgressBar" style="height:4px; background:#4caf50; width:0;"></div></div>
-      <div id="dropProgressLabel">Готов к открытию</div>
-      <div id="caseResultText" style="min-height:24px;"></div>
-      <div class="quantity-btns" id="quantityBtns">
-        <button class="btn quantity-btn active" data-qty="1">1</button>
-        <button class="btn quantity-btn" data-qty="2">2</button>
-        <button class="btn quantity-btn" data-qty="3">3</button>
-        <button class="btn quantity-btn" data-qty="5">5</button>
-        <button class="btn quantity-btn" data-qty="10">10</button>
-      </div>
-      <button class="btn fast-btn" id="caseFastBtn">⚡ Быстро</button>
-      <button class="btn btn-block" id="openCaseBtn">Открыть</button>
-      <div id="caseContentsContainer" style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:10px;"></div>
-      <div id="postOpenActions" style="display:none; margin-top:8px;">
-        <button class="btn" id="againCaseBtn">Ещё раз</button>
-        <button class="btn btn-success" id="sellAllBtn">Продать всё</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Topup modal -->
-  <div id="topupModal" class="modal-overlay" style="display:none;">
-    <div class="modal">
-      <h3>Пополнение</h3>
-      <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0;">
-        <button class="btn topup-amount" data-amount="100">100 ₽</button>
-        <button class="btn topup-amount" data-amount="500">500 ₽</button>
-        <button class="btn topup-amount" data-amount="1000">1000 ₽</button>
-        <button class="btn topup-amount" data-amount="5000">5000 ₽</button>
-      </div>
-      <button class="btn" id="closeTopupBtn">Отмена</button>
-    </div>
-  </div>
-
-  <!-- Profile modal -->
-  <div id="profileModal" class="modal-overlay" style="display:none;">
-    <div class="modal" style="max-height:80vh; overflow-y:auto;">
-      <button id="closeProfileBtn" class="btn" style="position:absolute; top:10px; left:10px;">✕</button>
-      <h3>Профиль</h3>
-      <div style="margin:10px 0;">
-        <label>Никнейм:</label>
-        <div style="display:flex; gap:6px;">
-          <input class="input" id="nicknameInput" placeholder="Введите ник" />
-          <button class="btn" id="saveNicknameBtn">Сохранить</button>
+        <button id="closeCaseBtn" class="btn" style="position:absolute; top:10px; left:10px;">✕</button>
+        <h3 id="caseModalTitle">Кейс</h3>
+        <div id="rouletteContainer" class="case-roulette" style="display:none; margin:10px 0;">
+            <div class="roulette-track" id="rouletteTrack"></div>
+            <div class="roulette-center-marker"></div>
         </div>
-        <div id="nicknameStatus" style="font-size:12px; margin-top:4px;"></div>
-      </div>
-      <div style="margin:10px 0;">
-        <label>Trade-ссылка CS:GO:</label>
-        <input class="input" id="tradeLinkInput" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..." />
-        <button class="btn" id="saveTradeLinkBtn" style="margin-top:4px;">Сохранить</button>
-        <a id="steamTradeBtn" class="btn" style="display:none; margin-top:6px; text-decoration:none;" target="_blank">🔗 Перейти к трейду</a>
-      </div>
-      <div style="margin-top:16px;">
-        <h4>Инвентарь</h4>
-        <div class="inventory-list" id="inventoryList"></div>
-      </div>
+        <div class="mini-roulettes-grid" id="miniRoulettesGrid" style="display:none;"></div>
+        <div class="drop-progress-wrap"><div class="drop-progress-bar" id="dropProgressBar"></div></div>
+        <div id="dropProgressLabel">Готов к открытию</div>
+        <div id="caseResultText" style="min-height:24px;"></div>
+        <div class="quantity-btns" id="quantityBtns">
+            <button class="btn quantity-btn active" data-qty="1">1</button>
+            <button class="btn quantity-btn" data-qty="2">2</button>
+            <button class="btn quantity-btn" data-qty="3">3</button>
+            <button class="btn quantity-btn" data-qty="5">5</button>
+            <button class="btn quantity-btn" data-qty="10">10</button>
+        </div>
+        <button class="btn fast-btn" id="caseFastBtn">⚡ Быстро</button>
+        <button class="btn btn-block" id="openCaseBtn">Открыть</button>
+        <div id="caseContentsContainer" style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-top:10px;"></div>
+        <div id="postOpenActions" style="display:none; margin-top:8px;">
+            <button class="btn" id="againCaseBtn">Ещё раз</button>
+            <button class="btn btn-success" id="sellAllBtn">Продать всё</button>
+        </div>
     </div>
-  </div>
+</div>
 
-  <!-- Mythical Mod fullscreen -->
-  <div id="mythicalOverlay">
+<!-- Topup modal -->
+<div id="topupModal" class="modal-overlay" style="display:none;">
+    <div class="modal">
+        <h3>Пополнение</h3>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:12px 0;">
+            <button class="btn topup-amount" data-amount="100">100 ₽</button>
+            <button class="btn topup-amount" data-amount="500">500 ₽</button>
+            <button class="btn topup-amount" data-amount="1000">1000 ₽</button>
+            <button class="btn topup-amount" data-amount="5000">5000 ₽</button>
+        </div>
+        <button class="btn" id="closeTopupBtn">Отмена</button>
+    </div>
+</div>
+
+<!-- Profile modal -->
+<div id="profileModal" class="modal-overlay" style="display:none;">
+    <div class="modal" style="max-height:80vh; overflow-y:auto;">
+        <button id="closeProfileBtn" class="btn" style="position:absolute; top:10px; left:10px;">✕</button>
+        <h3>Профиль</h3>
+        <div style="margin:10px 0;">
+            <label>Никнейм:</label>
+            <div style="display:flex; gap:6px;">
+                <input class="input" id="nicknameInput" placeholder="Введите ник" />
+                <button class="btn" id="saveNicknameBtn">Сохранить</button>
+            </div>
+            <div id="nicknameStatus" style="font-size:12px; margin-top:4px;"></div>
+        </div>
+        <div style="margin:10px 0;">
+            <label>Trade-ссылка CS:GO:</label>
+            <input class="input" id="tradeLinkInput" placeholder="https://steamcommunity.com/tradeoffer/new/?partner=..." />
+            <button class="btn" id="saveTradeLinkBtn" style="margin-top:4px;">Сохранить</button>
+            <a id="steamTradeBtn" class="btn" style="display:none; margin-top:6px; text-decoration:none;" target="_blank">🔗 Перейти к трейду</a>
+        </div>
+        <div style="margin-top:16px;">
+            <h4>Инвентарь</h4>
+            <div class="inventory-list" id="inventoryList"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Mythical Mod fullscreen -->
+<div id="mythicalOverlay">
     <video id="introVideo" class="bg-video" muted playsinline style="display:none;"></video>
     <video id="loopVideo" class="bg-video" loop muted playsinline style="display:none;"></video>
     <div id="mythicalTextOverlay" class="mythical-text">
-      <div class="mythical-title">Mythical Mod</div>
-      <div class="mythical-sub">Vanguard</div>
+        <div class="mythical-title">Mythical Mod</div>
+        <div class="mythical-sub">Vanguard</div>
     </div>
     <div id="mythicalControls" class="mythical-controls">
-      <input type="range" id="mythicalSlider" class="green-slider" min="10" max="5000" value="100" step="10" />
-      <input type="number" id="mythicalAmountInput" class="amount-input" value="100" min="10" max="5000" />
-      <button id="mythicalOpenBtn" class="btn-mythical-open">Открыть</button>
+        <input type="range" id="mythicalSlider" class="green-slider" min="10" max="5000" value="100" step="10" />
+        <input type="number" id="mythicalAmountInput" class="amount-input" value="100" min="10" max="5000" />
+        <button id="mythicalOpenBtn" class="btn-mythical-open">Открыть</button>
     </div>
     <div id="blurOverlay" class="blur-overlay">
-      <div id="colorFlash" class="color-flash"></div>
+        <div id="colorFlash" class="color-flash"></div>
     </div>
     <button id="closeMythicalBtn" class="close-mythical">✕</button>
-  </div>
+</div>
 
-  <script>
+<script>
     (function() {
-      const tg = window.Telegram.WebApp;
-      tg.expand();
-      tg.ready();
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
 
-      // Аватар Telegram
-      const userPhoto = tg.initDataUnsafe?.user?.photo_url || null;
-      const avatarImg = document.getElementById('avatarImg');
-      if (userPhoto) {
-        avatarImg.src = userPhoto;
-        avatarImg.style.display = 'block';
-        avatarImg.onclick = () => {
-          document.getElementById('profileModal').style.display = 'flex';
-          updateInventoryUI();
+        // ---------- storage helpers ----------
+        const load = (key, def) => { try { return JSON.parse(localStorage.getItem('vng_' + key)) || def; } catch(e) { return def; } };
+        const save = (key, val) => { localStorage.setItem('vng_' + key, JSON.stringify(val)); };
+
+        // ---------- game state ----------
+        let balance = load('balance', 1000);
+        const balanceEl = document.getElementById('balanceDisplay');
+        const updateBalance = () => { balanceEl.textContent = '₽ ' + balance; };
+        const changeBalance = (amt) => { balance += amt; if(balance<0) balance=0; save('balance',balance); updateBalance(); };
+        updateBalance();
+
+        let profile = load('profile', { nickname: '', tradeLink: '' });
+        let takenNicknames = load('takenNicknames', []);
+        const registerNickname = (nick) => {
+            if(!takenNicknames.includes(nick.toLowerCase())){ takenNicknames.push(nick.toLowerCase()); save('takenNicknames',takenNicknames); return true; }
+            return false;
         };
-      } else {
-        avatarImg.style.display = 'none';
-      }
+        let inventory = load('inventory', []).map(i => ({...i, withdrawStatus: i.withdrawStatus||null}));
+        let withdrawRequests = load('withdrawRequests', []);
+        let isAdmin = load('isAdmin', false);
+        let adminBoost = load('adminBoost', false);
+        let fastMode = false;
 
-      // Хранилище
-      function load(key, def) { try { return JSON.parse(localStorage.getItem('vng_' + key)) || def; } catch(e) { return def; } }
-      function save(key, val) { localStorage.setItem('vng_' + key, JSON.stringify(val)); }
+        // ---------- skin data ----------
+        const skinImages = {
+            'AK-47 | Redline': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/AK-47%20-%20Redline.png',
+            'AWP | Duality': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/AWP%20-%20Duality.png',
+            'M4A1-S | Emphorosaur-S': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/M4A1-S%20-%20Emphorosaur-S.png',
+            'USP-S | Cortex': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/USP-S%20-%20Cortex.webp',
+            'Desert Eagle | Midnight': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png',
+            'M4A1-S | Printstream': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png',
+            'M4A1 | Bright Water': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png',
+            'AWP | Dragon Lore': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png'
+        };
+        const fallbackImg = 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png';
+        const allSkins = [
+            { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], basePrice: 350, rarity: 'red' },
+            { name: 'AWP | Duality', image: skinImages['AWP | Duality'], basePrice: 1200, rarity: 'red' },
+            { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], basePrice: 280, rarity: 'pink' },
+            { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], basePrice: 450, rarity: 'purple' },
+            { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], basePrice: 310, rarity: 'purple' },
+            { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], basePrice: 270, rarity: 'pink' },
+            { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], basePrice: 200, rarity: 'blue' },
+            { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], basePrice: 5000, rarity: 'gold' }
+        ];
+        const getSkinByName = (name) => allSkins.find(s => s.name === name);
 
-      let balance = load('balance', 1000);
-      const balanceEl = document.getElementById('balanceDisplay');
-      function updateBalanceDisplay() { balanceEl.textContent = '₽ ' + balance; }
-      function changeBalance(amt) { balance += amt; if(balance<0) balance=0; save('balance',balance); updateBalanceDisplay(); }
-      updateBalanceDisplay();
+        const cases = [
+            { name: 'Dust II', price:129, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_dust2.png', category:'Карты', items:['AK-47 | Redline','M4A1-S | Emphorosaur-S'] },
+            { name: 'Mirage', price:59, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png', category:'Карты', items:['AWP | Duality','USP-S | Cortex'] },
+            { name: 'Overpass', price:129, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_overpass.png', category:'Карты', items:['AWP | Duality','Desert Eagle | Midnight'] },
+            { name: 'only AWP', price:100, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyAWP.png', category:'Оружие', items:['AWP | Duality','AWP | Dragon Lore'] },
+            { name: 'only AK', price:69, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyAK.png', category:'Оружие', items:['AK-47 | Redline'] },
+            { name: 'only Deagle', price:79, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyDeagle.png', category:'Оружие', items:['Desert Eagle | Midnight'] },
+            { name: 'only M4A1', price:34, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyM4A1.png', category:'Оружие', items:['M4A1 | Bright Water'] },
+            { name: 'only M4A1-S', price:29, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyM4A1-S.png', category:'Оружие', items:['M4A1-S | Emphorosaur-S','M4A1-S | Printstream'] },
+            { name: 'vanguard', price:4999, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_vanguard.png', category:'Лимит', items:['AWP | Dragon Lore','AWP | Duality'] },
+            { name: 'Көрімдік', price:67, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_Көрімдік.png', category:'Лимит', items:['USP-S | Cortex','AK-47 | Redline'] },
+            { name: 'ORDINARY', price:19, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_ORDINARY.png', category:'Фирм', items:['M4A1 | Bright Water','M4A1-S | Printstream'] },
+            { name: 'UNUSUAL', price:99, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_UNUSUAL.png', category:'Фирм', items:['Desert Eagle | Midnight','USP-S | Cortex'] },
+            { name: 'LEGENDARY', price:999, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_LEGENDARY.png', category:'Фирм', items:['AWP | Duality','AK-47 | Redline'] },
+            { name: 'MYTHICAL', price:2700, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_MYTHICAL.png', category:'Фирм', items:['AWP | Dragon Lore'] }
+        ];
 
-      let profile = load('profile', { nickname: '', tradeLink: '' });
-      let takenNicknames = load('takenNicknames', []);
-      function registerNickname(nick) { if(!takenNicknames.includes(nick.toLowerCase())){ takenNicknames.push(nick.toLowerCase()); save('takenNicknames',takenNicknames); return true; } return false; }
+        // ---------- tabs logic ----------
+        const tabs = document.querySelectorAll('.tab');
+        const sections = document.querySelectorAll('.section');
+        function switchTab(sectionId) {
+            tabs.forEach(t => t.classList.remove('active'));
+            const activeTab = document.querySelector(`.tab[data-section="${sectionId}"]`);
+            if(activeTab) activeTab.classList.add('active');
+            sections.forEach(s => s.classList.remove('active'));
+            document.getElementById('section-' + sectionId).classList.add('active');
+            if(sectionId === 'upgrade') refreshUpgradeTab();
+            if(sectionId === 'profile') updateInventoryUI();
+        }
+        tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.section)));
 
-      let inventory = load('inventory', []).map(i => ({...i, withdrawStatus: i.withdrawStatus||null}));
-      let withdrawRequests = load('withdrawRequests', []);
-      let isAdmin = load('isAdmin', false);
-      let adminBoost = load('adminBoost', false);
-      let fastMode = false;
+        // dynamic admin tab
+        function renderAdminTab() {
+            if(isAdmin) {
+                if(!document.querySelector('.tab[data-section="admin"]')) {
+                    const adminTab = document.createElement('button');
+                    adminTab.className = 'tab';
+                    adminTab.dataset.section = 'admin';
+                    adminTab.textContent = 'Админ';
+                    adminTab.addEventListener('click', () => switchTab('admin'));
+                    document.getElementById('tabsContainer').appendChild(adminTab);
+                }
+            }
+        }
+        renderAdminTab();
 
-      const skinImages = {
-        'AK-47 | Redline': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/AK-47%20-%20Redline.png',
-        'AWP | Duality': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/AWP%20-%20Duality.png',
-        'M4A1-S | Emphorosaur-S': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/M4A1-S%20-%20Emphorosaur-S.png',
-        'USP-S | Cortex': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/USP-S%20-%20Cortex.webp',
-        'Desert Eagle | Midnight': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png',
-        'M4A1-S | Printstream': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png',
-        'M4A1 | Bright Water': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png',
-        'AWP | Dragon Lore': 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png'
-      };
-      const fallback = 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png';
-      const allSkins = [
-        { name: 'AK-47 | Redline', image: skinImages['AK-47 | Redline'], basePrice: 350, rarity: 'red' },
-        { name: 'AWP | Duality', image: skinImages['AWP | Duality'], basePrice: 1200, rarity: 'red' },
-        { name: 'M4A1-S | Emphorosaur-S', image: skinImages['M4A1-S | Emphorosaur-S'], basePrice: 280, rarity: 'pink' },
-        { name: 'USP-S | Cortex', image: skinImages['USP-S | Cortex'], basePrice: 450, rarity: 'purple' },
-        { name: 'Desert Eagle | Midnight', image: skinImages['Desert Eagle | Midnight'], basePrice: 310, rarity: 'purple' },
-        { name: 'M4A1-S | Printstream', image: skinImages['M4A1-S | Printstream'], basePrice: 270, rarity: 'pink' },
-        { name: 'M4A1 | Bright Water', image: skinImages['M4A1 | Bright Water'], basePrice: 200, rarity: 'blue' },
-        { name: 'AWP | Dragon Lore', image: skinImages['AWP | Dragon Lore'], basePrice: 5000, rarity: 'gold' }
-      ];
+        // ---------- cases rendering ----------
+        const casesContainer = document.getElementById('casesContainer');
+        function renderCases() {
+            let html = '', lastCat = '';
+            cases.forEach((c,i) => {
+                if(c.category !== lastCat){ html += `<div class="case-category-title">${c.category}</div>`; lastCat = c.category; }
+                html += `<div class="case-card" data-index="${i}"><img src="${c.image}" class="case-image" onerror="this.src='${fallbackImg}'"><div class="case-name">${c.name}</div><div class="case-price">${c.price} ₽</div></div>`;
+            });
+            casesContainer.innerHTML = html;
+            document.querySelectorAll('.case-card').forEach(card => card.addEventListener('click', () => showCaseModal(parseInt(card.dataset.index))));
+        }
+        renderCases();
 
-      const cases = [ /* ... те же кейсы, что и ранее ... */ 
-        { name: 'Dust II', price:129, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_dust2.png', category:'Карты', items:[ allSkins[0], allSkins[2] ] },
-        { name: 'Mirage', price:59, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_mirage.png', category:'Карты', items:[ allSkins[1], allSkins[3] ] },
-        { name: 'Overpass', price:129, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_overpass.png', category:'Карты', items:[ allSkins[1], allSkins[4] ] },
-        { name: 'only AWP', price:100, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyAWP.png', category:'Оружие', items:[ allSkins[1], allSkins[7] ] },
-        { name: 'only AK', price:69, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyAK.png', category:'Оружие', items:[ allSkins[0] ] },
-        { name: 'only Deagle', price:79, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyDeagle.png', category:'Оружие', items:[ allSkins[4] ] },
-        { name: 'only M4A1', price:34, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyM4A1.png', category:'Оружие', items:[ allSkins[6] ] },
-        { name: 'only M4A1-S', price:29, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_onlyM4A1-S.png', category:'Оружие', items:[ allSkins[2], allSkins[5] ] },
-        { name: 'vanguard', price:4999, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_vanguard.png', category:'Лимит', items:[ allSkins[7], allSkins[1] ] },
-        { name: 'Көрімдік', price:67, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_Көрімдік.png', category:'Лимит', items:[ allSkins[3], allSkins[0] ] },
-        { name: 'ORDINARY', price:19, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_ORDINARY.png', category:'Фирм', items:[ allSkins[6], allSkins[5] ] },
-        { name: 'UNUSUAL', price:99, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_UNUSUAL.png', category:'Фирм', items:[ allSkins[4], allSkins[3] ] },
-        { name: 'LEGENDARY', price:999, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_LEGENDARY.png', category:'Фирм', items:[ allSkins[1], allSkins[0] ] },
-        { name: 'MYTHICAL', price:2700, image:'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/case_MYTHICAL.png', category:'Фирм', items:[ allSkins[7] ] }
-      ];
+        // ---------- case modal ----------
+        let currentCase = null;
+        let selectedQty = 1;
+        let caseOpening = false;
+        const caseModal = document.getElementById('caseModal');
+        const rouletteContainer = document.getElementById('rouletteContainer');
+        const rouletteTrack = document.getElementById('rouletteTrack');
+        const miniRoulettesGrid = document.getElementById('miniRoulettesGrid');
+        const dropProgressBar = document.getElementById('dropProgressBar');
+        const dropProgressLabel = document.getElementById('dropProgressLabel');
+        const caseResultText = document.getElementById('caseResultText');
+        const openCaseBtn = document.getElementById('openCaseBtn');
+        const caseFastBtn = document.getElementById('caseFastBtn');
+        const againBtn = document.getElementById('againCaseBtn');
+        const sellAllBtn = document.getElementById('sellAllBtn');
+        const postOpenActions = document.getElementById('postOpenActions');
+        const caseContentsContainer = document.getElementById('caseContentsContainer');
+        const quantityBtns = document.getElementById('quantityBtns');
 
-      // Tabs
-      document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-          tab.classList.add('active');
-          document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-          document.getElementById('section-' + tab.dataset.section).classList.add('active');
-          if(tab.dataset.section === 'upgrade') refreshUpgradeTab();
-          if(tab.dataset.section === 'profile') updateInventoryUI();
+        function showCaseModal(index) {
+            currentCase = cases[index];
+            selectedQty = 1;
+            caseOpening = false;
+            document.getElementById('caseModalTitle').textContent = currentCase.name;
+            rouletteContainer.style.display = 'none';
+            miniRoulettesGrid.style.display = 'none';
+            dropProgressBar.style.width = '0%';
+            dropProgressLabel.textContent = 'Готов к открытию';
+            caseResultText.textContent = '';
+            postOpenActions.style.display = 'none';
+            openCaseBtn.disabled = false;
+            // quantity buttons
+            document.querySelectorAll('.quantity-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.quantity-btn[data-qty="1"]').classList.add('active');
+            // preview items
+            const items = currentCase.items.map(name => getSkinByName(name)).filter(Boolean);
+            caseContentsContainer.innerHTML = items.map(s => `<div style="text-align:center;"><img src="${s.image}" style="width:50px;height:50px;object-fit:contain;" onerror="this.src='${fallbackImg}'"><div style="font-size:10px;">${s.name}</div></div>`).join('');
+            caseModal.style.display = 'flex';
+        }
+
+        document.getElementById('closeCaseBtn').addEventListener('click', () => { caseModal.style.display = 'none'; });
+
+        quantityBtns.addEventListener('click', (e) => {
+            if(e.target.classList.contains('quantity-btn')) {
+                document.querySelectorAll('.quantity-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedQty = parseInt(e.target.dataset.qty);
+            }
         });
-      });
 
-      // Рендер кейсов
-      const casesContainer = document.getElementById('casesContainer');
-      function renderCases() {
-        let html = '', lastCat = '';
-        cases.forEach((c,i) => {
-          if(c.category !== lastCat){ html += `<div class="case-category-title">${c.category}</div>`; lastCat = c.category; }
-          html += `<div class="case-card" data-index="${i}"><img src="${c.image}" class="case-image" onerror="this.src='${fallback}'"><div class="case-name">${c.name}</div><div class="case-price">${c.price} ₽</div></div>`;
+        caseFastBtn.addEventListener('click', () => {
+            fastMode = !fastMode;
+            caseFastBtn.classList.toggle('active', fastMode);
         });
-        casesContainer.innerHTML = html;
-        document.querySelectorAll('.case-card').forEach(card => card.addEventListener('click', () => showCaseModal(parseInt(card.dataset.index))));
-      }
-      renderCases();
 
-      // ... (остальная логика кейсов, апгрейда, промо и админки остаётся прежней, но адаптирована под новый дизайн) ...
-      // Здесь приведены только новые части Mythical Mod и профиль, остальной код не дублирую для краткости, но он полностью сохранён и стилизован.
+        function simulateRoulette(items, winItemName, duration = 2000) {
+            return new Promise(resolve => {
+                rouletteContainer.style.display = 'block';
+                const itemWidth = 80;
+                const totalItems = 20; // repeat items
+                const winIndex = items.findIndex(s => s.name === winItemName);
+                const targetIndex = totalItems - 3; // stop near center
+                const offset = targetIndex - winIndex;
+                const trackItems = [];
+                for(let i=0; i<totalItems; i++) {
+                    trackItems.push(items[i % items.length]);
+                }
+                rouletteTrack.innerHTML = trackItems.map(s => `<div class="roulette-item"><img src="${s.image}" onerror="this.src='${fallbackImg}'"></div>`).join('');
+                const distance = itemWidth * offset;
+                const startTime = Date.now();
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const ease = 1 - Math.pow(1 - progress, 3);
+                    const currentX = -distance * ease;
+                    rouletteTrack.style.transform = `translateX(${currentX}px)`;
+                    if(progress < 1) requestAnimationFrame(animate);
+                    else resolve();
+                };
+                animate();
+            });
+        }
 
-      // --- Mythical Mod ---
-      const mythicalOverlay = document.getElementById('mythicalOverlay');
-      const introVideo = document.getElementById('introVideo');
-      const loopVideo = document.getElementById('loopVideo');
-      const mythicalText = document.getElementById('mythicalTextOverlay');
-      const mythicalControls = document.getElementById('mythicalControls');
-      const blurOverlay = document.getElementById('blurOverlay');
-      const colorFlash = document.getElementById('colorFlash');
-      const slider = document.getElementById('mythicalSlider');
-      const amountInput = document.getElementById('mythicalAmountInput');
-      const openBtn = document.getElementById('mythicalOpenBtn');
-      const closeBtn = document.getElementById('closeMythicalBtn');
-      let mythicalPhase = 'idle';
-      let mythicalResult = null;
+        async function openCases() {
+            if(caseOpening || !currentCase) return;
+            const totalCost = currentCase.price * selectedQty;
+            if(balance < totalCost) { tg.showAlert('Недостаточно средств'); return; }
+            caseOpening = true;
+            openCaseBtn.disabled = true;
+            changeBalance(-totalCost);
+            postOpenActions.style.display = 'none';
+            const items = currentCase.items.map(name => getSkinByName(name)).filter(Boolean);
+            const drops = [];
+            for(let i=0; i<selectedQty; i++) {
+                // weighted random (simple equal)
+                const drop = items[Math.floor(Math.random() * items.length)];
+                drops.push({...drop, price: drop.basePrice});
+            }
+            // progress & animation
+            if(fastMode) {
+                dropProgressBar.style.width = '100%';
+                dropProgressLabel.textContent = 'Открыто!';
+                caseResultText.textContent = drops.map(d => d.name).join(', ');
+            } else {
+                for(let i=0; i<selectedQty; i++) {
+                    dropProgressLabel.textContent = `Открытие ${i+1}/${selectedQty}...`;
+                    dropProgressBar.style.width = ((i+1)/selectedQty*100) + '%';
+                    await simulateRoulette(items, drops[i].name, 600);
+                    await new Promise(r => setTimeout(r, 200));
+                }
+                caseResultText.textContent = drops.map(d => d.name).join(', ');
+            }
+            // add to inventory
+            inventory.push(...drops);
+            save('inventory', inventory);
+            // show post actions
+            postOpenActions.style.display = 'block';
+            againBtn.onclick = () => { caseOpening = false; openCaseBtn.disabled = false; };
+            sellAllBtn.onclick = () => {
+                const totalSell = drops.reduce((sum,d) => sum + d.price, 0);
+                changeBalance(totalSell);
+                // remove just added drops? we need to remove them from inventory. simpler: we already added, so find and remove.
+                drops.forEach(d => {
+                    const idx = inventory.findIndex(i => i.name === d.name && i.price === d.price && !i.withdrawStatus);
+                    if(idx !== -1) inventory.splice(idx,1);
+                });
+                save('inventory', inventory);
+                postOpenActions.style.display = 'none';
+                caseResultText.textContent = 'Продано!';
+            };
+            caseOpening = false;
+            openCaseBtn.disabled = false;
+        }
 
-      // Синхронизация слайдера и поля ввода
-      slider.addEventListener('input', () => { amountInput.value = slider.value; });
-      amountInput.addEventListener('input', () => {
-        let val = parseInt(amountInput.value) || 10;
-        val = Math.min(5000, Math.max(10, val));
-        amountInput.value = val;
-        slider.value = val;
-      });
+        openCaseBtn.addEventListener('click', openCases);
 
-      document.getElementById('enterMythicalBtn').addEventListener('click', () => {
-        startMythicalExperience();
-      });
+        // ---------- upgrade tab ----------
+        let upgradeSource = null;
+        let upgradeTarget = null;
+        const sourceListEl = document.getElementById('upgradeSourceList');
+        const targetListEl = document.getElementById('upgradeTargetList');
+        const startUpgradeBtn = document.getElementById('startUpgradeBtn');
+        const upgradeFastBtn = document.getElementById('upgradeFastBtn');
+        const upgradeChanceDisplay = document.getElementById('upgradeChanceDisplay');
+        const upgradeResultText = document.getElementById('upgradeResultText');
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const ctx = wheelCanvas.getContext('2d');
+        let wheelSpinAngle = 0;
 
-      closeBtn.addEventListener('click', () => {
-        if(mythicalPhase === 'opening') return;
-        exitMythical();
-      });
+        function drawWheel(chance) {
+            ctx.clearRect(0,0,200,200);
+            const successAngle = chance * 2 * Math.PI;
+            ctx.beginPath();
+            ctx.moveTo(100,100);
+            ctx.arc(100,100,98, -Math.PI/2, -Math.PI/2 + successAngle);
+            ctx.fillStyle = '#4caf50';
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(100,100);
+            ctx.arc(100,100,98, -Math.PI/2 + successAngle, 3*Math.PI/2);
+            ctx.fillStyle = '#b71c1c';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(100,100,98,0,2*Math.PI);
+            ctx.stroke();
+        }
 
-      function startMythicalExperience() {
-        mythicalOverlay.classList.add('active');
-        mythicalPhase = 'intro';
-        // Скрываем всё, показываем интро-видео
-        loopVideo.style.display = 'none';
-        mythicalText.classList.remove('show');
-        mythicalControls.classList.remove('show');
-        blurOverlay.classList.remove('active');
-        introVideo.style.display = 'block';
-        introVideo.src = 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/Mythical%20Mod';
-        introVideo.type = 'video/mp4';
-        introVideo.play().catch(()=>{});
-        introVideo.onended = () => {
-          introVideo.style.display = 'none';
-          // Показываем текст
-          mythicalText.classList.add('show');
-          setTimeout(() => {
+        function refreshUpgradeTab() {
+            sourceListEl.innerHTML = '';
+            targetListEl.innerHTML = '';
+            upgradeSource = null;
+            upgradeTarget = null;
+            startUpgradeBtn.disabled = true;
+            upgradeChanceDisplay.textContent = '';
+            upgradeResultText.textContent = '';
+            drawWheel(0.5); // default
+            // source: inventory items not pending withdrawal
+            const available = inventory.filter(i => !i.withdrawStatus);
+            available.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'upgrade-card';
+                card.innerHTML = `<img src="${item.image}" onerror="this.src='${fallbackImg}'"><span>${item.name}</span>`;
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('#upgradeSourceList .upgrade-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    upgradeSource = item;
+                    checkUpgradeReady();
+                });
+                sourceListEl.appendChild(card);
+            });
+            // target: all skins except same as source if selected
+            allSkins.forEach(skin => {
+                const card = document.createElement('div');
+                card.className = 'upgrade-card';
+                card.innerHTML = `<img src="${skin.image}" onerror="this.src='${fallbackImg}'"><span>${skin.name}</span><span class="chance-badge">${skin.basePrice}₽</span>`;
+                card.addEventListener('click', () => {
+                    if(upgradeSource && skin.name === upgradeSource.name) return;
+                    document.querySelectorAll('#upgradeTargetList .upgrade-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    upgradeTarget = skin;
+                    checkUpgradeReady();
+                });
+                targetListEl.appendChild(card);
+            });
+        }
+
+        function checkUpgradeReady() {
+            if(upgradeSource && upgradeTarget) {
+                startUpgradeBtn.disabled = false;
+                const priceDiff = upgradeTarget.basePrice - upgradeSource.price;
+                let chance = Math.max(0.05, 1 / (1 + Math.exp(priceDiff/200))); // logistic
+                if(adminBoost) chance = Math.min(0.95, chance * 2);
+                upgradeChanceDisplay.textContent = `Шанс: ${(chance*100).toFixed(1)}%`;
+                drawWheel(chance);
+            } else {
+                startUpgradeBtn.disabled = true;
+                upgradeChanceDisplay.textContent = '';
+            }
+        }
+
+        upgradeFastBtn.addEventListener('click', () => {
+            fastMode = !fastMode;
+            upgradeFastBtn.classList.toggle('active', fastMode);
+        });
+
+        async function spinWheel(chance, isSuccess) {
+            const targetAngle = isSuccess ? (chance * 180) : (chance * 360 + (1-chance)*180);
+            const spins = 3 + Math.random()*3;
+            const finalAngle = spins*360 + targetAngle;
+            const duration = fastMode ? 300 : 1500;
+            const startTime = Date.now();
+            const startAngle = wheelSpinAngle;
+            return new Promise(resolve => {
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed/duration, 1);
+                    const ease = 1 - Math.pow(1-progress, 3);
+                    wheelSpinAngle = startAngle + finalAngle * ease;
+                    wheelCanvas.style.transform = `rotate(${wheelSpinAngle}deg)`;
+                    if(progress < 1) requestAnimationFrame(animate);
+                    else resolve();
+                };
+                animate();
+            });
+        }
+
+        startUpgradeBtn.addEventListener('click', async () => {
+            if(!upgradeSource || !upgradeTarget) return;
+            const priceDiff = upgradeTarget.basePrice - upgradeSource.price;
+            let chance = Math.max(0.05, 1 / (1 + Math.exp(priceDiff/200)));
+            if(adminBoost) chance = Math.min(0.95, chance * 2);
+            const success = Math.random() < chance;
+            // remove source from inventory
+            const srcIdx = inventory.findIndex(i => i.name === upgradeSource.name && i.price === upgradeSource.price && !i.withdrawStatus);
+            if(srcIdx !== -1) inventory.splice(srcIdx,1);
+            if(success) {
+                inventory.push({...upgradeTarget, price: upgradeTarget.basePrice, withdrawStatus: null});
+                upgradeResultText.textContent = `Успех! Получен ${upgradeTarget.name}`;
+                tg.showAlert(`Апгрейд успешен! ${upgradeTarget.name}`);
+            } else {
+                upgradeResultText.textContent = 'Провал! Скин уничтожен.';
+                tg.showAlert('Апгрейд провален.');
+            }
+            save('inventory', inventory);
+            await spinWheel(chance, success);
+            refreshUpgradeTab();
+        });
+
+        // ---------- promo codes ----------
+        const usedPromos = load('usedPromos', []);
+        const promos = {
+            'VANGUARD': { balance: 500 },
+            'MYTHICAL': { balance: 300 },
+            'CS2': { skin: 'M4A1-S | Printstream' },
+            'ADMIN': { admin: true }
+        };
+        document.getElementById('applyPromoBtn').addEventListener('click', () => {
+            const code = document.getElementById('promoInput').value.trim().toUpperCase();
+            const statusEl = document.getElementById('promoStatus');
+            if(usedPromos.includes(code)) {
+                statusEl.textContent = 'Промокод уже использован';
+                return;
+            }
+            const reward = promos[code];
+            if(!reward) { statusEl.textContent = 'Неверный промокод'; return; }
+            usedPromos.push(code);
+            save('usedPromos', usedPromos);
+            if(reward.balance) changeBalance(reward.balance);
+            if(reward.skin) {
+                const skin = getSkinByName(reward.skin);
+                if(skin) inventory.push({...skin, price: skin.basePrice, withdrawStatus: null});
+                save('inventory', inventory);
+            }
+            if(reward.admin) {
+                isAdmin = true;
+                save('isAdmin', true);
+                renderAdminTab();
+                tg.showAlert('Админ-доступ активирован');
+            }
+            statusEl.textContent = 'Промокод активирован!';
+        });
+
+        // ---------- admin panel ----------
+        document.getElementById('toggleBoostBtn').addEventListener('click', function() {
+            adminBoost = !adminBoost;
+            save('adminBoost', adminBoost);
+            document.getElementById('boostStatus').textContent = adminBoost ? 'вкл' : 'выкл';
+            this.textContent = adminBoost ? 'Выключить' : 'Включить';
+            if(document.getElementById('section-upgrade').classList.contains('active')) checkUpgradeReady();
+        });
+        if(adminBoost) {
+            document.getElementById('boostStatus').textContent = 'вкл';
+            document.getElementById('toggleBoostBtn').textContent = 'Выключить';
+        }
+
+        document.getElementById('adminApplyBalanceBtn').addEventListener('click', () => {
+            const input = document.getElementById('adminBalanceInput').value;
+            const amt = parseInt(input);
+            if(!isNaN(amt)) changeBalance(amt);
+            document.getElementById('adminBalanceInput').value = '';
+        });
+
+        function renderWithdrawRequests() {
+            const list = document.getElementById('withdrawRequestsList');
+            if(!withdrawRequests.length) { list.innerHTML = '<p style="opacity:0.5;">Нет запросов</p>'; return; }
+            list.innerHTML = withdrawRequests.map((r, i) => `
+                <div style="background:#1a1a1a; border:1px solid #333; padding:6px; margin:4px 0;">
+                    <div>${r.skinName} (${r.price}₽) от ${r.nickname}</div>
+                    <a href="${r.tradeLink}" target="_blank" style="color:#4caf50; font-size:12px;">Ссылка на трейд</a>
+                    <button class="btn complete-withdraw" data-index="${i}" style="margin-left:8px;">Выполнен</button>
+                </div>
+            `).join('');
+            document.querySelectorAll('.complete-withdraw').forEach(btn => btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                const req = withdrawRequests[idx];
+                // remove from inventory the pending item
+                const invIdx = inventory.findIndex(i => i.name === req.skinName && i.price === req.price && i.withdrawStatus === 'pending');
+                if(invIdx !== -1) inventory.splice(invIdx,1);
+                withdrawRequests.splice(idx,1);
+                save('inventory', inventory);
+                save('withdrawRequests', withdrawRequests);
+                renderWithdrawRequests();
+                if(document.getElementById('section-profile')?.classList.contains('active')) updateInventoryUI();
+            }));
+        }
+        // update on admin tab open
+        document.querySelector('.tab[data-section="admin"]')?.addEventListener('click', renderWithdrawRequests);
+
+        // ---------- profile & inventory ----------
+        const avatarImg = document.getElementById('avatarImg');
+        const userPhoto = tg.initDataUnsafe?.user?.photo_url || null;
+        if(userPhoto) {
+            avatarImg.src = userPhoto;
+            avatarImg.style.display = 'block';
+            avatarImg.onclick = () => { document.getElementById('profileModal').style.display = 'flex'; updateInventoryUI(); };
+        }
+
+        document.getElementById('closeProfileBtn').addEventListener('click', () => { document.getElementById('profileModal').style.display = 'none'; });
+        document.getElementById('saveNicknameBtn').addEventListener('click', () => {
+            const nick = document.getElementById('nicknameInput').value.trim();
+            if(!nick) return;
+            if(profile.nickname && profile.nickname!==nick) takenNicknames = takenNicknames.filter(n => n!==profile.nickname.toLowerCase());
+            if(takenNicknames.includes(nick.toLowerCase()) && nick!==profile.nickname) {
+                document.getElementById('nicknameStatus').textContent = 'Ник занят'; document.getElementById('nicknameStatus').style.color='#ff453a';
+            } else {
+                registerNickname(nick);
+                profile.nickname = nick; save('profile',profile);
+                document.getElementById('nicknameStatus').textContent = 'Сохранено'; document.getElementById('nicknameStatus').style.color='#4caf50';
+            }
+        });
+        document.getElementById('saveTradeLinkBtn').addEventListener('click', () => {
+            const link = document.getElementById('tradeLinkInput').value.trim();
+            if(!link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=')) { tg.showAlert('Неверная ссылка'); return; }
+            profile.tradeLink = link; save('profile',profile);
+            document.getElementById('steamTradeBtn').style.display='inline-block'; document.getElementById('steamTradeBtn').href=link;
+        });
+
+        function updateInventoryUI() {
+            const list = document.getElementById('inventoryList');
+            if(!inventory.length){ list.innerHTML='<p style="opacity:0.4;">Инвентарь пуст</p>'; return; }
+            list.innerHTML = inventory.map((item,i) => {
+                const pending = item.withdrawStatus === 'pending';
+                return `<div class="item-card">
+                    <img src="${item.image}" onerror="this.src='${fallbackImg}'">
+                    <div class="item-info"><div class="item-name">${item.name}</div><div class="item-price">₽${item.price}</div></div>
+                    <div class="item-actions">
+                        ${pending ? `<button class="btn cancel-withdraw-btn" data-index="${i}">Отменить вывод</button>` :
+                            `<button class="btn sell-item-btn" data-index="${i}">Продать</button>
+                             <button class="btn withdraw-item-btn" data-index="${i}">Вывести</button>`}
+                    </div>
+                </div>`;
+            }).join('');
+            document.querySelectorAll('.sell-item-btn').forEach(b => b.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                const item = inventory[idx];
+                if(item && !item.withdrawStatus){ changeBalance(item.price); inventory.splice(idx,1); save('inventory',inventory); updateInventoryUI(); }
+            }));
+            document.querySelectorAll('.withdraw-item-btn').forEach(b => b.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                const item = inventory[idx];
+                if(item && !item.withdrawStatus){
+                    if(!profile.tradeLink){ tg.showAlert('Сохраните трейд-ссылку'); return; }
+                    item.withdrawStatus='pending'; save('inventory',inventory);
+                    withdrawRequests.push({skinName:item.name, price:item.price, nickname:profile.nickname||'Аноним', tradeLink:profile.tradeLink});
+                    save('withdrawRequests',withdrawRequests); updateInventoryUI();
+                }
+            }));
+            document.querySelectorAll('.cancel-withdraw-btn').forEach(b => b.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index);
+                const item = inventory[idx];
+                if(item && item.withdrawStatus==='pending'){
+                    item.withdrawStatus=null; save('inventory',inventory);
+                    withdrawRequests = withdrawRequests.filter(r => !(r.skinName===item.name && r.price===item.price));
+                    save('withdrawRequests',withdrawRequests); updateInventoryUI();
+                }
+            }));
+        }
+
+        // ---------- topup ----------
+        document.getElementById('addBalanceBtn').addEventListener('click', () => { document.getElementById('topupModal').style.display = 'flex'; });
+        document.getElementById('closeTopupBtn').addEventListener('click', () => { document.getElementById('topupModal').style.display = 'none'; });
+        document.querySelectorAll('.topup-amount').forEach(btn => btn.addEventListener('click', (e) => {
+            const amt = parseInt(e.target.dataset.amount);
+            changeBalance(amt);
+            document.getElementById('topupModal').style.display = 'none';
+        }));
+
+        // ---------- Mythical Mod ----------
+        const mythicalOverlay = document.getElementById('mythicalOverlay');
+        const introVideo = document.getElementById('introVideo');
+        const loopVideo = document.getElementById('loopVideo');
+        const mythicalText = document.getElementById('mythicalTextOverlay');
+        const mythicalControls = document.getElementById('mythicalControls');
+        const blurOverlay = document.getElementById('blurOverlay');
+        const colorFlash = document.getElementById('colorFlash');
+        const slider = document.getElementById('mythicalSlider');
+        const amountInput = document.getElementById('mythicalAmountInput');
+        const mythicalOpenBtn = document.getElementById('mythicalOpenBtn');
+        const closeMythicalBtn = document.getElementById('closeMythicalBtn');
+        let mythicalPhase = 'idle';
+        let mythicalResult = null;
+
+        slider.addEventListener('input', () => { amountInput.value = slider.value; });
+        amountInput.addEventListener('input', () => {
+            let val = parseInt(amountInput.value) || 10;
+            val = Math.min(5000, Math.max(10, val));
+            amountInput.value = val;
+            slider.value = val;
+        });
+
+        document.getElementById('enterMythicalBtn').addEventListener('click', startMythicalExperience);
+        closeMythicalBtn.addEventListener('click', () => { if(mythicalPhase !== 'opening') exitMythical(); });
+
+        function startMythicalExperience() {
+            mythicalOverlay.classList.add('active');
+            mythicalPhase = 'intro';
+            loopVideo.style.display = 'none';
             mythicalText.classList.remove('show');
-            // Запускаем цикличное видео
-            loopVideo.src = 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/0001-0150.mkv';
-            loopVideo.style.display = 'block';
-            loopVideo.play().catch(()=>{});
-            setTimeout(() => {
-              mythicalControls.classList.add('show');
-              mythicalPhase = 'idle';
-            }, 800);
-          }, 2000);
-        };
-      }
-
-      function exitMythical() {
-        mythicalOverlay.classList.remove('active');
-        introVideo.pause();
-        loopVideo.pause();
-        mythicalPhase = 'idle';
-      }
-
-      openBtn.addEventListener('click', () => {
-        if(mythicalPhase !== 'idle') return;
-        const amount = parseInt(amountInput.value);
-        if(balance < amount) { tg.showAlert('Недостаточно средств'); return; }
-        changeBalance(-amount);
-        mythicalPhase = 'opening';
-        mythicalControls.classList.remove('show');
-        blurOverlay.classList.add('active');
-        // Определяем исход
-        const failChance = Math.max(0.05, 0.8 - amount/5000);
-        const isFail = Math.random() < failChance;
-        if(isFail) {
-          mythicalResult = { success: false };
-        } else {
-          const rarities = ['consumer','industrial','mil-spec','restricted','classified','covert','contraband'];
-          const weights = [50,30,20,10,5,2,1];
-          let total = weights.reduce((a,b)=>a+b,0);
-          let roll = Math.random()*total;
-          let cum=0, idx=0;
-          for(let i=0;i<weights.length;i++){ cum+=weights[i]; if(roll<=cum){ idx=i; break; } }
-          const rarity = rarities[idx];
-          const skinPool = allSkins.filter(s => s.rarity === rarity || (rarity==='consumer'&&s.rarity==='blue') || (rarity==='industrial'&&s.rarity==='blue') );
-          const skin = skinPool.length ? skinPool[Math.floor(Math.random()*skinPool.length)] : allSkins[0];
-          mythicalResult = { success: true, skin: {...skin, price: skin.basePrice} };
+            mythicalControls.classList.remove('show');
+            blurOverlay.classList.remove('active');
+            introVideo.style.display = 'block';
+            introVideo.src = 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/Mythical%20Mod.mp4'; // исправлено расширение
+            introVideo.play().catch(()=>{});
+            introVideo.onended = () => {
+                introVideo.style.display = 'none';
+                mythicalText.classList.add('show');
+                setTimeout(() => {
+                    mythicalText.classList.remove('show');
+                    loopVideo.src = 'https://raw.githubusercontent.com/mihailreva78-png/vanguardCS/main/0001-0150.mkv';
+                    loopVideo.style.display = 'block';
+                    loopVideo.play().catch(()=>{});
+                    setTimeout(() => {
+                        mythicalControls.classList.add('show');
+                        mythicalPhase = 'idle';
+                    }, 800);
+                }, 2000);
+            };
         }
-        runOpeningSequence();
-      });
 
-      async function runOpeningSequence() {
-        const colors = ['#ffffff','#b0c4de','#4b69ff','#8847ff','#d32ce6','#eb4b4b','#ff8c00'];
-        const rarities = ['consumer','industrial','mil-spec','restricted','classified','covert','contraband'];
-        const targetRarity = mythicalResult.success ? mythicalResult.skin.rarity : 'fail';
-        let stopIndex = rarities.indexOf(targetRarity);
-        if(stopIndex === -1) stopIndex = 4; // fail показываем до красного
-        for(let i=0; i<=stopIndex; i++) {
-          colorFlash.style.backgroundColor = colors[i];
-          document.body.classList.add('shake');
-          await sleep(400);
-          document.body.classList.remove('shake');
-          await sleep(200);
+        function exitMythical() {
+            mythicalOverlay.classList.remove('active');
+            introVideo.pause();
+            loopVideo.pause();
+            mythicalPhase = 'idle';
         }
-        if(!mythicalResult.success) {
-          // провал
-          colorFlash.style.backgroundColor = '#ff0000';
-          document.body.classList.add('shake');
-          await sleep(600);
-          document.body.classList.remove('shake');
-          tg.showAlert('Провал! Деньги потеряны.');
-        } else {
-          inventory.push(mythicalResult.skin);
-          save('inventory', inventory);
-          tg.showAlert(`Успех! Выпал ${mythicalResult.skin.name} (${mythicalResult.skin.price}₽)`);
+
+        mythicalOpenBtn.addEventListener('click', () => {
+            if(mythicalPhase !== 'idle') return;
+            const amount = parseInt(amountInput.value);
+            if(balance < amount) { tg.showAlert('Недостаточно средств'); return; }
+            changeBalance(-amount);
+            mythicalPhase = 'opening';
+            mythicalControls.classList.remove('show');
+            blurOverlay.classList.add('active');
+            const failChance = Math.max(0.05, 0.8 - amount/5000);
+            const isFail = Math.random() < failChance;
+            if(isFail) {
+                mythicalResult = { success: false };
+            } else {
+                const rarities = ['consumer','industrial','mil-spec','restricted','classified','covert','contraband'];
+                const weights = [50,30,20,10,5,2,1];
+                let total = weights.reduce((a,b)=>a+b,0);
+                let roll = Math.random()*total, cum=0, idx=0;
+                for(let i=0;i<weights.length;i++){ cum+=weights[i]; if(roll<=cum){ idx=i; break; } }
+                const rarity = rarities[idx];
+                const skinPool = allSkins.filter(s => s.rarity === rarity || (rarity==='consumer'&&s.rarity==='blue') || (rarity==='industrial'&&s.rarity==='blue'));
+                const skin = skinPool.length ? skinPool[Math.floor(Math.random()*skinPool.length)] : allSkins[0];
+                mythicalResult = { success: true, skin: {...skin, price: skin.basePrice} };
+            }
+            runOpeningSequence();
+        });
+
+        async function runOpeningSequence() {
+            const colors = ['#ffffff','#b0c4de','#4b69ff','#8847ff','#d32ce6','#eb4b4b','#ff8c00'];
+            const rarities = ['consumer','industrial','mil-spec','restricted','classified','covert','contraband'];
+            const targetRarity = mythicalResult.success ? mythicalResult.skin.rarity : 'fail';
+            let stopIndex = rarities.indexOf(targetRarity);
+            if(stopIndex === -1) stopIndex = 4;
+            for(let i=0; i<=stopIndex; i++) {
+                colorFlash.style.backgroundColor = colors[i];
+                document.body.classList.add('shake');
+                await new Promise(r => setTimeout(r, 400));
+                document.body.classList.remove('shake');
+                await new Promise(r => setTimeout(r, 200));
+            }
+            if(!mythicalResult.success) {
+                colorFlash.style.backgroundColor = '#ff0000';
+                document.body.classList.add('shake');
+                await new Promise(r => setTimeout(r, 600));
+                document.body.classList.remove('shake');
+                tg.showAlert('Провал! Деньги потеряны.');
+            } else {
+                inventory.push(mythicalResult.skin);
+                save('inventory', inventory);
+                tg.showAlert(`Успех! Выпал ${mythicalResult.skin.name} (${mythicalResult.skin.price}₽)`);
+            }
+            blurOverlay.classList.remove('active');
+            mythicalPhase = 'idle';
+            mythicalControls.classList.add('show');
         }
-        blurOverlay.classList.remove('active');
-        mythicalPhase = 'idle';
-        mythicalControls.classList.add('show');
-      }
 
-      function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-      // Профиль
-      document.getElementById('closeProfileBtn').addEventListener('click', ()=>{
-        document.getElementById('profileModal').style.display = 'none';
-      });
-      document.getElementById('saveNicknameBtn').addEventListener('click', ()=>{
-        const nick = document.getElementById('nicknameInput').value.trim();
-        if(!nick) return;
-        if(profile.nickname && profile.nickname!==nick) takenNicknames = takenNicknames.filter(n=>n!==profile.nickname.toLowerCase());
-        if(takenNicknames.includes(nick.toLowerCase()) && nick!==profile.nickname){
-          document.getElementById('nicknameStatus').textContent = 'Ник занят'; document.getElementById('nicknameStatus').style.color='#ff453a';
-        } else {
-          registerNickname(nick);
-          profile.nickname = nick; save('profile',profile);
-          document.getElementById('nicknameStatus').textContent = 'Сохранено'; document.getElementById('nicknameStatus').style.color='#4caf50';
+        // initial load
+        if(profile.nickname) document.getElementById('nicknameInput').value = profile.nickname;
+        if(profile.tradeLink) {
+            document.getElementById('tradeLinkInput').value = profile.tradeLink;
+            document.getElementById('steamTradeBtn').style.display='inline-block';
+            document.getElementById('steamTradeBtn').href = profile.tradeLink;
         }
-      });
-      document.getElementById('saveTradeLinkBtn').addEventListener('click', ()=>{
-        const link = document.getElementById('tradeLinkInput').value.trim();
-        if(!link.startsWith('https://steamcommunity.com/tradeoffer/new/?partner=')) { tg.showAlert('Неверная ссылка'); return; }
-        profile.tradeLink = link; save('profile',profile);
-        document.getElementById('steamTradeBtn').style.display='inline-block'; document.getElementById('steamTradeBtn').href=link;
-      });
-
-      function updateInventoryUI() {
-        const list = document.getElementById('inventoryList');
-        if(inventory.length===0){ list.innerHTML='<p style="opacity:0.4;">Инвентарь пуст</p>'; return; }
-        list.innerHTML = inventory.map((item,i) => {
-          const pending = item.withdrawStatus==='pending';
-          return `<div class="item-card">
-            <img src="${item.image}" onerror="this.src='${fallback}'">
-            <div class="item-info"><div class="item-name">${item.name}</div><div class="item-price">₽${item.price}</div></div>
-            <div class="item-actions">
-              ${pending ? `<button class="btn cancel-withdraw-btn" data-index="${i}">Отменить вывод</button>` :
-                `<button class="btn sell-item-btn" data-index="${i}">Продать</button>
-                 <button class="btn withdraw-item-btn" data-index="${i}">Вывести</button>`}
-            </div>
-          </div>`;
-        }).join('');
-        document.querySelectorAll('.sell-item-btn').forEach(b=>b.addEventListener('click',(e)=>{
-          const idx = parseInt(e.target.dataset.index);
-          const item = inventory[idx];
-          if(item && !item.withdrawStatus){ changeBalance(item.price); inventory.splice(idx,1); save('inventory',inventory); updateInventoryUI(); }
-        }));
-        document.querySelectorAll('.withdraw-item-btn').forEach(b=>b.addEventListener('click',(e)=>{
-          const idx = parseInt(e.target.dataset.index);
-          const item = inventory[idx];
-          if(item && !item.withdrawStatus){
-            if(!profile.tradeLink){ tg.showAlert('Сохраните трейд-ссылку'); return; }
-            item.withdrawStatus='pending'; save('inventory',inventory);
-            withdrawRequests.push({skinName:item.name,price:item.price,nickname:profile.nickname||'Аноним',tradeLink:profile.tradeLink});
-            save('withdrawRequests',withdrawRequests); updateInventoryUI();
-          }
-        }));
-        document.querySelectorAll('.cancel-withdraw-btn').forEach(b=>b.addEventListener('click',(e)=>{
-          const idx = parseInt(e.target.dataset.index);
-          const item = inventory[idx];
-          if(item && item.withdrawStatus==='pending'){
-            item.withdrawStatus=null; save('inventory',inventory);
-            withdrawRequests = withdrawRequests.filter(r=>!(r.skinName===item.name&&r.price===item.price));
-            save('withdrawRequests',withdrawRequests); updateInventoryUI();
-          }
-        }));
-      }
-
-      // Остальная логика (кейсы, апгрейд, промокоды) полностью сохранена и работает с новым дизайном.
-      // Ввиду ограничения места здесь не дублируется, но она идентична исходной с адаптацией стилей.
-      // ...
     })();
-  </script>
+</script>
 </body>
 </html>
